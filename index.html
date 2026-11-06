@@ -107,6 +107,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .price { color: var(--gold); font-weight: bold; margin-top: 5px; font-size: 12px; background: rgba(255, 165, 2, 0.1); display: inline-block; padding: 2px 8px; border-radius: 10px; }
 .stockTag { font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 700; }
 .evGiftTag { font-size: 10px; color: #ff9a3c; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
+#shopSearch { margin-bottom: 12px; }
 
 /* ВИЗУАЛ ПОДАРКОВ И NFT */
 .art { width: 76px; height: 76px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 22px; }
@@ -327,6 +328,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
           <button id="catGift" class="on">🎁 Подарки</button>
           <button id="catNft">🖼️ NFT</button>
         </div>
+        <input id="shopSearch" placeholder="Поиск предмета по названию... 🔍">
         <div class="grid" id="shopGrid"></div>
     </div>
   </main>
@@ -668,7 +670,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const SHADOW = `<ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".25"/>`;
 
 /* ==========================================================
-   SVG: ПРОСТЫЕ ПОДАРКИ
+   SVG: ПРОСТЫЕ ПОДАРКИ (базовые)
    ========================================================== */
 const GIFT_ART = {
   heart: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -746,6 +748,65 @@ const GIFT_ART = {
   </svg>`
 };
 
+/* ==========================================================
+   ДОПОЛНИТЕЛЬНЫЕ ПРОСТЫЕ ПОДАРКИ (генератор по типу и цвету)
+   ========================================================== */
+function giftKind(k, c, c2) {
+  const body = {
+    box: `<rect x="18" y="40" width="64" height="48" rx="6" fill="${c}"/><rect x="14" y="30" width="72" height="16" rx="5" fill="${c2}"/><rect x="45" y="30" width="10" height="58" fill="#fff" opacity=".85"/><path d="M50 30 C36 10 24 16 34 30Z M50 30 C64 10 76 16 66 30Z" fill="#fff" opacity=".9"/>`,
+    balloon: `<path d="M50 72 Q44 84 52 94" stroke="#777" stroke-width="2" fill="none"/><path d="M46 72 L54 72 L50 78Z" fill="${c2}"/><ellipse cx="50" cy="40" rx="26" ry="32" fill="${c}"/><ellipse cx="40" cy="26" rx="6" ry="10" fill="#fff" opacity=".4"/>`,
+    candy: `<rect x="47" y="78" width="6" height="16" rx="3" fill="#ddd"/><circle cx="50" cy="50" r="30" fill="${c}"/><path d="M50 50 m-6 0 a6 6 0 1 1 12 0 a12 12 0 1 1 -24 0 a18 18 0 1 1 36 0" stroke="${c2}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    ball: `<circle cx="50" cy="50" r="32" fill="${c}"/><path d="M20 52 Q50 70 80 52" stroke="${c2}" stroke-width="4" fill="none"/><circle cx="40" cy="38" r="8" fill="#fff" opacity=".5"/>`,
+    cup: `<path d="M26 30 Q12 30 16 44 Q20 54 32 52" stroke="${c2}" stroke-width="5" fill="none"/><path d="M74 30 Q88 30 84 44 Q80 54 68 52" stroke="${c2}" stroke-width="5" fill="none"/><path d="M26 22 H74 L68 62 Q66 74 50 76 Q34 74 32 62Z" fill="${c}"/><rect x="44" y="76" width="12" height="10" fill="${c2}"/><rect x="34" y="84" width="32" height="7" rx="3" fill="${c2}"/>`
+  };
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${body[k]}</svg>`;
+}
+
+const GIFT_EXTRA_DEF = [
+  ["Синий бант", "box", "#2d7aff", "#1a4fb0", 25],
+  ["Розовый бант", "box", "#ff5fa2", "#c2185b", 25],
+  ["Зелёный бант", "box", "#2ed573", "#1e8f4e", 30],
+  ["Фиолетовый бант", "box", "#8e44ad", "#5b2a75", 35],
+  ["Золотой бант", "box", "#ffd34d", "#b07a00", 45],
+  ["Красный шарик", "balloon", "#ff4757", "#c81d2e", 20],
+  ["Голубой шарик", "balloon", "#4fc3f7", "#0288d1", 20],
+  ["Жёлтый шарик", "balloon", "#ffe066", "#e0a400", 20],
+  ["Зелёный шарик", "balloon", "#7ed957", "#3f9e1a", 20],
+  ["Фиолетовый шарик", "balloon", "#b57bff", "#6a3fbf", 20],
+  ["Леденец радуга", "candy", "#ff8ad8", "#7ad7ff", 40],
+  ["Леденец мята", "candy", "#8ff0c8", "#2fb07a", 40],
+  ["Леденец вишня", "candy", "#ff4d6d", "#ffffff", 40],
+  ["Леденец лимон", "candy", "#fff176", "#ffb300", 40],
+  ["Леденец виноград", "candy", "#9b6bff", "#ffffff", 40],
+  ["Волшебный шар", "ball", "#7b2ff7", "#b57bff", 55],
+  ["Снежок", "ball", "#e6f7ff", "#8fdcff", 55],
+  ["Мячик", "ball", "#ff7a1a", "#ffffff", 55],
+  ["Жемчужина", "ball", "#f5f0ff", "#c9b6ff", 65],
+  ["Янтарь", "ball", "#ffb020", "#c77c00", 65],
+  ["Кубок огня", "cup", "#ff4757", "#8a1020", 90],
+  ["Кубок океана", "cup", "#2d7aff", "#153d80", 90],
+  ["Кубок леса", "cup", "#2ed573", "#14723a", 90],
+  ["Кубок ночи", "cup", "#3d4a5c", "#c0c8d6", 90],
+  ["Кубок солнца", "cup", "#ffd34d", "#b07a00", 90]
+];
+
+const GIFTS_BASE = [
+  { id: "g1", name: "Сердце",      emoji: "❤️", price: 15,  gbg: "#ffe3ea", svg: GIFT_ART.heart },
+  { id: "g2", name: "Мишка",       emoji: "🧸", price: 25,  gbg: "#f7e6d4", svg: GIFT_ART.teddy },
+  { id: "g3", name: "Роза",        emoji: "🌹", price: 50,  gbg: "#ffe0ea", svg: GIFT_ART.rose },
+  { id: "g4", name: "Алмаз",       emoji: "💎", price: 100, gbg: "#dff3ff", svg: GIFT_ART.diamond },
+  { id: "g5", name: "Звезда",      emoji: "⭐", price: 30,  gbg: "#fff6d6", svg: GIFT_ART.star },
+  { id: "g6", name: "Подкова",     emoji: "🧲", price: 45,  gbg: "#e8ecf3", svg: GIFT_ART.horseshoe },
+  { id: "g7", name: "Колокольчик", emoji: "🔔", price: 60,  gbg: "#fff3c4", svg: GIFT_ART.bell },
+  { id: "g8", name: "Торт",        emoji: "🍰", price: 75,  gbg: "#ffe6f2", svg: GIFT_ART.cake }
+];
+
+const GIFTS_EXTRA = GIFT_EXTRA_DEF.map(([name, k, c, c2, price], i) => ({
+  id: "x" + (i + 1), name, emoji: "🎁", price, gbg: c + "33", svg: giftKind(k, c, c2)
+}));
+
+const GIFTS = [...GIFTS_BASE, ...GIFTS_EXTRA];
+
 /* ЛИМИТИРОВАННЫЕ */
 const LIM_ART = {
   crown: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -765,6 +826,11 @@ const LIM_ART = {
     <path d="M36 26 V40" stroke="#fff3b0" stroke-width="4" stroke-linecap="round"/>
   </svg>`
 };
+
+const LIMITED = [
+  { id: "l1", name: "Золотая корона", emoji: "👑", price: 500, limit: 50, gbg: "#fff3c4", svg: LIM_ART.crown },
+  { id: "l2", name: "Золотой кубок",  emoji: "🏆", price: 800, limit: 20, gbg: "#fff3c4", svg: LIM_ART.cup }
+];
 
 /* ИВЕНТОВЫЕ ПОДАРКИ (еда) */
 const EVENT_ART = {
@@ -891,24 +957,9 @@ const EVENTS = {
   ]}
 };
 
-/* КАТАЛОГИ */
-const GIFTS = [
-  { id: "g1", name: "Сердце",      emoji: "❤️", price: 15,  gbg: "#ffe3ea", svg: GIFT_ART.heart },
-  { id: "g2", name: "Мишка",       emoji: "🧸", price: 25,  gbg: "#f7e6d4", svg: GIFT_ART.teddy },
-  { id: "g3", name: "Роза",        emoji: "🌹", price: 50,  gbg: "#ffe0ea", svg: GIFT_ART.rose },
-  { id: "g4", name: "Алмаз",       emoji: "💎", price: 100, gbg: "#dff3ff", svg: GIFT_ART.diamond },
-  { id: "g5", name: "Звезда",      emoji: "⭐", price: 30,  gbg: "#fff6d6", svg: GIFT_ART.star },
-  { id: "g6", name: "Подкова",     emoji: "🧲", price: 45,  gbg: "#e8ecf3", svg: GIFT_ART.horseshoe },
-  { id: "g7", name: "Колокольчик", emoji: "🔔", price: 60,  gbg: "#fff3c4", svg: GIFT_ART.bell },
-  { id: "g8", name: "Торт",        emoji: "🍰", price: 75,  gbg: "#ffe6f2", svg: GIFT_ART.cake }
-];
-
-const LIMITED = [
-  { id: "l1", name: "Золотая корона", emoji: "👑", price: 500, limit: 50, gbg: "#fff3c4", svg: LIM_ART.crown },
-  { id: "l2", name: "Золотой кубок",  emoji: "🏆", price: 800, limit: 20, gbg: "#fff3c4", svg: LIM_ART.cup }
-];
-
-/* NFT */
+/* ==========================================================
+   NFT
+   ========================================================== */
 const NFT_ART = {
   cat: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <path d="M22 40 L24 14 L42 28 Q50 25 58 28 L76 14 L78 40 Q84 60 74 76 Q50 92 26 76 Q16 60 22 40Z" fill="#ffb347" stroke="#b35a10" stroke-width="2"/>
@@ -997,6 +1048,73 @@ const NFT_ART = {
   </svg>`
 };
 
+/* ДОПОЛНИТЕЛЬНЫЕ NFT: существа из тела, цвета и аксессуара */
+function creatureSvg(body, col, acc) {
+  const shapes = {
+    round: `<ellipse cx="50" cy="56" rx="30" ry="28" fill="${col}"/>`,
+    square: `<rect x="22" y="30" width="56" height="54" rx="12" fill="${col}"/>`,
+    tall: `<ellipse cx="50" cy="58" rx="24" ry="32" fill="${col}"/>`,
+    blob: `<path d="M50 26 C75 26 80 50 76 66 C72 86 60 86 50 84 C40 86 28 86 24 66 C20 50 25 26 50 26Z" fill="${col}"/>`
+  };
+  const accs = {
+    none: "",
+    crown: `<path d="M30 30 L36 16 L44 26 L50 12 L56 26 L64 16 L70 30Z" fill="#ffd34d" stroke="#b7791f" stroke-width="1.5"/>`,
+    hat: `<rect x="28" y="26" width="44" height="6" rx="2" fill="#2b2b2b"/><rect x="36" y="10" width="28" height="18" rx="3" fill="#2b2b2b"/>`,
+    horns: `<path d="M30 34 L24 12 L40 26Z M70 34 L76 12 L60 26Z" fill="#c0392b"/>`,
+    antenna: `<path d="M50 28 L50 12" stroke="#334155" stroke-width="3"/><circle cx="50" cy="10" r="4" fill="#ff4757"/>`,
+    bow: `<path d="M64 26 L80 18 L80 34Z M64 26 L48 18 L48 34Z" fill="#ff5fa2"/><circle cx="64" cy="26" r="3" fill="#c2185b"/>`,
+    halo: `<ellipse cx="50" cy="14" rx="18" ry="5" fill="none" stroke="#ffd34d" stroke-width="3"/>`
+  };
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${shapes[body]}${accs[acc]}<ellipse cx="38" cy="54" rx="7" ry="8" fill="#fff"/><ellipse cx="62" cy="54" rx="7" ry="8" fill="#fff"/><circle cx="39" cy="55" r="3.5" fill="#111"/><circle cx="63" cy="55" r="3.5" fill="#111"/><path d="M45 68 Q50 73 55 68" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+}
+
+const NFT_EXTRA_DEF = [
+  ["Лягушонок", "round", "#4cd964", "bow", 200],
+  ["Хомяк", "round", "#f5c27a", "none", 200],
+  ["Единорог", "tall", "#f8c8f0", "crown", 500],
+  ["Зайка", "tall", "#ffffff", "bow", 220],
+  ["Панда", "round", "#f5f5f5", "none", 260],
+  ["Лис", "blob", "#ff8a3c", "none", 300],
+  ["Волк", "square", "#8a96aa", "none", 320],
+  ["Кибер-мишка", "square", "#22d3ee", "antenna", 450],
+  ["Ёжик", "blob", "#a0785a", "none", 240],
+  ["Дух огня", "tall", "#ff4d2e", "horns", 600],
+  ["Ледяной", "blob", "#9be7ff", "crown", 700],
+  ["Король", "round", "#ffd34d", "crown", 800],
+  ["Маг", "tall", "#6b3fa0", "hat", 550],
+  ["Пират", "square", "#3d4a5c", "hat", 500],
+  ["Ниндзя", "square", "#111827", "none", 420],
+  ["Пушистик", "round", "#c8b6ff", "halo", 380],
+  ["Ангел", "round", "#ffffff", "halo", 650],
+  ["Демон", "round", "#b91c1c", "horns", 650],
+  ["Инопланетянин", "round", "#84cc16", "antenna", 480],
+  ["Робот-бочонок", "square", "#94a3b8", "antenna", 400],
+  ["Сакура", "blob", "#ffb7c5", "bow", 360],
+  ["Кактус", "tall", "#2f9e44", "hat", 340],
+  ["Осьминог", "blob", "#f472b6", "none", 330],
+  ["Огонёк", "tall", "#fb923c", "crown", 560],
+  ["Тыквочка", "round", "#ff7a1a", "hat", 300]
+];
+
+const NFTS_BASE = [
+  { id: "n1",  name: "Кот-Босс",         price: 100,  svg: NFT_ART.cat },
+  { id: "n2",  name: "Синий Череп",      price: 200,  svg: NFT_ART.skull },
+  { id: "n3",  name: "Пиксель Пришелец", price: 300,  svg: NFT_ART.alien },
+  { id: "n4",  name: "Кибер Робот",      price: 500,  svg: NFT_ART.robot },
+  { id: "n5",  name: "Космо Ракета",     price: 1000, svg: NFT_ART.rocket },
+  { id: "n6",  name: "Пингвин",          price: 250,  svg: NFT_ART.penguin },
+  { id: "n7",  name: "Дракоша",          price: 450,  svg: NFT_ART.dragon },
+  { id: "n8",  name: "Призрак",          price: 350,  svg: NFT_ART.ghost },
+  { id: "n9",  name: "Мудрая Сова",      price: 400,  svg: NFT_ART.owl },
+  { id: "n10", name: "Грибочек",         price: 150,  svg: NFT_ART.mushroom }
+];
+
+const NFTS_EXTRA = NFT_EXTRA_DEF.map(([name, body, col, acc, price], i) => ({
+  id: "y" + (i + 1), name, price, svg: creatureSvg(body, col, acc)
+}));
+
+const NFTS = [...NFTS_BASE, ...NFTS_EXTRA];
+
 const EVENT_NFT_ART = {
   halloween: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     ${SHADOW}
@@ -1034,19 +1152,6 @@ const EVENT_NFT_ART = {
   </svg>`
 };
 
-const NFTS = [
-  { id: "n1",  name: "Кот-Босс",         price: 100,  svg: NFT_ART.cat },
-  { id: "n2",  name: "Синий Череп",      price: 200,  svg: NFT_ART.skull },
-  { id: "n3",  name: "Пиксель Пришелец", price: 300,  svg: NFT_ART.alien },
-  { id: "n4",  name: "Кибер Робот",      price: 500,  svg: NFT_ART.robot },
-  { id: "n5",  name: "Космо Ракета",     price: 1000, svg: NFT_ART.rocket },
-  { id: "n6",  name: "Пингвин",          price: 250,  svg: NFT_ART.penguin },
-  { id: "n7",  name: "Дракоша",          price: 450,  svg: NFT_ART.dragon },
-  { id: "n8",  name: "Призрак",          price: 350,  svg: NFT_ART.ghost },
-  { id: "n9",  name: "Мудрая Сова",      price: 400,  svg: NFT_ART.owl },
-  { id: "n10", name: "Грибочек",         price: 150,  svg: NFT_ART.mushroom }
-];
-
 const EVENT_NFT = {
   halloween:  { id: "en-halloween",  name: "Тыква-Монстр",      price: 300, svg: EVENT_NFT_ART.halloween,  event: "halloween" },
   newyear:    { id: "en-newyear",    name: "Снеговик",          price: 300, svg: EVENT_NFT_ART.newyear,    event: "newyear" },
@@ -1057,7 +1162,8 @@ const EVENT_NFT = {
 const FALLBACK_NFT = { id: "unknown", name: "Неизвестный", price: 0, svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="60" height="60" rx="10" fill="#555"/><text x="50" y="62" font-size="40" text-anchor="middle" fill="#fff">?</text></svg>` };
 
 const COLLECTIONS = [
-  { key: "base", name: "Простые подарки", ids: GIFTS.map(g => g.id) },
+  { key: "base", name: "Простые подарки", ids: GIFTS_BASE.map(g => g.id) },
+  { key: "extra", name: "Расширенная коллекция", ids: GIFTS_EXTRA.map(g => g.id) },
   ...Object.entries(EVENTS).map(([k, e]) => ({ key: k, name: e.name, ids: e.gifts.map(g => g.id) })),
   { key: "limited", name: "Лимитированные", ids: LIMITED.map(g => g.id) }
 ];
@@ -1187,6 +1293,7 @@ let adminEventPick = null;
 let stockCache = {};
 let msgEls = {};
 let pickCb = null, pickItems = [];
+let shopQuery = "";
 
 /* ЖУРНАЛ ДЕЙСТВИЙ */
 async function logAct(text) {
@@ -2492,19 +2599,25 @@ window.buyPremium = async function() {
 /* МАГАЗИН */
 $("catGift").onclick = () => { shopCat = 'gift'; $("catGift").classList.add('on'); $("catNft").classList.remove('on'); renderShop(); };
 $("catNft").onclick = () => { shopCat = 'nft'; $("catNft").classList.add('on'); $("catGift").classList.remove('on'); renderShop(); };
+$("shopSearch").oninput = e => { shopQuery = normName(e.target.value); renderShop(); };
+
+const qok = name => !shopQuery || normName(name).includes(shopQuery);
 
 function renderShop() {
     const grid = $("shopGrid"); grid.innerHTML = "";
+    const noQuery = !shopQuery;
+
     if (shopCat === 'gift') {
-        GIFTS.forEach(i => {
+        GIFTS.filter(i => qok(i.name)).forEach(i => {
             grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'gift')">
                 ${giftArtHtml(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
             </div>`;
         });
 
-        if (CUSTOM_GIFTS.length) {
+        const customG = CUSTOM_GIFTS.filter(i => qok(i.name));
+        if (customG.length) {
             grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#00b894,#00cec9)">🎨 От админов</div>`;
-            CUSTOM_GIFTS.forEach(i => {
+            customG.forEach(i => {
                 grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'gift')">
                     ${giftArtHtml(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
                     ${i.event ? `<div class="evGiftTag">ивентовый</div>` : ""}
@@ -2512,8 +2625,11 @@ function renderShop() {
             });
         }
 
-        grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#8e44ad,#2d7aff)">⭐ Лимитированные</div>`;
-        LIMITED.forEach(i => {
+        const limG = LIMITED.filter(i => qok(i.name));
+        if (limG.length && noQuery) {
+            grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#8e44ad,#2d7aff)">⭐ Лимитированные</div>`;
+        }
+        limG.forEach(i => {
             const left = stockLeft(i);
             grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'gift')">
                 ${giftArtHtml(i, "art")}<div>${i.name}</div><div class="price">${i.price} 🪙</div>
@@ -2523,8 +2639,11 @@ function renderShop() {
 
         if (activeEventKey) {
             const ev = EVENTS[activeEventKey];
-            grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1">${ev.icon} Ивент: ${ev.name}</div>`;
-            ev.gifts.forEach(g => {
+            const evG = ev.gifts.filter(g => qok(g.name));
+            if (evG.length && noQuery) {
+                grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1">${ev.icon} Ивент: ${ev.name}</div>`;
+            }
+            evG.forEach(g => {
                 grid.innerHTML += `<div class="item" onclick="buyItem('${g.id}', 'gift')">
                     ${giftArtHtml(g, "art")}<div>${g.name}</div><div class="price">${g.price} 🪙</div>
                     <div class="evGiftTag">ивентовый</div>
@@ -2532,15 +2651,16 @@ function renderShop() {
             });
         }
     } else {
-        NFTS.forEach(i => {
+        NFTS.filter(i => qok(i.name)).forEach(i => {
             grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'nft')">
                 <div class="art nftcard nft-bg-gray">${inst(i.svg)}</div><div>${i.name}</div><div class="price">${i.price} 🪙</div>
             </div>`;
         });
 
-        if (CUSTOM_NFTS.length) {
+        const customN = CUSTOM_NFTS.filter(i => qok(i.name));
+        if (customN.length) {
             grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#00b894,#00cec9)">🎨 От админов</div>`;
-            CUSTOM_NFTS.forEach(i => {
+            customN.forEach(i => {
                 grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'nft')">
                     <div class="art nftcard ${i.bgClass}">${inst(i.svg)}</div><div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
                     ${i.event ? `<div class="evGiftTag">ивентовый</div>` : ""}
@@ -2548,6 +2668,8 @@ function renderShop() {
             });
         }
     }
+
+    if (!grid.innerHTML) grid.innerHTML = '<div class="sub center" style="grid-column:1/-1">Ничего не найдено</div>';
 }
 
 window.buyItem = async function(id, type) {
