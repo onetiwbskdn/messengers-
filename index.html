@@ -58,6 +58,20 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 122, 2
 .grow { flex: 1; min-width: 0; }
 .sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* АНИМИРОВАННАЯ РАМКА (Premium) */
+@keyframes ringColor {
+  0% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
+  33% { border-color: #ff4757; box-shadow: 0 0 14px rgba(255,71,87,.7); }
+  66% { border-color: #7b2ff7; box-shadow: 0 0 14px rgba(123,47,247,.7); }
+  100% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
+}
+.av.anim, .profAv.anim { animation: ringColor 3s linear infinite; border: 3px solid #ffd34d; }
+.profAv.anim { border-width: 5px; }
+
+/* ЗНАЧКИ */
+.bIcon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.bIcon svg { width: 100%; height: 100%; display: block; }
+
 /* ЧАТ */
 .msgs { display: flex; flex-direction: column; gap: 8px; padding: 15px; min-height: 100%; max-width: 800px; margin: 0 auto; width: 100%; }
 .msg { max-width: 80%; background: var(--other); padding: 10px 14px; border-radius: 16px 16px 16px 4px; align-self: flex-start; word-break: break-word; font-size: 15px; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.1); animation: popIn 0.2s ease; position: relative; cursor: pointer; user-select: none; -webkit-user-select: none; }
@@ -70,6 +84,7 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 122, 2
 .msg.giftmsg { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
 .msg.giftmsg .meta { color: var(--muted); }
 .msg.postmsg { align-self: stretch; max-width: 100%; background: var(--panel) !important; border: 1px solid var(--line); border-radius: 16px; color: var(--text); }
+.stkMsgImg { width: 120px; height: 120px; object-fit: contain; border-radius: 0; margin-bottom: 0; }
 .postTitle { font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
 .reacts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .rchip { font-size: 12px; padding: 2px 8px; border-radius: 12px; background: rgba(255,255,255,0.12); cursor: pointer; }
@@ -108,6 +123,13 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .stockTag { font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 700; }
 .evGiftTag { font-size: 10px; color: #ff9a3c; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
 #shopSearch { margin-bottom: 12px; }
+
+/* СТИКЕРЫ */
+.stkGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.stkItem { position: relative; background: var(--bg); border-radius: 12px; padding: 6px; text-align: center; }
+.stkItem img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; display: block; }
+.stkName { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stkDel { position: absolute; top: 2px; right: 2px; background: var(--danger); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor: pointer; }
 
 /* ВИЗУАЛ ПОДАРКОВ И NFT */
 .art { width: 76px; height: 76px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 22px; }
@@ -177,7 +199,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .profAv.premium { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
 .profAv.premium::after { content: '👑'; position: absolute; top: 0px; font-size: 24px; transform: rotate(15deg); text-shadow: 0 0 5px #000; z-index: 3;}
 .badges { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
-.badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); display: inline-flex; align-items: center; gap: 6px; }
 .logRow { font-size: 13px; padding: 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .logTime { font-size: 11px; color: var(--muted); }
 
@@ -416,8 +438,23 @@ nav button.on { color: var(--accent); font-weight: bold; }
           <button class="btn" onclick="createClan()">Создать клан</button>
         </div>
 
+        <div class="card" id="premLock" style="border-color:var(--gold)">
+          <div style="font-weight:bold;color:var(--gold);margin-bottom:6px">🔒 Доступно в Premium</div>
+          <div class="sub" style="white-space:normal">Анимированная аватарка (GIF), переливающаяся рамка, свои стикеры из фото, стиль пузырей и цвет сообщений.</div>
+        </div>
+
+        <div class="card" id="stickerCard" style="border-color:var(--gold)">
+          <h3 style="margin-bottom:10px;color:var(--gold)">🧩 Мои стикеры (Premium)</h3>
+          <div class="sub" id="stkCount" style="margin-bottom:8px">0 / 20</div>
+          <div class="stkGrid" id="stkList"></div>
+          <button class="btn" style="background:var(--gold);color:#000" onclick="stkCreate()">➕ Создать стикер из фото</button>
+          <div class="sub" style="white-space:normal;font-size:11px">Фото уменьшается до 128×128. Стикеры видят все игроки.</div>
+        </div>
+
         <div class="card" id="premSettings" style="border-color:var(--gold)">
           <h3 style="margin-bottom:10px;color:var(--gold)">👑 Premium Настройки</h3>
+
+          <label class="sub" style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" id="setAnim" style="width:auto;margin:0"> Переливающаяся рамка аватарки</label>
 
           <label class="sub" style="display:block;margin-bottom:5px">Стиль пузырей:</label>
           <select id="setBubbleStyle">
@@ -578,7 +615,10 @@ nav button.on { color: var(--accent); font-weight: bold; }
 <div class="modal" id="mStickers">
   <div class="modal-content">
     <button class="modal-close-btn" onclick="closeModal('mStickers')">✖</button>
-    <h3 style="margin-bottom:15px">Стикеры (Premium)</h3>
+    <h3 style="margin-bottom:10px">Стикеры</h3>
+    <div class="sub" style="margin-bottom:8px">Мои стикеры (Premium)</div>
+    <div class="stkGrid" id="pickStk"></div>
+    <div class="sub" style="margin-bottom:8px">Эмодзи</div>
     <div class="grid" style="font-size:40px;cursor:pointer">
       <div onclick="sendSticker('🐶')">🐶</div><div onclick="sendSticker('🐱')">🐱</div><div onclick="sendSticker('🦊')">🦊</div>
       <div onclick="sendSticker('😻')">😻</div><div onclick="sendSticker('🔥')">🔥</div><div onclick="sendSticker('💩')">💩</div>
@@ -660,6 +700,8 @@ const authReady = new Promise(resolve => {
 
 const DAY = 24 * 60 * 60 * 1000;
 const SELL_WINDOW = 21 * DAY;
+const MAX_STICKERS = 20;
+const MAX_IMG_CHARS = 380000;
 
 /* ==========================================================
    ХЕЛПЕРЫ
@@ -668,6 +710,53 @@ let _uidCounter = 0;
 const inst = raw => raw.replace(/UID/g, () => "u" + (++_uidCounter));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SHADOW = `<ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".25"/>`;
+
+/* Кэш и данные стикеров */
+let stkMine = {};
+const stkCache = {};
+
+/* Значки (без градиентов, объём через слои) */
+const BADGE = {
+  check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><ellipse cx="8.5" cy="5.5" rx="4" ry="2" fill="#fff" opacity=".4"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  star: `<svg viewBox="0 0 24 24"><path d="M12 4 L14.6 9.6 L20.6 10.2 L16.1 14.2 L17.5 20 L12 16.8 L6.5 20 L7.9 14.2 L3.4 10.2 L9.4 9.6Z" fill="#b07a00" transform="translate(0,1.2)"/><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d"/><path d="M12 6 L13.4 9.2 L10.4 9.2Z" fill="#fff6c2"/></svg>`,
+  crown: `<svg viewBox="0 0 24 24"><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#b07a00" transform="translate(0,1)"/><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#ffd34d"/><rect x="3" y="18" width="18" height="3" rx="1" fill="#e0a400"/><circle cx="5" cy="8" r="1.5" fill="#ff4757"/><circle cx="12" cy="5" r="1.5" fill="#2d7aff"/><circle cx="19" cy="8" r="1.5" fill="#2ed573"/></svg>`,
+  medal: `<svg viewBox="0 0 24 24"><path d="M8 2 L11 9 L9 9Z M16 2 L13 9 L15 9Z" fill="#c0392b"/><circle cx="12" cy="15.5" r="7.5" fill="#b07a00"/><circle cx="12" cy="14.5" r="7.5" fill="#ffc83a"/><circle cx="12" cy="14.5" r="3.5" fill="#fff3b0"/></svg>`,
+  gift: `<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" fill="#9b1c1c"/><rect x="3" y="7" width="18" height="4.5" rx="1.5" fill="#c0392b"/><rect x="11" y="7" width="2" height="14" fill="#fff"/><path d="M12 7 C8 1 4 4 8 7 M12 7 C16 1 20 4 16 7" stroke="#fff" stroke-width="1.5" fill="none"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24"><path d="M6 3 H18 V9 Q18 15 12 16 Q6 15 6 9Z" fill="#b07a00" transform="translate(0,1)"/><path d="M6 3 H18 V9 Q18 15 12 16 Q6 15 6 9Z" fill="#ffc83a"/><rect x="10.5" y="16" width="3" height="3" fill="#c58a00"/><rect x="7" y="19" width="10" height="3" rx="1" fill="#c58a00"/></svg>`,
+  gem: `<svg viewBox="0 0 24 24"><polygon points="6,4 18,4 22,10 12,21 2,10" fill="#1c6fc4"/><polygon points="6,4 18,4 16,10 8,10" fill="#8fdcff"/><polygon points="2,10 8,10 12,21" fill="#2a8ee0"/><polygon points="22,10 16,10 12,21" fill="#1c6fc4"/></svg>`
+};
+const badgeIcon = (name, px = 16) => `<span class="bIcon" style="width:${px}px;height:${px}px">${BADGE[name] || ""}</span>`;
+function nameHtml(name, data = {}) {
+  let s = esc(name);
+  if (data.verified) s += " " + badgeIcon("check", 16);
+  if (data.premium) s += " " + badgeIcon("star", 16);
+  if (name === ADMIN_NICK || data.role === "ADMIN") s += " " + badgeIcon("crown", 16);
+  return s;
+}
+const avClass = (data, base) => `${base} ${data && data.premium ? "premium" : ""} ${data && data.premium && data.animRing !== false ? "anim" : ""}`;
+
+/* Сжатие картинок: аватарки и стикеры не должны быть большими */
+function readFileAsDataURL(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("не удалось открыть картинку")); };
+    img.src = url;
+  });
+}
+async function shrinkImage(file, maxSide, quality = 0.85, type = "image/jpeg") {
+  const img = await loadImage(file);
+  const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.width * k));
+  c.height = Math.max(1, Math.round(img.height * k));
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL(type, quality);
+}
 
 /* ==========================================================
    SVG: ПРОСТЫЕ ПОДАРКИ (базовые)
@@ -748,9 +837,7 @@ const GIFT_ART = {
   </svg>`
 };
 
-/* ==========================================================
-   ДОПОЛНИТЕЛЬНЫЕ ПРОСТЫЕ ПОДАРКИ (генератор по типу и цвету)
-   ========================================================== */
+/* ДОПОЛНИТЕЛЬНЫЕ ПРОСТЫЕ ПОДАРКИ (генератор по типу и цвету) */
 function giftKind(k, c, c2) {
   const body = {
     box: `<rect x="18" y="40" width="64" height="48" rx="6" fill="${c}"/><rect x="14" y="30" width="72" height="16" rx="5" fill="${c2}"/><rect x="45" y="30" width="10" height="58" fill="#fff" opacity=".85"/><path d="M50 30 C36 10 24 16 34 30Z M50 30 C64 10 76 16 66 30Z" fill="#fff" opacity=".9"/>`,
@@ -1048,7 +1135,7 @@ const NFT_ART = {
   </svg>`
 };
 
-/* ДОПОЛНИТЕЛЬНЫЕ NFT: существа из тела, цвета и аксессуара */
+/* Существа из тела, цвета и аксессуара */
 function creatureSvg(body, col, acc) {
   const shapes = {
     round: `<ellipse cx="50" cy="56" rx="30" ry="28" fill="${col}"/>`,
@@ -1247,7 +1334,6 @@ function styleOf(nftId, styles) {
   return { style: s.style || "nft-style-simple", bg: s.bg || "nft-bg-gray", rarity: null };
 }
 
-/* Визуал NFT: у кастомных без улучшения используется их собственный фон */
 function visualOf(nftId, styles) {
   const base = nftBase(nftId);
   const s = styleOf(nftId, styles);
@@ -1282,6 +1368,7 @@ const previewOf = (text, isSticker, type) => {
   if (type === "photo") return "Фото";
   if (type === "trade") return "🔄 Обмен";
   if (type === "post") return "📢 Пост";
+  if (type === "sticker") return "🧩 Стикер";
   if (isSticker) return "Стикер";
   return text;
 };
@@ -1430,6 +1517,78 @@ onValue(ref(db, "giftStock"), snap => {
   if ($("vShop").classList.contains("active")) renderShop();
 });
 const stockLeft = g => (stockCache[g.id] !== undefined && stockCache[g.id] !== null) ? stockCache[g.id] : g.limit;
+
+/* ==========================================================
+   СТИКЕРЫ (Premium): создание из фото, список, отправка
+   ========================================================== */
+function renderStkList() {
+  const box = $("stkList");
+  if (!box) return;
+  const ids = Object.keys(stkMine);
+  $("stkCount").textContent = `${ids.length} / ${MAX_STICKERS}`;
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem"><img src="${stkMine[id].data}" alt=""><button class="stkDel" onclick="stkDelete('${id}')">✖</button><div class="stkName">${esc(stkMine[id].name)}</div></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Стикеров пока нет</div>`;
+}
+
+function renderPickStk() {
+  const box = $("pickStk");
+  if (!box) return;
+  const ids = Object.keys(stkMine);
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem" style="cursor:pointer" onclick="sendStickerImg('${id}')"><img src="${stkMine[id].data}" alt=""></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Своих стикеров нет. Создайте в настройках (Premium).</div>`;
+}
+
+window.stkCreate = () => {
+  if (!profile || !profile.premium) return toast("Стикеры доступны в Premium");
+  if (Object.keys(stkMine).length >= MAX_STICKERS) return toast(`Лимит ${MAX_STICKERS} стикеров`);
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const name = (prompt("Название стикера (до 20 символов):") || "").trim().slice(0, 20);
+    if (!name) return;
+    try {
+      const data = await shrinkImage(f, 128, 0.9, "image/png");
+      if (data.length > 90000) return toast("Картинка слишком сложная, выберите другую");
+      const id = "s" + Date.now().toString(36) + Math.floor(Math.random() * 99);
+      await set(ref(db, `stickers/${me.name}/${id}`), { name, data });
+      logAct(`🧩 Создал стикер «${name}»`);
+      toast("Стикер создан!", true);
+    } catch (err) {
+      toast("Не удалось создать стикер: " + err.message);
+    }
+  };
+  input.click();
+};
+
+window.stkDelete = async (id) => {
+  if (!confirm(`Удалить стикер «${stkMine[id]?.name}»?`)) return;
+  await remove(ref(db, `stickers/${me.name}/${id}`));
+  toast("Стикер удалён", true);
+};
+
+window.sendStickerImg = async (id) => {
+  closeModal("mStickers");
+  if (!activeChat) return;
+  if (!profile.premium) return toast("Стикеры доступны в Premium");
+  await sendMessage(`${me.name}|${id}`, false, "sticker");
+};
+
+async function resolveSticker(img) {
+  const r = img.dataset.ref;
+  if (!r) return;
+  if (stkCache[r] === undefined) {
+    const [owner, id] = r.split("|");
+    const s = await get(ref(db, `stickers/${owner}/${id}`));
+    stkCache[r] = s.exists() ? s.val().data : "";
+  }
+  if (stkCache[r]) img.src = stkCache[r];
+  else img.alt = "стикер удалён";
+}
 
 /* ==========================================================
    ПИКСЕЛЬНЫЙ РЕДАКТОР (админка)
@@ -1630,33 +1789,44 @@ onValue(ref(db, "customItems"), snap => {
   if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
 });
 
-/* ФОТО */
+/* ==========================================================
+   ФОТО: аватарка, баннер, обои (с ограничением размера)
+   ========================================================== */
 window.uploadPhoto = function(type) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = e => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64 = event.target.result;
-            if(type === 'avatar') {
-                await update(userRef(me.name), { avatar: base64 });
-                toast("Аватарка обновлена!", true);
-                renderProfile(me.name);
-            } else if (type === 'banner') {
-                await update(userRef(me.name), { banner: base64 });
-                toast("Баннер обновлен!", true);
-            } else if (type === 'wallpaper') {
-                await update(userRef(me.name), { wallpaper: base64 });
-                toast("Обои чата обновлены!", true);
-                if(activeChat) openChat(activeChat);
-            }
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      if (type === "avatar") {
+        const premium = !!(profile && profile.premium);
+        const animated = premium && file.type === "image/gif" && file.size <= 300000;
+        const data = animated ? await readFileAsDataURL(file) : await shrinkImage(file, 256, 0.85);
+        if (data.length > MAX_IMG_CHARS) return toast("Файл слишком большой даже после сжатия");
+        await update(userRef(me.name), { avatar: data, avatarAnim: animated });
+        if (premium && file.type === "image/gif" && !animated) toast("GIF больше 300 КБ, сохранён первый кадр", true);
+        else toast(animated ? "Анимированная аватарка установлена!" : "Аватарка обновлена!", true);
+        renderProfile(me.name);
+      } else if (type === "banner") {
+        const data = await shrinkImage(file, 900, 0.8);
+        if (data.length > MAX_IMG_CHARS) return toast("Баннер слишком большой");
+        await update(userRef(me.name), { banner: data });
+        toast("Баннер обновлён!", true);
+        renderProfile(me.name);
+      } else if (type === "wallpaper") {
+        const data = await shrinkImage(file, 900, 0.7);
+        if (data.length > MAX_IMG_CHARS) return toast("Обои слишком большие");
+        await update(userRef(me.name), { wallpaper: data });
+        toast("Обои чата обновлены!", true);
+        if (activeChat) openChat(activeChat);
+      }
+    } catch (err) {
+      toast("Не удалось загрузить: " + err.message);
+    }
+  };
+  input.click();
 };
 
 /* ==========================================================
@@ -1720,7 +1890,6 @@ async function login(isAuto = false) {
             }
         } else {
             const data = snap.val();
-            // Для админа пароль проверяет Firebase Auth, поэтому здесь его не сверяем
             if (!isAuto && !isAdmin && data.password && data.password !== pass) return authErr("Неверный пароль!");
             if (data.banned) return authErr("Вы забанены!");
             if (data.frozen) return authErr("Аккаунт заморожен!");
@@ -1751,6 +1920,8 @@ async function login(isAuto = false) {
             $("navAdmin").classList.toggle("hidden", me.role !== "ADMIN");
             $("buyPremiumBtn").style.display = profile.premium ? "none" : "flex";
             $("premSettings").style.display = profile.premium ? "block" : "none";
+            $("stickerCard").classList.toggle("hidden", !profile.premium);
+            $("premLock").classList.toggle("hidden", !!profile.premium);
             $("btnSticker").style.display = profile.premium ? "block" : "none";
             $("clanStatus").textContent = profile.clan ? `Ваш клан: ${profile.clan}` : "У вас нет клана";
 
@@ -1761,6 +1932,11 @@ async function login(isAuto = false) {
         };
 
         onValue(userRef(me.name), updateProfileUI);
+        onValue(ref(db, "stickers/" + me.name), s => {
+            stkMine = s.val() || {};
+            renderStkList();
+            renderPickStk();
+        });
         show("vChats");
         toast("Успешный вход!", true);
         localStorage.setItem('savedUser', JSON.stringify({ name: me.name }));
@@ -1813,12 +1989,13 @@ async function renderChats(filter = "") {
 
     for (const c of chats) {
         if(filter && !c.name.includes(filter)) continue;
-        let uData = c.name.startsWith("GROUP_") ? { avatar: "", premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
+        const isGroup = c.name.startsWith("GROUP_");
+        let uData = isGroup ? { avatar: "", premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
         const el = document.createElement("div"); el.className = "row";
         el.innerHTML = `
-        <div class="av ${uData.premium ? 'premium' : ''}">${uData.avatar ? `<img src="${uData.avatar}">` : (c.name.startsWith("GROUP_") ? '👥' : c.name[0].toUpperCase())}</div>
+        <div class="${avClass(uData, 'av')}">${uData.avatar ? `<img src="${uData.avatar}">` : (isGroup ? '👥' : c.name[0].toUpperCase())}</div>
         <div class="grow">
-            <div style="font-weight:bold;display:flex;align-items:center;gap:5px">${esc(c.name.replace("GROUP_", ""))} ${uData.verified ? '<span style="color:#4fa8ff">✔</span>' : ''}</div>
+            <div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), uData)}</div>
             <div class="sub">${esc(c.last || 'Нажмите чтобы открыть')}</div>
         </div>`;
         el.onclick = () => openChat(c.name);
@@ -1838,8 +2015,9 @@ async function doSearch() {
     if (snap.exists()) {
         const users = snap.val();
         Object.keys(users).filter(n => n.includes(q) && n !== me.name).forEach(n => {
+            const u = users[n] || {};
             const el = document.createElement("div"); el.className = "row";
-            el.innerHTML = `<div class="av">${n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;">${esc(n)}</div><div class="sub">Пользователь</div></div>`;
+            el.innerHTML = `<div class="${avClass(u, 'av')}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div>`;
             el.onclick = () => openChat(n);
             list.appendChild(el);
         });
@@ -1938,14 +2116,17 @@ function reactsHtml(key, m) {
 
 function paintMsg(div, key, m, isGroup) {
   const isOut = m.from === me.name;
+  const noBubble = m.type === "gift" || m.type === "sticker";
   div.className = "msg " + (profile.bubbleStyle || 'bub-default') + (isOut ? " out" : "")
-    + (m.type === "gift" ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
-  div.style.background = (isOut && profile.msgColor && m.type !== "gift" && m.type !== "post") ? profile.msgColor : "";
+    + (noBubble ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
+  div.style.background = (isOut && profile.msgColor && !noBubble && m.type !== "post") ? profile.msgColor : "";
 
   const header = isGroup && !isOut && m.type !== "post" ? `<div class="from">${esc(m.from)}</div>` : "";
   let content = "";
   if (m.type === "gift") {
     content = giftArtHtml(giftById(m.text), "giftbig");
+  } else if (m.type === "sticker") {
+    content = `<img class="stkMsgImg" data-ref="${esc(m.text)}" alt="стикер">`;
   } else if (m.type === "trade") {
     content = `<div class="tradeCard" data-tid="${esc(m.text)}">Загрузка обмена…</div>`;
   } else if (m.type === "post") {
@@ -1964,6 +2145,7 @@ function paintMsg(div, key, m, isGroup) {
   const time = new Date(m.time).toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
   div.innerHTML = `${header}${content}${reactsHtml(key, m)}<div class="meta">${views}${time}</div>`;
 
+  div.querySelectorAll(".stkMsgImg").forEach(resolveSticker);
   if (m.type === "trade") {
     loadTradeCard(div.querySelector(".tradeCard"), m.text);
   }
@@ -2060,7 +2242,7 @@ async function sendMessage(text, isSticker = false, type = 'text') {
 
 $("sendBtn").onclick = () => { const input = $("msgInput"); const text = input.value.trim(); if (!text) return; input.value = ""; sendMessage(text); };
 $("msgInput").onkeydown = e => { if (e.key === "Enter") $("sendBtn").click(); };
-$("btnSticker").onclick = () => openModal("mStickers");
+$("btnSticker").onclick = () => { renderPickStk(); openModal("mStickers"); };
 window.sendSticker = async (stick) => { closeModal("mStickers"); if (!activeChat) return; sendMessage(stick, true); };
 
 $("btnPost").onclick = async () => {
@@ -2251,10 +2433,11 @@ function computeBadges(data) {
   const out = [];
   const gifts = toArr(data.gifts);
   const ids = new Set(gifts.map(g => giftKey(g)));
-  if (Date.now() - (data.createdAt || 0) > SELL_WINDOW) out.push("🎖 Ветеран");
-  if (gifts.length > 0) out.push("🎁 Первый подарок");
-  COLLECTIONS.forEach(c => { if (c.ids.every(id => ids.has(id))) out.push("🏅 " + c.name); });
-  if (toArr(data.nfts).length >= 10) out.push("💎 Коллекционер NFT");
+  if (Date.now() - (data.createdAt || 0) > SELL_WINDOW) out.push({ icon: "medal", text: "Ветеран" });
+  if (gifts.length > 0) out.push({ icon: "gift", text: "Первый подарок" });
+  COLLECTIONS.forEach(c => { if (c.ids.every(id => ids.has(id))) out.push({ icon: "trophy", text: c.name }); });
+  if (toArr(data.nfts).length >= 10) out.push({ icon: "gem", text: "Коллекционер NFT" });
+  if (data.premium) out.push({ icon: "star", text: "Premium" });
   return out;
 }
 
@@ -2276,15 +2459,15 @@ async function renderProfile(targetName) {
     }
 
     const av = $("profAv");
-    av.className = "profAv " + (data.premium ? 'premium' : '');
-    av.style.borderColor = ev ? ev.ring : "";
+    av.className = avClass(data, "profAv");
+    av.style.borderColor = ev && !(data.premium && data.animRing !== false) ? ev.ring : "";
     if(data.avatar) av.innerHTML = `<img src="${data.avatar}">`;
     else av.textContent = targetName[0].toUpperCase();
 
-    $("profNick").innerHTML = "@" + esc(targetName) + (data.verified ? ' <span style="color:#4fa8ff;font-size:18px">✔</span>' : '');
+    $("profNick").innerHTML = "@" + nameHtml(targetName, data);
     $("profClan").textContent = data.clan ? `🛡️ Клан: ${data.clan}` : "";
     $("profBio").textContent = data.bio || "Нет описания";
-    $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${b}</span>`).join("");
+    $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${badgeIcon(b.icon, 16)}${esc(b.text)}</span>`).join("");
     $("profBalance").textContent = data.balance || 0;
     $("profNex").textContent = data.nex || 0;
     renderInventory(data, targetName);
@@ -2344,7 +2527,7 @@ function renderInventory(data, ownerName) {
             const have = c.ids.filter(id => ids.has(id)).length;
             const done = have === c.ids.length;
             return `<div class="card" style="margin:0;text-align:left">
-                <div style="font-weight:800">${done ? '🏅' : '⬜'} ${c.name} <span class="sub" style="display:inline">${have}/${c.ids.length}</span></div>
+                <div style="font-weight:800;display:flex;align-items:center;gap:6px">${done ? badgeIcon("trophy", 18) : '⬜'} ${c.name} <span class="sub" style="display:inline">${have}/${c.ids.length}</span></div>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
                   ${c.ids.map(id => { const g = giftById(id); return `<div class="colItem ${ids.has(id) ? '' : 'off'}">${giftArtHtml(g, "art colArt")}</div>`; }).join("")}
                 </div>
@@ -2519,7 +2702,9 @@ window.openSettings = () => {
     $("setBg").value = profile.profileBg || "bg-blue";
     $("setBubbleStyle").value = profile.bubbleStyle || "bub-default";
     $("setMsgColor").value = profile.msgColor || "#2d7aff";
+    $("setAnim").checked = profile.animRing !== false;
     renderDevices(profile.devices || {});
+    renderStkList();
     show("vSettings");
 };
 
@@ -2530,6 +2715,7 @@ window.saveSettings = async () => {
         bubbleStyle: $("setBubbleStyle").value,
         msgColor: $("setMsgColor").value
     };
+    if (profile.premium) updates.animRing = $("setAnim").checked;
     await update(userRef(me.name), updates);
     toast("Настройки сохранены!", true);
     show("vProfile");
@@ -2705,7 +2891,6 @@ window.buyItem = async function(id, type) {
     const copyId = item.id + "_c" + Date.now().toString(36) + Math.floor(Math.random() * 999);
     const n = toArr(profile.nfts); n.push(copyId);
     const styles = { ...(profile.nftStyles || {}) };
-    // У кастомных NFT сохраняется фон, заданный админом; улучшение даёт редкость
     if (!item.custom) styles[copyId] = { rarity: rollRarity(0) };
     await update(userRef(me.name), { balance: profile.balance - item.price, nfts: n, nftStyles: styles });
     logAct(`🛍 Купил NFT «${item.name}» за ${item.price} Coin`);
