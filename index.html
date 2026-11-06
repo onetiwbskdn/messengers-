@@ -58,6 +58,20 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 122, 2
 .grow { flex: 1; min-width: 0; }
 .sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* АНИМИРОВАННАЯ РАМКА (Premium) */
+@keyframes ringColor {
+  0% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
+  33% { border-color: #ff4757; box-shadow: 0 0 14px rgba(255,71,87,.7); }
+  66% { border-color: #7b2ff7; box-shadow: 0 0 14px rgba(123,47,247,.7); }
+  100% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
+}
+.av.anim, .profAv.anim { animation: ringColor 3s linear infinite; border: 3px solid #ffd34d; }
+.profAv.anim { border-width: 5px; }
+
+/* ЗНАЧКИ */
+.bIcon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.bIcon svg { width: 100%; height: 100%; display: block; }
+
 /* ЧАТ */
 .msgs { display: flex; flex-direction: column; gap: 8px; padding: 15px; min-height: 100%; max-width: 800px; margin: 0 auto; width: 100%; }
 .msg { max-width: 80%; background: var(--other); padding: 10px 14px; border-radius: 16px 16px 16px 4px; align-self: flex-start; word-break: break-word; font-size: 15px; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.1); animation: popIn 0.2s ease; position: relative; cursor: pointer; user-select: none; -webkit-user-select: none; }
@@ -70,6 +84,7 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 122, 2
 .msg.giftmsg { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
 .msg.giftmsg .meta { color: var(--muted); }
 .msg.postmsg { align-self: stretch; max-width: 100%; background: var(--panel) !important; border: 1px solid var(--line); border-radius: 16px; color: var(--text); }
+.stkMsgImg { width: 120px; height: 120px; object-fit: contain; border-radius: 0; margin-bottom: 0; }
 .postTitle { font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
 .reacts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .rchip { font-size: 12px; padding: 2px 8px; border-radius: 12px; background: rgba(255,255,255,0.12); cursor: pointer; }
@@ -106,40 +121,57 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .item .ic { font-size: 36px; margin-bottom: 5px; }
 .price { color: var(--gold); font-weight: bold; margin-top: 5px; font-size: 12px; background: rgba(255, 165, 2, 0.1); display: inline-block; padding: 2px 8px; border-radius: 10px; }
 .stockTag { font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 700; }
+.evGiftTag { font-size: 10px; color: #ff9a3c; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
 #shopSearch { margin-bottom: 12px; }
 
-/* 3D/2D АНИМИРОВАННЫЕ ПОДАРКИ И NFT */
-@keyframes floatGift {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-5px) rotate(3deg); }
-}
-@keyframes pulseGlow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(255,215,0,0.4)); }
-  50% { filter: drop-shadow(0 0 12px rgba(255,215,0,0.8)); }
-}
-.art { width: 76px; height: 76px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 22px; animation: floatGift 3s ease-in-out infinite; }
+/* СТИКЕРЫ */
+.stkGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.stkItem { position: relative; background: var(--bg); border-radius: 12px; padding: 6px; text-align: center; }
+.stkItem img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; display: block; }
+.stkName { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stkDel { position: absolute; top: 2px; right: 2px; background: var(--danger); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor: pointer; }
+
+/* ВИЗУАЛ ПОДАРКОВ И NFT */
+.art { width: 76px; height: 76px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 22px; }
 .art svg { width: 100%; height: 100%; display: block; }
-.giftbig { width: 120px; height: 120px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 26px; animation: floatGift 4s ease-in-out infinite; }
+.giftbig { width: 120px; height: 120px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 26px; }
 .giftbig svg { width: 100%; height: 100%; display: block; }
+.emojiArt { display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 38px; }
+.giftbig.emojiArt { font-size: 72px; }
 .colArt { width: 44px; height: 44px; margin: 0; border-radius: 12px; }
 .colItem { display: inline-flex; }
 .colItem.off { opacity: 0.22; filter: grayscale(1); }
-
-.nftcard { border-radius: 16px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.08); animation: pulseGlow 3s ease-in-out infinite; }
+.nftcard { border-radius: 16px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.08); }
 .nftcard svg { width: 84%; height: 84%; display: block; }
+.rar { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 11px; font-weight: 800; text-shadow: 0 1px 3px #000; letter-spacing: .3px; }
 .craftBtn { margin-top: 5px; background: #8e44ad; border: none; padding: 5px; border-radius: 5px; color: #fff; font-size: 10px; font-weight: 700; }
 
 .tabs { display: flex; gap: 8px; margin-bottom: 15px; background: var(--panel); padding: 5px; border-radius: 12px; overflow-x: auto;}
 .tabs button { flex: 1; padding: 10px; border-radius: 8px; border: none; background: none; color: var(--muted); cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap;}
 .tabs button.on { background: var(--accent); color: #fff; box-shadow: 0 2px 10px rgba(45,122,255,0.3); }
 
-/* ЭФФЕКТЫ И ФОНЫ */
+/* ИВЕНТЫ */
+.evBanner { margin: 0 0 12px; padding: 12px 14px; border-radius: 14px; background: linear-gradient(135deg, #ff9a3c, #ff5e62); color: #fff; font-weight: 800; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.evPickBtn { padding: 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-size: 14px; }
+.evPickBtn.on { border-color: var(--gold); background: rgba(255,165,2,.15); }
 #fxLayer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5000; }
 .fxp { position: absolute; top: -40px; animation-name: fxfall; animation-timing-function: linear; animation-iteration-count: infinite; user-select: none; }
 @keyframes fxfall {
   0% { transform: translateY(0) rotate(0deg); }
   100% { transform: translateY(110vh) rotate(360deg); }
 }
+
+/* РЕДАКТОР ПРЕДМЕТОВ */
+.pxBox { display: flex; justify-content: center; }
+#pxCanvas { width: 100%; max-width: 320px; aspect-ratio: 1 / 1; touch-action: none; border-radius: 10px; border: 1px solid var(--line); background: #fff; cursor: crosshair; }
+.pxRow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.pxSw { width: 30px; height: 30px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.pxSw.on { border-color: var(--gold); transform: scale(1.1); }
+.pxTool { padding: 8px 10px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-size: 13px; }
+.pxTool.on { border-color: var(--accent); }
+.admItem { display: flex; align-items: center; gap: 10px; padding: 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.admItem .thumb { width: 44px; height: 44px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.admItem .thumb svg { width: 40px; height: 40px; display: block; }
 
 /* ПРОФИЛЬ */
 .profBg { height: 160px; border-radius: 20px 20px 0 0; margin-bottom: -45px; transition: 0.3s; position: relative; background-size: cover; background-position: center; overflow: hidden;}
@@ -167,7 +199,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .profAv.premium { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
 .profAv.premium::after { content: '👑'; position: absolute; top: 0px; font-size: 24px; transform: rotate(15deg); text-shadow: 0 0 5px #000; z-index: 3;}
 .badges { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
-.badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); display: inline-flex; align-items: center; gap: 6px; }
 .logRow { font-size: 13px; padding: 10px; border-bottom: 1px solid var(--line); text-align: left; }
 .logTime { font-size: 11px; color: var(--muted); }
 
@@ -183,6 +215,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .modal-close-btn { position: absolute; top: 12px; right: 12px; background: var(--line); border: none; color: var(--text); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 2002; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
 .modal-close-btn:hover { background: var(--danger); color: #fff; }
 
+/* NFT ПРОСМОТР */
 .nft-view-box { width: 200px; height: 200px; margin: 0 auto 15px; border-radius: 22px; display: flex; align-items: center; justify-content: center; transition: 0.3s; border: 2px solid var(--line); overflow: hidden; position: relative; }
 .nft-view-box svg { width: 84%; height: 84%; display: block; }
 
@@ -197,7 +230,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 .nft-bg-gold-foil { background: linear-gradient(135deg, #7a5b12, #FFD700, #fff3b0, #b8860b); }
 @keyframes aurora { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-/* СТИЛИ УЛУЧШЕНИЯ NFT */
+/* ЭФФЕКТЫ NFT */
 .nft-style-simple { filter: none; }
 .nft-style-gold { filter: drop-shadow(0 0 12px gold) saturate(1.6); }
 .nft-style-white { filter: grayscale(1) brightness(1.6) contrast(1.1); }
@@ -212,6 +245,19 @@ nav button.on { color: var(--accent); font-weight: bold; }
   from { filter: hue-rotate(0deg) saturate(1.4) drop-shadow(0 0 8px gold); }
   to { filter: hue-rotate(360deg) saturate(1.4) drop-shadow(0 0 8px gold); }
 }
+
+/* АНИМАЦИЯ НАКОВАЛЬНИ */
+@keyframes hammerStrike {
+  0% { transform: rotate(-45deg) translateY(-20px); }
+  20% { transform: rotate(20deg) translateY(10px); }
+  40% { transform: rotate(-45deg) translateY(-20px); }
+  60% { transform: rotate(20deg) translateY(10px); }
+  80% { transform: rotate(-45deg) translateY(-20px); }
+  100% { transform: rotate(20deg) translateY(10px); }
+}
+.anvil-box { font-size: 80px; position: relative; margin: 20px 0; height: 100px; display: flex; justify-content: center; align-items: flex-end; }
+.hammer { position: absolute; font-size: 60px; top: 0; left: 20%; animation: hammerStrike 0.5s 3; transform-origin: bottom right; }
+.anvil { font-size: 80px; z-index: 2; }
 
 .toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: bold; opacity: 0; transition: .3s; pointer-events: none; z-index: 9999; max-width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .toast.show { opacity: 1; top: 30px; }
@@ -261,6 +307,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
   <header><h2>Чаты</h2><button class="ghost" id="btnNewGroup">➕</button></header>
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
+        <div id="evBanner" class="evBanner hidden"></div>
         <input id="searchInput" placeholder="Поиск по нику или @каналу... 🔍">
         <div id="chatList"></div>
     </div>
@@ -300,8 +347,8 @@ nav button.on { color: var(--accent); font-weight: bold; }
           <div class="balanceTxt" style="font-size:24px;font-weight:bold;color:#FFD700">0 🪙</div>
         </div>
         <div class="tabs">
-          <button id="catGift" class="on">🎁 Подарки (70)</button>
-          <button id="catNft">🖼️ NFT (20)</button>
+          <button id="catGift" class="on">🎁 Подарки</button>
+          <button id="catNft">🖼️ NFT</button>
         </div>
         <input id="shopSearch" placeholder="Поиск предмета по названию... 🔍">
         <div class="grid" id="shopGrid"></div>
@@ -391,8 +438,23 @@ nav button.on { color: var(--accent); font-weight: bold; }
           <button class="btn" onclick="createClan()">Создать клан</button>
         </div>
 
+        <div class="card" id="premLock" style="border-color:var(--gold)">
+          <div style="font-weight:bold;color:var(--gold);margin-bottom:6px">🔒 Доступно в Premium</div>
+          <div class="sub" style="white-space:normal">Анимированная аватарка (GIF), переливающаяся рамка, свои стикеры из фото, стиль пузырей и цвет сообщений.</div>
+        </div>
+
+        <div class="card" id="stickerCard" style="border-color:var(--gold)">
+          <h3 style="margin-bottom:10px;color:var(--gold)">🧩 Мои стикеры (Premium)</h3>
+          <div class="sub" id="stkCount" style="margin-bottom:8px">0 / 20</div>
+          <div class="stkGrid" id="stkList"></div>
+          <button class="btn" style="background:var(--gold);color:#000" onclick="stkCreate()">➕ Создать стикер из фото</button>
+          <div class="sub" style="white-space:normal;font-size:11px">Фото уменьшается до 128×128. Стикеры видят все игроки.</div>
+        </div>
+
         <div class="card" id="premSettings" style="border-color:var(--gold)">
           <h3 style="margin-bottom:10px;color:var(--gold)">👑 Premium Настройки</h3>
+
+          <label class="sub" style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" id="setAnim" style="width:auto;margin:0"> Переливающаяся рамка аватарки</label>
 
           <label class="sub" style="display:block;margin-bottom:5px">Стиль пузырей:</label>
           <select id="setBubbleStyle">
@@ -434,6 +496,58 @@ nav button.on { color: var(--accent); font-weight: bold; }
   <header><h2>Админ-панель</h2></header>
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
+        <div class="card">
+          <h3 style="margin-bottom:10px">🎉 Ивенты</h3>
+          <div id="evPick" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"></div>
+          <div id="evStatus" class="sub" style="margin-bottom:10px;white-space:normal"></div>
+          <button class="btn" style="background:var(--success);margin-bottom:8px" onclick="startEvent()">▶ Начать ивент</button>
+          <button class="btn danger" onclick="endEvent()">■ Закончить ивент</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:10px">🎨 Редактор предметов</h3>
+          <input id="pxName" placeholder="Название (до 30 символов)" maxlength="30">
+          <input id="pxPrice" type="number" placeholder="Цена (Coin)" min="1">
+          <select id="pxType" onchange="pxTypeChange()">
+            <option value="gift">🎁 Подарок</option>
+            <option value="nft">🖼️ NFT</option>
+          </select>
+          <select id="pxEvent"></select>
+          <div id="pxBgNftWrap" class="hidden">
+            <select id="pxBgClass" onchange="updPreview()">
+              <option value="nft-bg-gray">Серый</option>
+              <option value="nft-bg-black">Чёрный</option>
+              <option value="nft-bg-pink">Розовый</option>
+              <option value="nft-bg-rainbow">Радужный</option>
+              <option value="nft-bg-aurora">Аврора</option>
+              <option value="nft-bg-space">Космос</option>
+              <option value="nft-bg-gold-foil">Золотая фольга</option>
+            </select>
+          </div>
+          <div id="pxBgGiftWrap" style="margin-bottom:12px">
+            <label class="sub" style="display:block;margin-bottom:5px">Цвет фона подарка:</label>
+            <input type="color" id="pxBgColor" value="#ffe3ea" style="padding:0;height:44px;" onchange="updPreview()">
+          </div>
+          <select id="pxSize" onchange="pxSizeChange(this.value)">
+            <option value="16">Сетка 16 × 16</option>
+            <option value="24">Сетка 24 × 24</option>
+          </select>
+          <div class="pxRow" id="pxTools" style="margin-bottom:8px"></div>
+          <div class="pxRow" id="pxPalette" style="margin-bottom:10px"></div>
+          <div class="pxBox"><canvas id="pxCanvas" width="320" height="320"></canvas></div>
+          <div id="pxPreview" style="margin:14px 0"></div>
+          <button class="btn" style="background:var(--success)" onclick="pxPublish()">📤 Опубликовать в магазин</button>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:10px">🗂 Предметы в магазине</h3>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <input id="pxDelName" placeholder="Название для удаления">
+            <button class="btn danger" style="width:auto;margin:0 0 12px;padding:14px 16px" onclick="pxDeleteByName()">Удалить</button>
+          </div>
+          <div id="pxList"></div>
+        </div>
+
         <div class="card">
           <h3 style="margin-bottom:10px">💰 Валюты</h3>
           <input id="adminUser1" placeholder="Ник">
@@ -501,7 +615,10 @@ nav button.on { color: var(--accent); font-weight: bold; }
 <div class="modal" id="mStickers">
   <div class="modal-content">
     <button class="modal-close-btn" onclick="closeModal('mStickers')">✖</button>
-    <h3 style="margin-bottom:15px">Стикеры (Premium)</h3>
+    <h3 style="margin-bottom:10px">Стикеры</h3>
+    <div class="sub" style="margin-bottom:8px">Мои стикеры (Premium)</div>
+    <div class="stkGrid" id="pickStk"></div>
+    <div class="sub" style="margin-bottom:8px">Эмодзи</div>
     <div class="grid" style="font-size:40px;cursor:pointer">
       <div onclick="sendSticker('🐶')">🐶</div><div onclick="sendSticker('🐱')">🐱</div><div onclick="sendSticker('🦊')">🦊</div>
       <div onclick="sendSticker('😻')">😻</div><div onclick="sendSticker('🔥')">🔥</div><div onclick="sendSticker('💩')">💩</div>
@@ -542,6 +659,14 @@ nav button.on { color: var(--accent); font-weight: bold; }
   </div>
 </div>
 
+<div class="modal" id="mAnvil">
+  <div class="modal-content">
+    <h3 style="margin-bottom:10px">Крафт NFT (Нужно 4 шт.)</h3>
+    <div class="anvil-box"><div class="anvil">🪨</div><div class="hammer">🔨</div></div>
+    <div id="anvilResult" style="font-size:20px;font-weight:bold;color:var(--gold);opacity:0;transition:1s">✨ УЛУЧШЕНО! ✨</div>
+  </div>
+</div>
+
 <nav id="bottomNav" class="hidden">
   <button data-go="vChats" class="on"><span class="ic">💬</span>Чаты</button>
   <button data-go="vShop"><span class="ic">🛍️</span>Магазин</button>
@@ -553,7 +678,7 @@ nav button.on { color: var(--accent); font-weight: bold; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, onChildRemoved, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBkNR9ZrRFwB39CYlhk2CNz4jWD-WGWuD8", authDomain: "chat-d7385.firebaseapp.com", databaseURL: "https://chat-d7385-default-rtdb.europe-west1.firebasedatabase.app", projectId: "chat-d7385", storageBucket: "chat-d7385.firebasestorage.app", messagingSenderId: "421202112650", appId: "1:421202112650:web:7b53494f3d32fd02a87d73" };
@@ -565,6 +690,7 @@ const auth = getAuth(app);
 const ADMIN_NICK = "evdo";
 const ADMIN_EMAIL = "admin@nexus.app";
 
+/* Анонимный вход только если пользователя ещё нет. Сессия админа сохраняется. */
 const authReady = new Promise(resolve => {
   onAuthStateChanged(auth, u => {
     if (!u) { signInAnonymously(auth).catch(console.error); return; }
@@ -574,91 +700,610 @@ const authReady = new Promise(resolve => {
 
 const DAY = 24 * 60 * 60 * 1000;
 const SELL_WINDOW = 21 * DAY;
+const MAX_STICKERS = 20;
+const MAX_IMG_CHARS = 380000;
 
+/* ==========================================================
+   ХЕЛПЕРЫ
+   ========================================================== */
 let _uidCounter = 0;
 const inst = raw => raw.replace(/UID/g, () => "u" + (++_uidCounter));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SHADOW = `<ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".25"/>`;
 
-/* ==========================================================
-   70 УНИКАЛЬНЫХ ПОДАРКОВ (С 3D/2D ЭФФЕКТАМИ)
-   ========================================================== */
-function giftSvg(bodyType, c1, c2, accent = "#fff") {
-  const parts = {
-    box: `<rect x="20" y="40" width="60" height="48" rx="6" fill="${c1}"/><rect x="16" y="30" width="68" height="16" rx="5" fill="${c2}"/><rect x="44" y="30" width="12" height="58" fill="${accent}" opacity=".9"/><path d="M50 30 C36 10 24 16 34 30Z M50 30 C64 10 76 16 66 30Z" fill="${accent}"/>`,
-    orb: `<circle cx="50" cy="50" r="32" fill="${c1}"/><circle cx="38" cy="38" r="10" fill="${accent}" opacity=".5"/><path d="M20 50 Q50 80 80 50" stroke="${c2}" stroke-width="4" fill="none"/>`,
-    star: `<path d="M50 12 L61 38 L90 40 L68 60 L75 88 L50 74 L25 88 L32 60 L10 40 L39 38Z" fill="${c1}" stroke="${c2}" stroke-width="2.5"/><circle cx="50" cy="50" r="12" fill="${accent}" opacity=".6"/>`,
-    gem: `<polygon points="30,20 70,20 88,40 50,86 12,40" fill="${c1}" stroke="${c2}" stroke-width="2"/><polygon points="30,20 70,20 50,40" fill="${accent}" opacity=".7"/>`,
-    cup: `<path d="M28 20 H72 V42 Q72 68 50 70 Q28 68 28 42Z" fill="${c1}"/><rect x="44" y="70" width="12" height="12" fill="${c2}"/><rect x="32" y="82" width="36" height="6" rx="3" fill="${c2}"/>`
-  };
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${parts[bodyType] || parts.box}</svg>`;
+/* Кэш и данные стикеров */
+let stkMine = {};
+const stkCache = {};
+
+/* Значки (без градиентов, объём через слои) */
+const BADGE = {
+  check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><ellipse cx="8.5" cy="5.5" rx="4" ry="2" fill="#fff" opacity=".4"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  star: `<svg viewBox="0 0 24 24"><path d="M12 4 L14.6 9.6 L20.6 10.2 L16.1 14.2 L17.5 20 L12 16.8 L6.5 20 L7.9 14.2 L3.4 10.2 L9.4 9.6Z" fill="#b07a00" transform="translate(0,1.2)"/><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d"/><path d="M12 6 L13.4 9.2 L10.4 9.2Z" fill="#fff6c2"/></svg>`,
+  crown: `<svg viewBox="0 0 24 24"><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#b07a00" transform="translate(0,1)"/><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#ffd34d"/><rect x="3" y="18" width="18" height="3" rx="1" fill="#e0a400"/><circle cx="5" cy="8" r="1.5" fill="#ff4757"/><circle cx="12" cy="5" r="1.5" fill="#2d7aff"/><circle cx="19" cy="8" r="1.5" fill="#2ed573"/></svg>`,
+  medal: `<svg viewBox="0 0 24 24"><path d="M8 2 L11 9 L9 9Z M16 2 L13 9 L15 9Z" fill="#c0392b"/><circle cx="12" cy="15.5" r="7.5" fill="#b07a00"/><circle cx="12" cy="14.5" r="7.5" fill="#ffc83a"/><circle cx="12" cy="14.5" r="3.5" fill="#fff3b0"/></svg>`,
+  gift: `<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" fill="#9b1c1c"/><rect x="3" y="7" width="18" height="4.5" rx="1.5" fill="#c0392b"/><rect x="11" y="7" width="2" height="14" fill="#fff"/><path d="M12 7 C8 1 4 4 8 7 M12 7 C16 1 20 4 16 7" stroke="#fff" stroke-width="1.5" fill="none"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24"><path d="M6 3 H18 V9 Q18 15 12 16 Q6 15 6 9Z" fill="#b07a00" transform="translate(0,1)"/><path d="M6 3 H18 V9 Q18 15 12 16 Q6 15 6 9Z" fill="#ffc83a"/><rect x="10.5" y="16" width="3" height="3" fill="#c58a00"/><rect x="7" y="19" width="10" height="3" rx="1" fill="#c58a00"/></svg>`,
+  gem: `<svg viewBox="0 0 24 24"><polygon points="6,4 18,4 22,10 12,21 2,10" fill="#1c6fc4"/><polygon points="6,4 18,4 16,10 8,10" fill="#8fdcff"/><polygon points="2,10 8,10 12,21" fill="#2a8ee0"/><polygon points="22,10 16,10 12,21" fill="#1c6fc4"/></svg>`
+};
+const badgeIcon = (name, px = 16) => `<span class="bIcon" style="width:${px}px;height:${px}px">${BADGE[name] || ""}</span>`;
+function nameHtml(name, data = {}) {
+  let s = esc(name);
+  if (data.verified) s += " " + badgeIcon("check", 16);
+  if (data.premium) s += " " + badgeIcon("star", 16);
+  if (name === ADMIN_NICK || data.role === "ADMIN") s += " " + badgeIcon("crown", 16);
+  return s;
+}
+const avClass = (data, base) => `${base} ${data && data.premium ? "premium" : ""} ${data && data.premium && data.animRing !== false ? "anim" : ""}`;
+
+/* Сжатие картинок: аватарки и стикеры не должны быть большими */
+function readFileAsDataURL(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("не удалось открыть картинку")); };
+    img.src = url;
+  });
+}
+async function shrinkImage(file, maxSide, quality = 0.85, type = "image/jpeg") {
+  const img = await loadImage(file);
+  const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.width * k));
+  c.height = Math.max(1, Math.round(img.height * k));
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL(type, quality);
 }
 
-const GIFT_NAMES = [
-  "Рубиновое сердце","Золотой слиток","Магический шар","Кристалл времени","Звездная пыль","Неоновый куб","Королевский кубок","Изумрудный дар","Алмазный сундук","Огненный шар",
-  "Плазменный дар","Небесный дар","Артефакт бездны","Солнечный диск","Лунный камень","Энерго-ядро","Квантовый дар","Паттерн хаоса","Призма света","Аврора",
-  "Титан","Сфера душ","Древний фолиант","Генезис","Осколок кометы","Небесная сфера","Корона света","Аметистовый дар","Сапфировый дар","Янтарный кулон",
-  "Нефритовый дар","Жемчужина океана","Опаловый шар","Метеорит","Космический цветок","Эфирный куб","Золотое руно","Чаша изобилия","Перо феникса","Роза ветров",
-  "Гармония","Сфера жизни","Врата измерений","Эликсир силы","Руна огня","Руна льда","Руна бури","Руна света","Руна тьмы","Сердце дракона",
-  "Дыхание космоса","Звездный компас","Астральный ключ","Кольцо всевластия","Скипетр власти","Око мага","Часы вечности","Глобус миров","Маяк надежды","Импульс",
-  "Сингулярность","Парадокс","Резонанс","Вектор","Горизонт","Зенит","Надир","Фокус","Крепость","Абсолют"
+/* ==========================================================
+   SVG: ПРОСТЫЕ ПОДАРКИ (базовые)
+   ========================================================== */
+const GIFT_ART = {
+  heart: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M50 86C18 64 6 48 6 32 6 17 17 7 31 7c8 0 15 4 19 11 4-7 11-11 19-11 14 0 25 10 25 25 0 16-12 32-44 54z" fill="#ff3d6e" stroke="#a3103f" stroke-width="2.5"/>
+    <path d="M22 30c1-7 6-11 12-11" stroke="#ffd6e0" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M82 14l1.8 4.6L88.5 20l-4.7 1.4L82 26l-1.8-4.6L75.5 20l4.7-1.4z" fill="#fff"/>
+  </svg>`,
+  teddy: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <circle cx="24" cy="26" r="11" fill="#c98a4b"/><circle cx="76" cy="26" r="11" fill="#c98a4b"/>
+    <circle cx="24" cy="26" r="5.5" fill="#f2c9a0"/><circle cx="76" cy="26" r="5.5" fill="#f2c9a0"/>
+    <ellipse cx="50" cy="80" rx="22" ry="15" fill="#c98a4b"/>
+    <ellipse cx="50" cy="82" rx="12" ry="9" fill="#f2c9a0"/>
+    <ellipse cx="33" cy="91" rx="8" ry="5" fill="#8a5528"/><ellipse cx="67" cy="91" rx="8" ry="5" fill="#8a5528"/>
+    <circle cx="50" cy="44" r="28" fill="#c98a4b"/>
+    <ellipse cx="50" cy="56" rx="14" ry="11" fill="#f2c9a0"/>
+    <ellipse cx="50" cy="52" rx="5" ry="4" fill="#2b1608"/>
+    <path d="M50 56v3M45 62q5 4 10 0" stroke="#2b1608" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="40" cy="40" r="4" fill="#2b1608"/><circle cx="60" cy="40" r="4" fill="#2b1608"/>
+    <circle cx="41.3" cy="38.7" r="1.4" fill="#fff"/><circle cx="61.3" cy="38.7" r="1.4" fill="#fff"/>
+    <path d="M36 70 L50 76 L36 82Z M64 70 L50 76 L64 82Z" fill="#e53e3e"/>
+    <circle cx="50" cy="76" r="3.6" fill="#b91c1c"/>
+  </svg>`,
+  rose: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M50 64 C48 76 51 86 50 93" stroke="#2f855a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M50 82 C36 76 28 68 30 56 C42 60 48 72 50 82Z" fill="#38a169"/>
+    <path d="M50 86 C64 80 72 72 70 62 C58 66 52 76 50 86Z" fill="#48bb78"/>
+    <circle cx="50" cy="40" r="28" fill="#e0306a"/>
+    <circle cx="50" cy="40" r="20" fill="#c81d56"/>
+    <circle cx="50" cy="40" r="12" fill="#a3173f"/>
+    <path d="M42 36 q8 -10 16 0" stroke="#ff8fb0" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  diamond: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <polygon points="30,16 70,16 90,38 50,88 10,38" fill="#3ab0ff"/>
+    <polygon points="30,16 70,16 50,38" fill="#d6f7ff"/>
+    <polygon points="10,38 30,16 50,38" fill="#8fdcff"/>
+    <polygon points="90,38 70,16 50,38" fill="#2c8fe0"/>
+    <polygon points="10,38 50,38 50,88" fill="#2a8ee0"/>
+    <polygon points="90,38 50,38 50,88" fill="#1c6fc4"/>
+    <path d="M72 24 l1.8 4.2 4.2 1.8 -4.2 1.8 -1.8 4.2 -1.8 -4.2 -4.2 -1.8 4.2 -1.8z" fill="#fff"/>
+  </svg>`,
+  star: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M50 8 L61 36 L92 38 L68 58 L76 90 L50 73 L24 90 L32 58 L8 38 L39 36Z" fill="#ffc83a" stroke="#b07a00" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="42" cy="52" r="3" fill="#7a4a00"/><circle cx="58" cy="52" r="3" fill="#7a4a00"/>
+    <path d="M44 62 Q50 67 56 62" stroke="#7a4a00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  horseshoe: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M26 20 V58 Q26 82 50 82 Q74 82 74 58 V20" stroke="#8a96aa" stroke-width="13" fill="none" stroke-linecap="butt"/>
+    <path d="M26 20 V58 Q26 82 50 82 Q74 82 74 58 V20" stroke="#c4cdda" stroke-width="5" fill="none"/>
+    <rect x="18" y="12" width="16" height="10" rx="3" fill="#5a6578"/>
+    <rect x="66" y="12" width="16" height="10" rx="3" fill="#5a6578"/>
+    <circle cx="32" cy="34" r="2.5" fill="#3a4456"/><circle cx="68" cy="34" r="2.5" fill="#3a4456"/>
+    <circle cx="38" cy="62" r="2.5" fill="#3a4456"/><circle cx="62" cy="62" r="2.5" fill="#3a4456"/>
+  </svg>`,
+  bell: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M50 14 C30 14 26 34 26 56 L20 70 L80 70 L74 56 C74 34 70 14 50 14Z" fill="#ffc83a" stroke="#b07a00" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="12" r="5.5" fill="#b07a00"/>
+    <path d="M42 80 Q50 92 58 80Z" fill="#b07a00"/>
+    <path d="M36 42 Q37 32 45 30" stroke="#fff3b0" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  cake: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="18" y="60" width="64" height="26" rx="6" fill="#ff8fb8"/>
+    <rect x="18" y="50" width="64" height="16" rx="6" fill="#fff"/>
+    <circle cx="30" cy="52" r="5" fill="#fff"/><circle cx="50" cy="50" r="5" fill="#fff"/><circle cx="70" cy="52" r="5" fill="#fff"/>
+    <rect x="46" y="30" width="8" height="20" rx="2" fill="#ffd34d"/>
+    <path d="M50 22 q-4 -6 0 -12 q4 6 0 12z" fill="#ff5a3c"/>
+    <circle cx="30" cy="72" r="3" fill="#fff"/><circle cx="50" cy="74" r="3" fill="#ffd34d"/><circle cx="70" cy="72" r="3" fill="#fff"/>
+  </svg>`
+};
+
+/* ДОПОЛНИТЕЛЬНЫЕ ПРОСТЫЕ ПОДАРКИ (генератор по типу и цвету) */
+function giftKind(k, c, c2) {
+  const body = {
+    box: `<rect x="18" y="40" width="64" height="48" rx="6" fill="${c}"/><rect x="14" y="30" width="72" height="16" rx="5" fill="${c2}"/><rect x="45" y="30" width="10" height="58" fill="#fff" opacity=".85"/><path d="M50 30 C36 10 24 16 34 30Z M50 30 C64 10 76 16 66 30Z" fill="#fff" opacity=".9"/>`,
+    balloon: `<path d="M50 72 Q44 84 52 94" stroke="#777" stroke-width="2" fill="none"/><path d="M46 72 L54 72 L50 78Z" fill="${c2}"/><ellipse cx="50" cy="40" rx="26" ry="32" fill="${c}"/><ellipse cx="40" cy="26" rx="6" ry="10" fill="#fff" opacity=".4"/>`,
+    candy: `<rect x="47" y="78" width="6" height="16" rx="3" fill="#ddd"/><circle cx="50" cy="50" r="30" fill="${c}"/><path d="M50 50 m-6 0 a6 6 0 1 1 12 0 a12 12 0 1 1 -24 0 a18 18 0 1 1 36 0" stroke="${c2}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    ball: `<circle cx="50" cy="50" r="32" fill="${c}"/><path d="M20 52 Q50 70 80 52" stroke="${c2}" stroke-width="4" fill="none"/><circle cx="40" cy="38" r="8" fill="#fff" opacity=".5"/>`,
+    cup: `<path d="M26 30 Q12 30 16 44 Q20 54 32 52" stroke="${c2}" stroke-width="5" fill="none"/><path d="M74 30 Q88 30 84 44 Q80 54 68 52" stroke="${c2}" stroke-width="5" fill="none"/><path d="M26 22 H74 L68 62 Q66 74 50 76 Q34 74 32 62Z" fill="${c}"/><rect x="44" y="76" width="12" height="10" fill="${c2}"/><rect x="34" y="84" width="32" height="7" rx="3" fill="${c2}"/>`
+  };
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${body[k]}</svg>`;
+}
+
+const GIFT_EXTRA_DEF = [
+  ["Синий бант", "box", "#2d7aff", "#1a4fb0", 25],
+  ["Розовый бант", "box", "#ff5fa2", "#c2185b", 25],
+  ["Зелёный бант", "box", "#2ed573", "#1e8f4e", 30],
+  ["Фиолетовый бант", "box", "#8e44ad", "#5b2a75", 35],
+  ["Золотой бант", "box", "#ffd34d", "#b07a00", 45],
+  ["Красный шарик", "balloon", "#ff4757", "#c81d2e", 20],
+  ["Голубой шарик", "balloon", "#4fc3f7", "#0288d1", 20],
+  ["Жёлтый шарик", "balloon", "#ffe066", "#e0a400", 20],
+  ["Зелёный шарик", "balloon", "#7ed957", "#3f9e1a", 20],
+  ["Фиолетовый шарик", "balloon", "#b57bff", "#6a3fbf", 20],
+  ["Леденец радуга", "candy", "#ff8ad8", "#7ad7ff", 40],
+  ["Леденец мята", "candy", "#8ff0c8", "#2fb07a", 40],
+  ["Леденец вишня", "candy", "#ff4d6d", "#ffffff", 40],
+  ["Леденец лимон", "candy", "#fff176", "#ffb300", 40],
+  ["Леденец виноград", "candy", "#9b6bff", "#ffffff", 40],
+  ["Волшебный шар", "ball", "#7b2ff7", "#b57bff", 55],
+  ["Снежок", "ball", "#e6f7ff", "#8fdcff", 55],
+  ["Мячик", "ball", "#ff7a1a", "#ffffff", 55],
+  ["Жемчужина", "ball", "#f5f0ff", "#c9b6ff", 65],
+  ["Янтарь", "ball", "#ffb020", "#c77c00", 65],
+  ["Кубок огня", "cup", "#ff4757", "#8a1020", 90],
+  ["Кубок океана", "cup", "#2d7aff", "#153d80", 90],
+  ["Кубок леса", "cup", "#2ed573", "#14723a", 90],
+  ["Кубок ночи", "cup", "#3d4a5c", "#c0c8d6", 90],
+  ["Кубок солнца", "cup", "#ffd34d", "#b07a00", 90]
 ];
 
-const GIFTS = GIFT_NAMES.map((name, i) => {
-  const types = ["box", "orb", "star", "gem", "cup"];
-  const t = types[i % types.length];
-  const c1 = `hsl(${i * 5.1}, 80%, 60%)`;
-  const c2 = `hsl(${i * 5.1}, 90%, 30%)`;
-  return { id: "g" + (i + 1), name, price: 15 + (i * 12), gbg: c1 + "22", svg: giftSvg(t, c1, c2, "#fff") };
-});
+const GIFTS_BASE = [
+  { id: "g1", name: "Сердце",      emoji: "❤️", price: 15,  gbg: "#ffe3ea", svg: GIFT_ART.heart },
+  { id: "g2", name: "Мишка",       emoji: "🧸", price: 25,  gbg: "#f7e6d4", svg: GIFT_ART.teddy },
+  { id: "g3", name: "Роза",        emoji: "🌹", price: 50,  gbg: "#ffe0ea", svg: GIFT_ART.rose },
+  { id: "g4", name: "Алмаз",       emoji: "💎", price: 100, gbg: "#dff3ff", svg: GIFT_ART.diamond },
+  { id: "g5", name: "Звезда",      emoji: "⭐", price: 30,  gbg: "#fff6d6", svg: GIFT_ART.star },
+  { id: "g6", name: "Подкова",     emoji: "🧲", price: 45,  gbg: "#e8ecf3", svg: GIFT_ART.horseshoe },
+  { id: "g7", name: "Колокольчик", emoji: "🔔", price: 60,  gbg: "#fff3c4", svg: GIFT_ART.bell },
+  { id: "g8", name: "Торт",        emoji: "🍰", price: 75,  gbg: "#ffe6f2", svg: GIFT_ART.cake }
+];
+
+const GIFTS_EXTRA = GIFT_EXTRA_DEF.map(([name, k, c, c2, price], i) => ({
+  id: "x" + (i + 1), name, emoji: "🎁", price, gbg: c + "33", svg: giftKind(k, c, c2)
+}));
+
+const GIFTS = [...GIFTS_BASE, ...GIFTS_EXTRA];
+
+/* ЛИМИТИРОВАННЫЕ */
+const LIM_ART = {
+  crown: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M14 70 L22 32 L38 52 L50 22 L62 52 L78 32 L86 70Z" fill="#ffd34d" stroke="#b07a00" stroke-width="2.5" stroke-linejoin="round"/>
+    <rect x="14" y="70" width="72" height="12" rx="3" fill="#e0a400"/>
+    <circle cx="22" cy="32" r="5" fill="#ff4757"/><circle cx="50" cy="22" r="5" fill="#2d7aff"/><circle cx="78" cy="32" r="5" fill="#2ed573"/>
+    <circle cx="50" cy="76" r="3" fill="#ff4757"/>
+  </svg>`,
+  cup: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M28 16 H72 V40 Q72 64 50 66 Q28 64 28 40Z" fill="#ffc83a" stroke="#b07a00" stroke-width="2.5"/>
+    <path d="M28 24 Q12 24 14 38 Q16 50 30 50" stroke="#e0a400" stroke-width="6" fill="none"/>
+    <path d="M72 24 Q88 24 86 38 Q84 50 70 50" stroke="#e0a400" stroke-width="6" fill="none"/>
+    <rect x="44" y="66" width="12" height="14" fill="#c58a00"/>
+    <rect x="32" y="80" width="36" height="8" rx="3" fill="#c58a00"/>
+    <path d="M36 26 V40" stroke="#fff3b0" stroke-width="4" stroke-linecap="round"/>
+  </svg>`
+};
+
+const LIMITED = [
+  { id: "l1", name: "Золотая корона", emoji: "👑", price: 500, limit: 50, gbg: "#fff3c4", svg: LIM_ART.crown },
+  { id: "l2", name: "Золотой кубок",  emoji: "🏆", price: 800, limit: 20, gbg: "#fff3c4", svg: LIM_ART.cup }
+];
+
+/* ИВЕНТОВЫЕ ПОДАРКИ (еда) */
+const EVENT_ART = {
+  pie: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="14" y="52" width="72" height="30" rx="8" fill="#c4742a"/>
+    <ellipse cx="50" cy="52" rx="36" ry="11" fill="#ffb347"/>
+    <path d="M50 46 L50 62 M38 47 L44 62 M62 47 L56 62" stroke="#8a4a10" stroke-width="2.5"/>
+  </svg>`,
+  lollipop: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="47" y="55" width="6" height="38" rx="3" fill="#f3f3f3"/>
+    <circle cx="50" cy="40" r="28" fill="#ff7ad9"/>
+    <path d="M50 40 m0 -6 a6 6 0 1 1 -6 6 a12 12 0 1 1 12 12 a18 18 0 1 1 -18 -18" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  witchcake: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="18" y="58" width="64" height="30" rx="6" fill="#7a3b00"/>
+    <rect x="18" y="52" width="64" height="12" rx="6" fill="#6b3fa0"/>
+    <path d="M50 12 L36 46 L64 46Z" fill="#1a0a2a"/>
+    <ellipse cx="50" cy="46" rx="20" ry="4" fill="#1a0a2a"/>
+    <circle cx="42" cy="76" r="3.5" fill="#ff8a00"/><circle cx="58" cy="78" r="3.5" fill="#ff8a00"/><circle cx="50" cy="84" r="2.5" fill="#ffd34d"/>
+  </svg>`,
+  gingerbread: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <circle cx="50" cy="24" r="13" fill="#c8843a"/>
+    <rect x="34" y="36" width="32" height="34" rx="14" fill="#c8843a"/>
+    <rect x="20" y="40" width="14" height="10" rx="5" fill="#c8843a" transform="rotate(20 27 45)"/>
+    <rect x="66" y="40" width="14" height="10" rx="5" fill="#c8843a" transform="rotate(-20 73 45)"/>
+    <rect x="36" y="66" width="10" height="20" rx="5" fill="#c8843a"/>
+    <rect x="54" y="66" width="10" height="20" rx="5" fill="#c8843a"/>
+    <circle cx="45" cy="20" r="2.2" fill="#fff"/><circle cx="55" cy="20" r="2.2" fill="#fff"/>
+    <path d="M44 28 Q50 33 56 28" stroke="#fff" stroke-width="2.5" fill="none"/>
+    <circle cx="50" cy="48" r="2.4" fill="#fff"/><circle cx="50" cy="58" r="2.4" fill="#fff"/>
+  </svg>`,
+  nycake: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="18" y="56" width="64" height="32" rx="4" fill="#ffd0dc"/>
+    <rect x="18" y="50" width="64" height="8" rx="4" fill="#fff"/>
+    <path d="M50 10 l4 9 9 1 -7 6 2 9 -8-5 -8 5 2-9 -7-6 9-1z" fill="#ffd700" stroke="#b08a00" stroke-width="1.5"/>
+    <rect x="46" y="30" width="8" height="12" rx="2" fill="#ff4757"/>
+    <circle cx="30" cy="72" r="4" fill="#e9708f"/><circle cx="50" cy="74" r="4" fill="#e9708f"/><circle cx="70" cy="72" r="4" fill="#e9708f"/>
+  </svg>`,
+  champagne: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M42 40 L42 22 L58 22 L58 40 Q76 52 74 74 Q72 90 50 90 Q28 90 26 74 Q24 52 42 40Z" fill="#2e9e62"/>
+    <rect x="41" y="12" width="18" height="12" rx="2" fill="#ffd700"/>
+    <rect x="38" y="60" width="24" height="18" rx="2" fill="#f7f1d6"/>
+    <path d="M44 66 h12 M44 71 h12" stroke="#c9a500" stroke-width="1.5"/>
+  </svg>`,
+  donut: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <circle cx="50" cy="52" r="34" fill="#e8a95a"/>
+    <path d="M18 46 Q30 30 50 36 Q70 30 82 46 Q72 42 50 48 Q28 42 18 46Z" fill="#3ddc84"/>
+    <circle cx="50" cy="52" r="11" fill="#151f2b"/>
+    <rect x="28" y="62" width="6" height="3" rx="1.5" fill="#ff4757" transform="rotate(20 31 63)"/>
+    <rect x="66" y="42" width="6" height="3" rx="1.5" fill="#ffd700" transform="rotate(-20 69 43)"/>
+  </svg>`,
+  egg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M50 8 C72 8 80 48 78 66 C76 84 64 92 50 92 C36 92 24 84 22 66 C20 48 28 8 50 8Z" fill="#ffd1f0" stroke="#c46aa0" stroke-width="2"/>
+    <path d="M26 56 L34 46 L42 56 L50 46 L58 56 L66 46 L74 56" stroke="#8a2a78" stroke-width="3" fill="none"/>
+    <path d="M30 74 L38 66 L46 74 L54 66 L62 74 L70 66" stroke="#ffb800" stroke-width="2.5" fill="none"/>
+  </svg>`,
+  kulich: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M30 34 L30 80 Q30 88 50 88 Q70 88 70 80 L70 34 Q70 22 50 22 Q30 22 30 34Z" fill="#f5b94a"/>
+    <path d="M30 34 Q50 42 70 34 L70 46 Q50 54 30 46Z" fill="#fff"/>
+    <circle cx="40" cy="28" r="2" fill="#ff5a5a"/><circle cx="50" cy="26" r="2" fill="#5ac8ff"/><circle cx="60" cy="29" r="2" fill="#ff5a5a"/>
+  </svg>`,
+  paskha: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M22 84 L30 40 L70 40 L78 84Z" fill="#ffb3d1"/>
+    <path d="M30 40 L50 18 L70 40Z" fill="#fff0f7"/>
+    <path d="M50 24 V34 M46 28 H54" stroke="#8a2a5a" stroke-width="2.5"/>
+    <path d="M34 58 h32 M30 70 h40" stroke="#8a2a5a" stroke-width="2" opacity=".5"/>
+  </svg>`,
+  blin: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <ellipse cx="50" cy="70" rx="36" ry="12" fill="#e0a95a"/>
+    <ellipse cx="50" cy="56" rx="36" ry="12" fill="#f0c070"/>
+    <ellipse cx="50" cy="42" rx="36" ry="12" fill="#e0a95a"/>
+    <ellipse cx="50" cy="28" rx="36" ry="12" fill="#ffe59a"/>
+  </svg>`,
+  honey: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="24" y="36" width="52" height="54" rx="14" fill="#ffb020"/>
+    <rect x="30" y="22" width="40" height="14" rx="4" fill="#8a5a20"/>
+    <rect x="38" y="48" width="24" height="18" rx="4" fill="#fff6d6"/>
+    <path d="M30 60 Q34 74 30 80" stroke="#ffd34d" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  blintower: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <ellipse cx="50" cy="74" rx="34" ry="10" fill="#d9642b"/>
+    <ellipse cx="50" cy="60" rx="34" ry="10" fill="#ef8a4a"/>
+    <ellipse cx="50" cy="46" rx="34" ry="10" fill="#d9642b"/>
+    <ellipse cx="50" cy="32" rx="34" ry="10" fill="#ffd27a"/>
+    <circle cx="50" cy="18" r="8" fill="#e53e3e"/>
+  </svg>`
+};
+
+/* ИВЕНТЫ */
+const EVENTS = {
+  halloween: { name: "Хэллоуин", icon: "🎃", particles: ["🎃", "🦇", "🕸️", "🍬"], bg: "linear-gradient(135deg,#2a0a3a,#ff7a1a)", ring: "#ff7a1a", gifts: [
+    { id: "h1", name: "Тыквенный пирог", emoji: "🥧", price: 40,  gbg: "#ffe2c4", event: "halloween", svg: EVENT_ART.pie },
+    { id: "h2", name: "Леденец-череп",   emoji: "🍭", price: 30,  gbg: "#ffd6f5", event: "halloween", svg: EVENT_ART.lollipop },
+    { id: "h3", name: "Ведьмин торт",    emoji: "🧁", price: 120, gbg: "#e6dcff", event: "halloween", svg: EVENT_ART.witchcake }
+  ]},
+  newyear: { name: "Новый год", icon: "🎄", particles: ["❄️", "❄️", "❅", "⭐", "🎄"], bg: "linear-gradient(135deg,#0b3a6b,#1e88c9)", ring: "#7fe0ff", gifts: [
+    { id: "ny1", name: "Имбирный пряник", emoji: "🍪", price: 35,  gbg: "#f3e0cc", event: "newyear", svg: EVENT_ART.gingerbread },
+    { id: "ny2", name: "Новогодний торт", emoji: "🎂", price: 80,  gbg: "#ffe0e8", event: "newyear", svg: EVENT_ART.nycake },
+    { id: "ny3", name: "Шампанское",      emoji: "🍾", price: 150, gbg: "#fff3c4", event: "newyear", svg: EVENT_ART.champagne },
+    { id: "ny4", name: "Ёлочный пончик",  emoji: "🍩", price: 60,  gbg: "#dff4ff", event: "newyear", svg: EVENT_ART.donut }
+  ]},
+  easter: { name: "Пасха", icon: "🥚", particles: ["🥚", "🐣", "🌷", "🐰"], bg: "linear-gradient(135deg,#ffd1f0,#9fe6c1)", ring: "#ff8ad8", gifts: [
+    { id: "e1", name: "Крашенка",        emoji: "🥚", price: 20, gbg: "#ffeef8", event: "easter", svg: EVENT_ART.egg },
+    { id: "e2", name: "Кулич",           emoji: "🍞", price: 45, gbg: "#fff1d6", event: "easter", svg: EVENT_ART.kulich },
+    { id: "e3", name: "Творожная пасха", emoji: "🍰", price: 60, gbg: "#eafff3", event: "easter", svg: EVENT_ART.paskha }
+  ]},
+  maslenitsa: { name: "Масленица", icon: "🥞", particles: ["🥞", "🌞", "🍯", "🌻"], bg: "linear-gradient(135deg,#ffb347,#ff5e62)", ring: "#ffd34d", gifts: [
+    { id: "m1", name: "Блин",          emoji: "🥞", price: 15,  gbg: "#fff1d6", event: "maslenitsa", svg: EVENT_ART.blin },
+    { id: "m2", name: "Мёд",           emoji: "🍯", price: 40,  gbg: "#fff3c4", event: "maslenitsa", svg: EVENT_ART.honey },
+    { id: "m3", name: "Блинная башня", emoji: "🥞", price: 100, gbg: "#ffe0c4", event: "maslenitsa", svg: EVENT_ART.blintower }
+  ]}
+};
 
 /* ==========================================================
-   20 УНИКАЛЬНЫХ NFT (С 3D/2D ЭФФЕКТАМИ И УЛУЧШЕНИЕМ)
+   NFT
    ========================================================== */
-function nftSvg(bodyShape, c1, c2, detail) {
+const NFT_ART = {
+  cat: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22 40 L24 14 L42 28 Q50 25 58 28 L76 14 L78 40 Q84 60 74 76 Q50 92 26 76 Q16 60 22 40Z" fill="#ffb347" stroke="#b35a10" stroke-width="2"/>
+    <path d="M28 26 L30 20 L36 25Z M72 26 L70 20 L64 25Z" fill="#ff8fa3"/>
+    <ellipse cx="38" cy="54" rx="6.5" ry="7.5" fill="#fff"/><ellipse cx="62" cy="54" rx="6.5" ry="7.5" fill="#fff"/>
+    <ellipse cx="39" cy="55" rx="3" ry="5" fill="#111"/><ellipse cx="63" cy="55" rx="3" ry="5" fill="#111"/>
+    <path d="M47 64 L50 67 L53 64 Z" fill="#ff6b8b"/>
+    <path d="M31 24 L37 14 L43 24 L50 12 L57 24 L63 14 L69 24 L64 30 L36 30Z" fill="#ffd34d" stroke="#b7791f" stroke-width="1.5"/>
+    <circle cx="50" cy="20" r="2.5" fill="#e53e3e"/>
+  </svg>`,
+  skull: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 10 C26 10 14 28 14 48 C14 62 22 70 30 74 L30 88 L70 88 L70 74 C78 70 86 62 86 48 C86 28 74 10 50 10Z" fill="#5b9cff" stroke="#1d4ed8" stroke-width="2"/>
+    <ellipse cx="36" cy="50" rx="10" ry="12" fill="#0b1118"/><ellipse cx="64" cy="50" rx="10" ry="12" fill="#0b1118"/>
+    <circle cx="36" cy="48" r="2.8" fill="#8fc4ff"/><circle cx="64" cy="48" r="2.8" fill="#8fc4ff"/>
+    <path d="M50 62 L44 72 L50 70 L56 72Z" fill="#0b1118"/>
+    <path d="M38 82 V88 M46 82 V88 M54 82 V88 M62 82 V88" stroke="#0b1118" stroke-width="3"/>
+  </svg>`,
+  alien: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 30 L44 12 M50 30 L58 12" stroke="#2f9e44" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="44" cy="11" r="3.5" fill="#ff6b6b"/><circle cx="58" cy="11" r="3.5" fill="#ff6b6b"/>
+    <ellipse cx="50" cy="55" rx="34" ry="32" fill="#7be07b" stroke="#2f9e44" stroke-width="2"/>
+    <ellipse cx="34" cy="50" rx="11" ry="16" fill="#0b1118" transform="rotate(-20 34 50)"/>
+    <ellipse cx="66" cy="50" rx="11" ry="16" fill="#0b1118" transform="rotate(20 66 50)"/>
+    <circle cx="37" cy="45" r="3" fill="#fff"/><circle cx="69" cy="45" r="3" fill="#fff"/>
+    <path d="M42 78 Q50 84 58 78" stroke="#1b5e20" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  robot: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 14 L50 24" stroke="#5c6b7e" stroke-width="3"/>
+    <circle cx="50" cy="12" r="5" fill="#ff4757"/>
+    <rect x="18" y="24" width="64" height="50" rx="14" fill="#b8c4d4" stroke="#5c6b7e" stroke-width="2"/>
+    <rect x="26" y="34" width="48" height="22" rx="8" fill="#0b1118"/>
+    <circle cx="38" cy="45" r="6" fill="#22d3ee"/><circle cx="62" cy="45" r="6" fill="#22d3ee"/>
+    <rect x="36" y="62" width="28" height="4" rx="2" fill="#0b1118"/>
+    <rect x="30" y="78" width="40" height="14" rx="5" fill="#b8c4d4" stroke="#5c6b7e" stroke-width="2"/>
+  </svg>`,
+  rocket: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 58 L62 62 L62 88 L50 80 L38 88 L38 62Z" fill="#ffa502"/>
+    <path d="M50 6 C66 22 68 50 66 66 L34 66 C32 50 34 22 50 6Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <path d="M34 52 L18 68 L34 66Z M66 52 L82 68 L66 66Z" fill="#ef4444"/>
+    <circle cx="50" cy="38" r="8" fill="#0ea5e9" stroke="#334155" stroke-width="3"/>
+    <path d="M42 66 L58 66 L56 73 L44 73Z" fill="#475569"/>
+  </svg>`,
+  penguin: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <ellipse cx="50" cy="56" rx="28" ry="34" fill="#334155"/>
+    <ellipse cx="50" cy="62" rx="18" ry="24" fill="#f5f7fa"/>
+    <circle cx="40" cy="38" r="5.5" fill="#fff"/><circle cx="60" cy="38" r="5.5" fill="#fff"/>
+    <circle cx="41" cy="39" r="2.6" fill="#111"/><circle cx="61" cy="39" r="2.6" fill="#111"/>
+    <path d="M45 48 L55 48 L50 56Z" fill="#ffa502"/>
+    <ellipse cx="30" cy="62" rx="6" ry="14" fill="#334155" transform="rotate(20 30 62)"/>
+    <ellipse cx="70" cy="62" rx="6" ry="14" fill="#334155" transform="rotate(-20 70 62)"/>
+    <ellipse cx="42" cy="90" rx="7" ry="3" fill="#ffa502"/><ellipse cx="58" cy="90" rx="7" ry="3" fill="#ffa502"/>
+  </svg>`,
+  dragon: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M30 40 L16 22 L24 48Z M70 40 L84 22 L76 48Z" fill="#1d8f4e"/>
+    <ellipse cx="50" cy="56" rx="28" ry="28" fill="#2fbf6a" stroke="#127a3a" stroke-width="2"/>
+    <ellipse cx="50" cy="40" rx="22" ry="18" fill="#2fbf6a"/>
+    <circle cx="42" cy="38" r="4.5" fill="#fff"/><circle cx="58" cy="38" r="4.5" fill="#fff"/>
+    <circle cx="43" cy="38" r="2.2" fill="#111"/><circle cx="59" cy="38" r="2.2" fill="#111"/>
+    <path d="M44 50 Q50 55 56 50" stroke="#0b4a22" stroke-width="2.5" fill="none"/>
+    <path d="M76 70 Q92 60 90 46" stroke="#1d8f4e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  ghost: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M22 84 L22 44 Q22 14 50 14 Q78 14 78 44 L78 84 L70 76 L62 84 L54 76 L46 84 L38 76 L30 84Z" fill="#eef2fb" stroke="#94a3b8" stroke-width="2"/>
+    <ellipse cx="40" cy="44" rx="6" ry="8" fill="#1b2433"/><ellipse cx="60" cy="44" rx="6" ry="8" fill="#1b2433"/>
+    <ellipse cx="50" cy="62" rx="6" ry="5" fill="#1b2433"/>
+  </svg>`,
+  owl: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <path d="M28 30 L24 12 L40 24Z M72 30 L76 12 L60 24Z" fill="#7a4a24"/>
+    <ellipse cx="50" cy="60" rx="32" ry="32" fill="#a86f3c"/>
+    <ellipse cx="50" cy="40" rx="22" ry="16" fill="#f3e6cc"/>
+    <circle cx="40" cy="40" r="9" fill="#fff"/><circle cx="60" cy="40" r="9" fill="#fff"/>
+    <circle cx="40" cy="41" r="4.5" fill="#ffa502"/><circle cx="60" cy="41" r="4.5" fill="#ffa502"/>
+    <circle cx="40" cy="41" r="2" fill="#111"/><circle cx="60" cy="41" r="2" fill="#111"/>
+    <path d="M47 50 L53 50 L50 58Z" fill="#ffa502"/>
+  </svg>`,
+  mushroom: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <rect x="40" y="56" width="20" height="32" rx="8" fill="#f5e6c8"/>
+    <path d="M14 58 Q14 18 50 18 Q86 18 86 58 Z" fill="#e53e3e"/>
+    <circle cx="34" cy="38" r="6" fill="#fff"/><circle cx="60" cy="30" r="5" fill="#fff"/><circle cx="72" cy="46" r="4" fill="#fff"/>
+    <circle cx="44" cy="68" r="2.5" fill="#333"/><circle cx="56" cy="68" r="2.5" fill="#333"/>
+  </svg>`
+};
+
+/* Существа из тела, цвета и аксессуара */
+function creatureSvg(body, col, acc) {
   const shapes = {
-    mech: `<rect x="22" y="24" width="56" height="56" rx="14" fill="${c1}" stroke="${c2}" stroke-width="3"/><circle cx="50" cy="52" r="16" fill="${detail}"/>`,
-    cyber: `<path d="M50 12 L84 32 L84 68 L50 88 L16 68 L16 32Z" fill="${c1}" stroke="${c2}" stroke-width="3"/><circle cx="50" cy="50" r="14" fill="${detail}"/>`,
-    sphere: `<circle cx="50" cy="50" r="34" fill="${c1}" stroke="${c2}" stroke-width="3"/><ellipse cx="50" cy="35" rx="16" ry="8" fill="${detail}"/>`,
-    core: `<polygon points="50,10 90,50 50,90 10,50" fill="${c1}" stroke="${c2}" stroke-width="3"/><circle cx="50" cy="50" r="12" fill="${detail}"/>`
+    round: `<ellipse cx="50" cy="56" rx="30" ry="28" fill="${col}"/>`,
+    square: `<rect x="22" y="30" width="56" height="54" rx="12" fill="${col}"/>`,
+    tall: `<ellipse cx="50" cy="58" rx="24" ry="32" fill="${col}"/>`,
+    blob: `<path d="M50 26 C75 26 80 50 76 66 C72 86 60 86 50 84 C40 86 28 86 24 66 C20 50 25 26 50 26Z" fill="${col}"/>`
   };
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${shapes[bodyShape] || shapes.mech}</svg>`;
+  const accs = {
+    none: "",
+    crown: `<path d="M30 30 L36 16 L44 26 L50 12 L56 26 L64 16 L70 30Z" fill="#ffd34d" stroke="#b7791f" stroke-width="1.5"/>`,
+    hat: `<rect x="28" y="26" width="44" height="6" rx="2" fill="#2b2b2b"/><rect x="36" y="10" width="28" height="18" rx="3" fill="#2b2b2b"/>`,
+    horns: `<path d="M30 34 L24 12 L40 26Z M70 34 L76 12 L60 26Z" fill="#c0392b"/>`,
+    antenna: `<path d="M50 28 L50 12" stroke="#334155" stroke-width="3"/><circle cx="50" cy="10" r="4" fill="#ff4757"/>`,
+    bow: `<path d="M64 26 L80 18 L80 34Z M64 26 L48 18 L48 34Z" fill="#ff5fa2"/><circle cx="64" cy="26" r="3" fill="#c2185b"/>`,
+    halo: `<ellipse cx="50" cy="14" rx="18" ry="5" fill="none" stroke="#ffd34d" stroke-width="3"/>`
+  };
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SHADOW}${shapes[body]}${accs[acc]}<ellipse cx="38" cy="54" rx="7" ry="8" fill="#fff"/><ellipse cx="62" cy="54" rx="7" ry="8" fill="#fff"/><circle cx="39" cy="55" r="3.5" fill="#111"/><circle cx="63" cy="55" r="3.5" fill="#111"/><path d="M45 68 Q50 73 55 68" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
 }
 
-const NFT_NAMES = [
-  "Кибер-Кот v1","Хроно-Череп","Неон-Дроид","Квант-Пилот","Титан-Мек","Астрал-Дух","Омега-Ядро","Фантом","Гиперион","Синтетик",
-  "Нейро-Бот","Призма-Голем","Абсолют","Вектор-Х","Звездный Странник","Блиц","Архонт","НЛО-Модуль","Цитадель","Оверлорд"
+const NFT_EXTRA_DEF = [
+  ["Лягушонок", "round", "#4cd964", "bow", 200],
+  ["Хомяк", "round", "#f5c27a", "none", 200],
+  ["Единорог", "tall", "#f8c8f0", "crown", 500],
+  ["Зайка", "tall", "#ffffff", "bow", 220],
+  ["Панда", "round", "#f5f5f5", "none", 260],
+  ["Лис", "blob", "#ff8a3c", "none", 300],
+  ["Волк", "square", "#8a96aa", "none", 320],
+  ["Кибер-мишка", "square", "#22d3ee", "antenna", 450],
+  ["Ёжик", "blob", "#a0785a", "none", 240],
+  ["Дух огня", "tall", "#ff4d2e", "horns", 600],
+  ["Ледяной", "blob", "#9be7ff", "crown", 700],
+  ["Король", "round", "#ffd34d", "crown", 800],
+  ["Маг", "tall", "#6b3fa0", "hat", 550],
+  ["Пират", "square", "#3d4a5c", "hat", 500],
+  ["Ниндзя", "square", "#111827", "none", 420],
+  ["Пушистик", "round", "#c8b6ff", "halo", 380],
+  ["Ангел", "round", "#ffffff", "halo", 650],
+  ["Демон", "round", "#b91c1c", "horns", 650],
+  ["Инопланетянин", "round", "#84cc16", "antenna", 480],
+  ["Робот-бочонок", "square", "#94a3b8", "antenna", 400],
+  ["Сакура", "blob", "#ffb7c5", "bow", 360],
+  ["Кактус", "tall", "#2f9e44", "hat", 340],
+  ["Осьминог", "blob", "#f472b6", "none", 330],
+  ["Огонёк", "tall", "#fb923c", "crown", 560],
+  ["Тыквочка", "round", "#ff7a1a", "hat", 300]
 ];
 
-const NFTS = NFT_NAMES.map((name, i) => {
-  const shapes = ["mech", "cyber", "sphere", "core"];
-  const s = shapes[i % shapes.length];
-  const c1 = `hsl(${i * 18}, 85%, 55%)`;
-  const c2 = `hsl(${i * 18}, 95%, 25%)`;
-  const det = i % 2 === 0 ? "#fff" : "#FFD700";
-  return { id: "n" + (i + 1), name, price: 100 + (i * 50), svg: nftSvg(s, c1, c2, det) };
-});
+const NFTS_BASE = [
+  { id: "n1",  name: "Кот-Босс",         price: 100,  svg: NFT_ART.cat },
+  { id: "n2",  name: "Синий Череп",      price: 200,  svg: NFT_ART.skull },
+  { id: "n3",  name: "Пиксель Пришелец", price: 300,  svg: NFT_ART.alien },
+  { id: "n4",  name: "Кибер Робот",      price: 500,  svg: NFT_ART.robot },
+  { id: "n5",  name: "Космо Ракета",     price: 1000, svg: NFT_ART.rocket },
+  { id: "n6",  name: "Пингвин",          price: 250,  svg: NFT_ART.penguin },
+  { id: "n7",  name: "Дракоша",          price: 450,  svg: NFT_ART.dragon },
+  { id: "n8",  name: "Призрак",          price: 350,  svg: NFT_ART.ghost },
+  { id: "n9",  name: "Мудрая Сова",      price: 400,  svg: NFT_ART.owl },
+  { id: "n10", name: "Грибочек",         price: 150,  svg: NFT_ART.mushroom }
+];
+
+const NFTS_EXTRA = NFT_EXTRA_DEF.map(([name, body, col, acc, price], i) => ({
+  id: "y" + (i + 1), name, price, svg: creatureSvg(body, col, acc)
+}));
+
+const NFTS = [...NFTS_BASE, ...NFTS_EXTRA];
+
+const EVENT_NFT_ART = {
+  halloween: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <ellipse cx="34" cy="58" rx="20" ry="26" fill="#ff8a1a"/>
+    <ellipse cx="66" cy="58" rx="20" ry="26" fill="#ff8a1a"/>
+    <ellipse cx="50" cy="58" rx="18" ry="28" fill="#ffa040"/>
+    <path d="M50 30 L50 18" stroke="#3d7a1a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M32 46 L42 40 L38 52Z M68 46 L58 40 L62 52Z M40 68 L50 80 L60 68Z" fill="#2a0a00"/>
+  </svg>`,
+  newyear: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <circle cx="50" cy="72" r="20" fill="#fff" stroke="#c8e6ff" stroke-width="2"/>
+    <circle cx="50" cy="44" r="15" fill="#fff" stroke="#c8e6ff" stroke-width="2"/>
+    <circle cx="50" cy="22" r="11" fill="#fff" stroke="#c8e6ff" stroke-width="2"/>
+    <rect x="36" y="14" width="28" height="6" rx="2" fill="#222"/><rect x="41" y="2" width="18" height="14" rx="2" fill="#222"/>
+    <path d="M50 24 l8 3 l-8 2z" fill="#ff8a00"/>
+    <circle cx="45" cy="42" r="2" fill="#111"/><circle cx="55" cy="42" r="2" fill="#111"/>
+    <circle cx="50" cy="52" r="1.8" fill="#111"/><circle cx="50" cy="66" r="2" fill="#111"/>
+    <path d="M30 60 L14 52 M70 60 L86 52" stroke="#7a4a20" stroke-width="3" stroke-linecap="round"/>
+  </svg>`,
+  easter: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${SHADOW}
+    <ellipse cx="40" cy="26" rx="7" ry="20" fill="#fff" stroke="#e5d4e0" stroke-width="1.5"/>
+    <ellipse cx="60" cy="26" rx="7" ry="20" fill="#fff" stroke="#e5d4e0" stroke-width="1.5"/>
+    <ellipse cx="40" cy="26" rx="3.5" ry="14" fill="#ffb3d1"/><ellipse cx="60" cy="26" rx="3.5" ry="14" fill="#ffb3d1"/>
+    <ellipse cx="50" cy="62" rx="26" ry="24" fill="#fff" stroke="#e5d4e0" stroke-width="1.5"/>
+    <circle cx="42" cy="56" r="3" fill="#111"/><circle cx="58" cy="56" r="3" fill="#111"/>
+    <path d="M47 64 L53 64 L50 68Z" fill="#ff6b8b"/>
+  </svg>`,
+  maslenitsa: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#ffb020" stroke-width="5" stroke-linecap="round"><path d="M50 6V16M50 84V94M6 50H16M84 50H94M18 18L25 25M75 75L82 82M82 18L75 25M25 75L18 82"/></g>
+    <circle cx="50" cy="50" r="28" fill="#ffd34d" stroke="#e09a00" stroke-width="2"/>
+    <circle cx="42" cy="46" r="3" fill="#7a3b00"/><circle cx="58" cy="46" r="3" fill="#7a3b00"/>
+    <path d="M42 58 Q50 66 58 58" stroke="#7a3b00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </svg>`
+};
+
+const EVENT_NFT = {
+  halloween:  { id: "en-halloween",  name: "Тыква-Монстр",      price: 300, svg: EVENT_NFT_ART.halloween,  event: "halloween" },
+  newyear:    { id: "en-newyear",    name: "Снеговик",          price: 300, svg: EVENT_NFT_ART.newyear,    event: "newyear" },
+  easter:     { id: "en-easter",     name: "Пасхальный Кролик", price: 300, svg: EVENT_NFT_ART.easter,     event: "easter" },
+  maslenitsa: { id: "en-maslenitsa", name: "Солнце Масленицы",  price: 300, svg: EVENT_NFT_ART.maslenitsa, event: "maslenitsa" }
+};
 
 const FALLBACK_NFT = { id: "unknown", name: "Неизвестный", price: 0, svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="60" height="60" rx="10" fill="#555"/><text x="50" y="62" font-size="40" text-anchor="middle" fill="#fff">?</text></svg>` };
 
 const COLLECTIONS = [
-  { key: "all_gifts", name: "Все подарки", ids: GIFTS.map(g => g.id) },
-  { key: "all_nfts", name: "Все NFT", ids: NFTS.map(n => n.id) }
+  { key: "base", name: "Простые подарки", ids: GIFTS_BASE.map(g => g.id) },
+  { key: "extra", name: "Расширенная коллекция", ids: GIFTS_EXTRA.map(g => g.id) },
+  ...Object.entries(EVENTS).map(([k, e]) => ({ key: k, name: e.name, ids: e.gifts.map(g => g.id) })),
+  { key: "limited", name: "Лимитированные", ids: LIMITED.map(g => g.id) }
 ];
+
+/* ==========================================================
+   КАСТОМНЫЕ ПРЕДМЕТЫ (пиксельный редактор)
+   ========================================================== */
+const PCH = "0123456789abcdef";
+const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
+const PX_CANVAS = 320;
 
 let CUSTOM = {};
 let CUSTOM_GIFTS = [];
 let CUSTOM_NFTS = [];
 
-const allNfts = () => [...NFTS, ...CUSTOM_NFTS];
+function pixelSvg(px, n) {
+  let rects = "";
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const col = PAL[PCH.indexOf(px[y * n + x])];
+      if (col) rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${n} ${n}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${rects}</svg>`;
+}
+
+function rebuildCustom() {
+  CUSTOM_GIFTS = [];
+  CUSTOM_NFTS = [];
+  Object.entries(CUSTOM).forEach(([id, d]) => {
+    if (!d || !d.px) return;
+    const svg = pixelSvg(d.px, d.n || 16);
+    if (d.type === "nft") {
+      CUSTOM_NFTS.push({ id, name: d.name, price: Number(d.price) || 100, svg, bgClass: d.bg || "nft-bg-gray", event: d.event || null, custom: true });
+    } else {
+      CUSTOM_GIFTS.push({ id, name: d.name, emoji: "🎨", price: Number(d.price) || 10, gbg: d.bg || "#f0f2f5", svg, event: d.event || null, custom: true });
+    }
+  });
+}
+
+const allNfts = () => [...NFTS, ...Object.values(EVENT_NFT), ...CUSTOM_NFTS];
 const nftBase = nftId => allNfts().find(n => n.id === nftId.split("_")[0]) || FALLBACK_NFT;
 const isBaseOf = (id, baseId) => id.split("_")[0] === baseId && !id.includes("_upg");
 
-const allGifts = () => [...GIFTS, ...CUSTOM_GIFTS];
+const allGifts = () => [...GIFTS, ...LIMITED, ...CUSTOM_GIFTS, ...Object.values(EVENTS).flatMap(e => e.gifts)];
 const giftById = key => allGifts().find(g => g.id === key || g.name === key);
+const giftAvailable = g => !g.event || g.event === activeEventKey;
 const giftKey = x => (giftById(x.id) || giftById(x.name))?.id || x.name;
 const canSellGift = g => !g.at || (Date.now() - g.at) < SELL_WINDOW;
 
+/* ==========================================================
+   РЕДКОСТЬ И КРАФТ
+   ========================================================== */
 const RARITY = {
   common:    { label: "Обычный",     color: "#8b9eb0", style: "nft-style-simple",  bg: "nft-bg-gray" },
   rare:      { label: "Редкий",      color: "#4fa8ff", style: "nft-style-rainbow", bg: "nft-bg-rainbow" },
@@ -705,38 +1350,45 @@ function nftCardHtml(nftId, styles, extraCls = "") {
 function giftArtHtml(g, cls = "art") {
   if (!g) return `<div class="${cls}" style="font-size:44px;display:flex;align-items:center;justify-content:center">🎁</div>`;
   if (g.svg) return `<div class="${cls}" style="background:${g.gbg || '#f0f2f5'}">${inst(g.svg)}</div>`;
-  return `<div class="${cls} emojiArt">🎁</div>`;
+  return `<div class="${cls} emojiArt" style="background:radial-gradient(circle at 35% 30%, ${g.c[0]}, ${g.c[1]})">${g.emoji}</div>`;
 }
 
 function giftCatalog() {
-  return [...GIFTS, ...CUSTOM_GIFTS];
+  return [...GIFTS, ...CUSTOM_GIFTS, ...(activeEventKey ? EVENTS[activeEventKey].gifts : [])].filter(g => giftAvailable(g));
 }
 
 const $ = id => document.getElementById(id);
 const normName = s => String(s || "").trim().toLowerCase();
 const chatKey = (a, b) => [a, b].sort().join("_");
 const userRef = name => ref(db, "users/" + name);
+const evRef = ref(db, "events/active");
 const toArr = v => Array.isArray(v) ? v.filter(x => x != null) : Object.values(v || {});
 const previewOf = (text, isSticker, type) => {
   if (type === "gift") return "🎁 Подарок";
   if (type === "photo") return "Фото";
   if (type === "trade") return "🔄 Обмен";
   if (type === "post") return "📢 Пост";
+  if (type === "sticker") return "🧩 Стикер";
   if (isSticker) return "Стикер";
   return text;
 };
 
 let me = null, profile = null, unsubChat = null, activeChat = null, chatBase = null, viewingProfile = null, activeProfileTab = 'gifts', shopCat = 'gift', currentNftId = null, invData = null;
 let loginTime = 0;
+let activeEventKey = null;
+let adminEventPick = null;
+let stockCache = {};
 let msgEls = {};
 let pickCb = null, pickItems = [];
 let shopQuery = "";
 
+/* ЖУРНАЛ ДЕЙСТВИЙ */
 async function logAct(text) {
   if (!me) return;
   try { await push(ref(db, "logs/" + me.name), { t: text, time: Date.now() }); } catch (e) {}
 }
 
+/* ОНБОРДИНГ */
 const onboardSlides = [
   { icon: "🔐", title: "Полное шифрование", desc: "Сквозное шифрование для всех сообщений и звонков." },
   { icon: "🕵️", title: "Анонимная личность", desc: "Не требуется номер телефона. Ваша личность приватна." },
@@ -787,6 +1439,7 @@ window.show = show;
 window.openModal = openModal;
 window.closeModal = closeModal;
 
+/* ВЫБОР ИЗ СПИСКА (обмен) */
 function openPick(title, items, cb) {
   $("pickTitle").textContent = title;
   $("pickGrid").innerHTML = items.map((it, i) =>
@@ -802,33 +1455,388 @@ window.pickChosen = (i) => {
   if (cb && it) cb(it.id);
 };
 
-window.uploadPhoto = function(type) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = e => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64 = event.target.result;
-            if(type === 'avatar') {
-                await update(userRef(me.name), { avatar: base64 });
-                toast("Аватарка обновлена!", true);
-                renderProfile(me.name);
-            } else if (type === 'banner') {
-                await update(userRef(me.name), { banner: base64 });
-                toast("Баннер обновлен!", true);
-            } else if (type === 'wallpaper') {
-                await update(userRef(me.name), { wallpaper: base64 });
-                toast("Обои чата обновлены!", true);
-                if(activeChat) openChat(activeChat);
-            }
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
+/* ИВЕНТЫ */
+function applyEventUI() {
+  const ev = activeEventKey ? EVENTS[activeEventKey] : null;
+
+  const fx = $("fxLayer");
+  fx.innerHTML = "";
+  if (ev) {
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement("span");
+      p.className = "fxp";
+      p.textContent = ev.particles[i % ev.particles.length];
+      p.style.left = Math.random() * 100 + "%";
+      p.style.fontSize = (12 + Math.random() * 16) + "px";
+      p.style.animationDuration = (6 + Math.random() * 8) + "s";
+      p.style.animationDelay = (-Math.random() * 12) + "s";
+      fx.appendChild(p);
+    }
+  }
+
+  const banner = $("evBanner");
+  banner.classList.toggle("hidden", !ev);
+  if (ev) banner.textContent = `${ev.icon} Ивент: ${ev.name}`;
+
+  if ($("evStatus")) $("evStatus").textContent = ev ? `Сейчас идёт: ${ev.icon} ${ev.name}` : "Ивент не идёт";
+
+  if ($("vShop").classList.contains("active")) renderShop();
+  if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
+}
+
+function renderEventPick() {
+  $("evPick").innerHTML = Object.entries(EVENTS).map(([k, e]) =>
+    `<button class="evPickBtn ${adminEventPick === k ? "on" : ""}" onclick="adminPickEvent('${k}')">${e.icon} ${e.name}</button>`
+  ).join("");
+}
+
+window.adminPickEvent = (key) => { adminEventPick = key; renderEventPick(); };
+
+window.startEvent = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  if (!adminEventPick) return toast("Сначала выберите ивент");
+  await set(evRef, { id: adminEventPick, startedAt: Date.now() });
+  toast(`Ивент «${EVENTS[adminEventPick].name}» запущен!`, true);
 };
+
+window.endEvent = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  await set(evRef, null);
+  toast("Ивент завершён. Крафт ивентовых подарков открыт!", true);
+};
+
+renderEventPick();
+onValue(evRef, snap => {
+  const v = snap.val();
+  activeEventKey = v && v.id && EVENTS[v.id] ? v.id : null;
+  applyEventUI();
+});
+
+onValue(ref(db, "giftStock"), snap => {
+  stockCache = snap.val() || {};
+  if ($("vShop").classList.contains("active")) renderShop();
+});
+const stockLeft = g => (stockCache[g.id] !== undefined && stockCache[g.id] !== null) ? stockCache[g.id] : g.limit;
+
+/* ==========================================================
+   СТИКЕРЫ (Premium): создание из фото, список, отправка
+   ========================================================== */
+function renderStkList() {
+  const box = $("stkList");
+  if (!box) return;
+  const ids = Object.keys(stkMine);
+  $("stkCount").textContent = `${ids.length} / ${MAX_STICKERS}`;
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem"><img src="${stkMine[id].data}" alt=""><button class="stkDel" onclick="stkDelete('${id}')">✖</button><div class="stkName">${esc(stkMine[id].name)}</div></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Стикеров пока нет</div>`;
+}
+
+function renderPickStk() {
+  const box = $("pickStk");
+  if (!box) return;
+  const ids = Object.keys(stkMine);
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem" style="cursor:pointer" onclick="sendStickerImg('${id}')"><img src="${stkMine[id].data}" alt=""></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Своих стикеров нет. Создайте в настройках (Premium).</div>`;
+}
+
+window.stkCreate = () => {
+  if (!profile || !profile.premium) return toast("Стикеры доступны в Premium");
+  if (Object.keys(stkMine).length >= MAX_STICKERS) return toast(`Лимит ${MAX_STICKERS} стикеров`);
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const name = (prompt("Название стикера (до 20 символов):") || "").trim().slice(0, 20);
+    if (!name) return;
+    try {
+      const data = await shrinkImage(f, 128, 0.9, "image/png");
+      if (data.length > 90000) return toast("Картинка слишком сложная, выберите другую");
+      const id = "s" + Date.now().toString(36) + Math.floor(Math.random() * 99);
+      await set(ref(db, `stickers/${me.name}/${id}`), { name, data });
+      logAct(`🧩 Создал стикер «${name}»`);
+      toast("Стикер создан!", true);
+    } catch (err) {
+      toast("Не удалось создать стикер: " + err.message);
+    }
+  };
+  input.click();
+};
+
+window.stkDelete = async (id) => {
+  if (!confirm(`Удалить стикер «${stkMine[id]?.name}»?`)) return;
+  await remove(ref(db, `stickers/${me.name}/${id}`));
+  toast("Стикер удалён", true);
+};
+
+window.sendStickerImg = async (id) => {
+  closeModal("mStickers");
+  if (!activeChat) return;
+  if (!profile.premium) return toast("Стикеры доступны в Premium");
+  await sendMessage(`${me.name}|${id}`, false, "sticker");
+};
+
+async function resolveSticker(img) {
+  const r = img.dataset.ref;
+  if (!r) return;
+  if (stkCache[r] === undefined) {
+    const [owner, id] = r.split("|");
+    const s = await get(ref(db, `stickers/${owner}/${id}`));
+    stkCache[r] = s.exists() ? s.val().data : "";
+  }
+  if (stkCache[r]) img.src = stkCache[r];
+  else img.alt = "стикер удалён";
+}
+
+/* ==========================================================
+   ПИКСЕЛЬНЫЙ РЕДАКТОР (админка)
+   ========================================================== */
+let pxN = 16;
+let pxGrid = new Array(pxN * pxN).fill("0");
+let pxToolName = "brush";
+let pxColor = 1;
+let pxPainting = false;
+
+function pxInitUI() {
+  $("pxEvent").innerHTML = `<option value="">Без ивента</option>` +
+    Object.entries(EVENTS).map(([k, e]) => `<option value="${k}">${e.icon} ${e.name}</option>`).join("");
+  pxUI();
+  const c = $("pxCanvas");
+  c.width = PX_CANVAS; c.height = PX_CANVAS;
+  c.addEventListener("pointerdown", e => { pxPainting = true; c.setPointerCapture(e.pointerId); pxApply(e, true); });
+  c.addEventListener("pointermove", e => { if (pxPainting) pxApply(e, false); });
+  c.addEventListener("pointerup", () => { pxPainting = false; });
+  c.addEventListener("pointercancel", () => { pxPainting = false; });
+  drawEditor();
+  updPreview();
+}
+
+function pxUI() {
+  $("pxPalette").innerHTML = PAL.map((col, i) => i === 0 ? "" :
+    `<button class="pxSw ${pxColor === i ? "on" : ""}" style="background:${col}" onclick="pxPick(${i})"></button>`).join("");
+  const tools = [["brush", "🖌 Кисть"], ["fill", "🪣 Заливка"], ["eraser", "🧽 Ластик"], ["clear", "🗑 Очистить"]];
+  $("pxTools").innerHTML = tools.map(([k, label]) =>
+    `<button class="pxTool ${pxToolName === k ? "on" : ""}" onclick="pxTool('${k}')">${label}</button>`).join("");
+}
+
+window.pxPick = (i) => { pxColor = i; if (pxToolName === "eraser") pxToolName = "brush"; pxUI(); };
+
+window.pxTool = (t) => {
+  if (t === "clear") {
+    if (!confirm("Очистить холст?")) return;
+    pxGrid = new Array(pxN * pxN).fill("0");
+    drawEditor(); updPreview(); return;
+  }
+  pxToolName = t;
+  pxUI();
+};
+
+window.pxSizeChange = (v) => {
+  const n = Number(v);
+  if (pxGrid.some(c => c !== "0") && !confirm("Смена размера очистит холст. Продолжить?")) {
+    $("pxSize").value = String(pxN); return;
+  }
+  pxN = n;
+  pxGrid = new Array(n * n).fill("0");
+  drawEditor(); updPreview();
+};
+
+window.pxTypeChange = () => {
+  const isNft = $("pxType").value === "nft";
+  $("pxBgNftWrap").classList.toggle("hidden", !isNft);
+  $("pxBgGiftWrap").classList.toggle("hidden", isNft);
+  updPreview();
+};
+
+function drawEditor() {
+  const c = $("pxCanvas");
+  const ctx = c.getContext("2d");
+  const cell = PX_CANVAS / pxN;
+  ctx.clearRect(0, 0, PX_CANVAS, PX_CANVAS);
+  for (let y = 0; y < pxN; y++) {
+    for (let x = 0; x < pxN; x++) {
+      const ch = pxGrid[y * pxN + x];
+      if (ch !== "0") {
+        ctx.fillStyle = PAL[PCH.indexOf(ch)];
+      } else {
+        ctx.fillStyle = ((x + y) % 2) ? "#e9edf2" : "#ffffff";
+      }
+      ctx.fillRect(x * cell, y * cell, cell + 0.5, cell + 0.5);
+    }
+  }
+}
+
+function pxCell(e) {
+  const c = $("pxCanvas");
+  const r = c.getBoundingClientRect();
+  let x = Math.floor((e.clientX - r.left) / r.width * pxN);
+  let y = Math.floor((e.clientY - r.top) / r.height * pxN);
+  x = Math.min(pxN - 1, Math.max(0, x));
+  y = Math.min(pxN - 1, Math.max(0, y));
+  return [x, y];
+}
+
+function pxApply(e, isDown) {
+  const [x, y] = pxCell(e);
+  const idx = y * pxN + x;
+  if (pxToolName === "fill") {
+    if (isDown) pxFill(idx);
+    return;
+  }
+  pxGrid[idx] = pxToolName === "eraser" ? "0" : PCH[pxColor];
+  drawEditor();
+  updPreview();
+}
+
+function pxFill(start) {
+  const target = pxGrid[start];
+  const rep = PCH[pxColor];
+  if (target === rep) return;
+  const stack = [start];
+  while (stack.length) {
+    const i = stack.pop();
+    if (pxGrid[i] !== target) continue;
+    pxGrid[i] = rep;
+    const x = i % pxN, y = Math.floor(i / pxN);
+    if (x > 0) stack.push(i - 1);
+    if (x < pxN - 1) stack.push(i + 1);
+    if (y > 0) stack.push(i - pxN);
+    if (y < pxN - 1) stack.push(i + pxN);
+  }
+  drawEditor();
+  updPreview();
+}
+
+function updPreview() {
+  if (!$("pxPreview")) return;
+  const isNft = $("pxType").value === "nft";
+  const svg = pixelSvg(pxGrid.join(""), pxN);
+  if (isNft) {
+    const cls = $("pxBgClass").value;
+    $("pxPreview").innerHTML = `<div class="art nftcard ${cls}" style="width:110px;height:110px;margin:0 auto">${svg}</div>`;
+  } else {
+    const gbg = $("pxBgColor").value;
+    $("pxPreview").innerHTML = `<div class="art" style="width:110px;height:110px;margin:0 auto;background:${gbg}">${svg}</div>`;
+  }
+}
+
+window.pxPublish = async () => {
+  const name = $("pxName").value.trim();
+  if (!name || name.length > 30) return toast("Введите название (до 30 символов)");
+  const price = Number($("pxPrice").value);
+  if (!price || price < 1) return toast("Укажите цену");
+  if (pxGrid.every(c => c === "0")) return toast("Нарисуйте что-нибудь");
+  const type = $("pxType").value;
+  const id = "cu" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const data = {
+    name, price, type, n: pxN, px: pxGrid.join(""),
+    bg: type === "nft" ? $("pxBgClass").value : $("pxBgColor").value,
+    event: $("pxEvent").value || "",
+    by: me.name, at: Date.now()
+  };
+  await set(ref(db, "customItems/" + id), data);
+  logAct(`🎨 Опубликовал ${type === "nft" ? "NFT" : "подарок"} «${name}»`);
+  toast("Опубликовано в магазине!", true);
+};
+
+window.pxDelete = async (id) => {
+  const d = CUSTOM[id];
+  if (!confirm(`Удалить «${d?.name}»?`)) return;
+  await remove(ref(db, "customItems/" + id));
+  logAct(`🗑 Удалил предмет «${d?.name}»`);
+  toast("Удалено", true);
+};
+
+window.pxDeleteByName = async () => {
+  const q = $("pxDelName").value.trim().toLowerCase();
+  if (!q) return toast("Введите название");
+  const ids = Object.keys(CUSTOM).filter(id => String(CUSTOM[id].name || "").trim().toLowerCase() === q);
+  if (!ids.length) return toast("Предмет с таким названием не найден");
+  if (!confirm(`Удалить ${ids.length} шт. «${CUSTOM[ids[0]].name}»?`)) return;
+  for (const id of ids) await remove(ref(db, "customItems/" + id));
+  logAct(`🗑 Удалил предмет «${CUSTOM[ids[0]].name}» (${ids.length} шт.)`);
+  $("pxDelName").value = "";
+  toast("Удалено", true);
+};
+
+function renderCustomAdmin() {
+  const list = $("pxList");
+  if (!list) return;
+  const ids = Object.keys(CUSTOM);
+  if (!ids.length) { list.innerHTML = `<div class="sub center">Пока ничего не опубликовано</div>`; return; }
+  list.innerHTML = ids.map(id => {
+    const d = CUSTOM[id];
+    if (!d || !d.px) return "";
+    const bg = d.type === "nft" ? "#333" : (d.bg || "#f0f2f5");
+    return `<div class="admItem">
+      <div class="thumb" style="background:${esc(bg)}">${pixelSvg(d.px, d.n || 16)}</div>
+      <div class="grow">
+        <div style="font-weight:700">${esc(d.name)}</div>
+        <div class="sub">${d.type === "nft" ? "NFT" : "Подарок"} · ${d.price} 🪙${d.event ? " · ивент" : ""}</div>
+      </div>
+      <button class="btn danger" style="width:auto;margin:0;padding:8px 12px;font-size:13px" onclick="pxDelete('${id}')">✖</button>
+    </div>`;
+  }).join("");
+}
+
+onValue(ref(db, "customItems"), snap => {
+  CUSTOM = snap.val() || {};
+  rebuildCustom();
+  renderCustomAdmin();
+  if ($("vShop").classList.contains("active")) renderShop();
+  if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
+});
+
+/* ==========================================================
+   ФОТО: аватарка, баннер, обои (с ограничением размера)
+   ========================================================== */
+window.uploadPhoto = function(type) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      if (type === "avatar") {
+        const premium = !!(profile && profile.premium);
+        const animated = premium && file.type === "image/gif" && file.size <= 300000;
+        const data = animated ? await readFileAsDataURL(file) : await shrinkImage(file, 256, 0.85);
+        if (data.length > MAX_IMG_CHARS) return toast("Файл слишком большой даже после сжатия");
+        await update(userRef(me.name), { avatar: data, avatarAnim: animated });
+        if (premium && file.type === "image/gif" && !animated) toast("GIF больше 300 КБ, сохранён первый кадр", true);
+        else toast(animated ? "Анимированная аватарка установлена!" : "Аватарка обновлена!", true);
+        renderProfile(me.name);
+      } else if (type === "banner") {
+        const data = await shrinkImage(file, 900, 0.8);
+        if (data.length > MAX_IMG_CHARS) return toast("Баннер слишком большой");
+        await update(userRef(me.name), { banner: data });
+        toast("Баннер обновлён!", true);
+        renderProfile(me.name);
+      } else if (type === "wallpaper") {
+        const data = await shrinkImage(file, 900, 0.7);
+        if (data.length > MAX_IMG_CHARS) return toast("Обои слишком большие");
+        await update(userRef(me.name), { wallpaper: data });
+        toast("Обои чата обновлены!", true);
+        if (activeChat) openChat(activeChat);
+      }
+    } catch (err) {
+      toast("Не удалось загрузить: " + err.message);
+    }
+  };
+  input.click();
+};
+
+/* ==========================================================
+   ВХОД
+   ========================================================== */
+function authErr(msg) {
+    const e = $("authError");
+    e.textContent = msg;
+    e.style.display = "block";
+}
 
 $("authNick").addEventListener("input", () => { $("adminSecretBox").classList.toggle("hidden", normName($("authNick").value) !== ADMIN_NICK); });
 $("btnLogin").addEventListener("click", () => login(false));
@@ -912,6 +1920,8 @@ async function login(isAuto = false) {
             $("navAdmin").classList.toggle("hidden", me.role !== "ADMIN");
             $("buyPremiumBtn").style.display = profile.premium ? "none" : "flex";
             $("premSettings").style.display = profile.premium ? "block" : "none";
+            $("stickerCard").classList.toggle("hidden", !profile.premium);
+            $("premLock").classList.toggle("hidden", !!profile.premium);
             $("btnSticker").style.display = profile.premium ? "block" : "none";
             $("clanStatus").textContent = profile.clan ? `Ваш клан: ${profile.clan}` : "У вас нет клана";
 
@@ -922,6 +1932,11 @@ async function login(isAuto = false) {
         };
 
         onValue(userRef(me.name), updateProfileUI);
+        onValue(ref(db, "stickers/" + me.name), s => {
+            stkMine = s.val() || {};
+            renderStkList();
+            renderPickStk();
+        });
         show("vChats");
         toast("Успешный вход!", true);
         localStorage.setItem('savedUser', JSON.stringify({ name: me.name }));
@@ -965,6 +1980,7 @@ function renderDevices(devices) {
 }
 window.logoutAllDevices = async () => { await update(userRef(me.name), { devices: {} }); toast("Сброшено!", true); renderDevices({}); };
 
+/* ЧАТЫ */
 async function renderChats(filter = "") {
     const list = $("chatList"); list.innerHTML = "";
     if(!profile || !profile.chats) return;
@@ -973,12 +1989,13 @@ async function renderChats(filter = "") {
 
     for (const c of chats) {
         if(filter && !c.name.includes(filter)) continue;
-        let uData = c.name.startsWith("GROUP_") ? { avatar: "", premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
+        const isGroup = c.name.startsWith("GROUP_");
+        let uData = isGroup ? { avatar: "", premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
         const el = document.createElement("div"); el.className = "row";
         el.innerHTML = `
-        <div class="av ${uData.premium ? 'premium' : ''}">${uData.avatar ? `<img src="${uData.avatar}">` : (c.name.startsWith("GROUP_") ? '👥' : c.name[0].toUpperCase())}</div>
+        <div class="${avClass(uData, 'av')}">${uData.avatar ? `<img src="${uData.avatar}">` : (isGroup ? '👥' : c.name[0].toUpperCase())}</div>
         <div class="grow">
-            <div style="font-weight:bold;display:flex;align-items:center;gap:5px">${esc(c.name.replace("GROUP_", ""))} ${uData.verified ? '<span style="color:#4fa8ff">✔</span>' : ''}</div>
+            <div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), uData)}</div>
             <div class="sub">${esc(c.last || 'Нажмите чтобы открыть')}</div>
         </div>`;
         el.onclick = () => openChat(c.name);
@@ -998,8 +2015,9 @@ async function doSearch() {
     if (snap.exists()) {
         const users = snap.val();
         Object.keys(users).filter(n => n.includes(q) && n !== me.name).forEach(n => {
+            const u = users[n] || {};
             const el = document.createElement("div"); el.className = "row";
-            el.innerHTML = `<div class="av">${n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;">${esc(n)}</div><div class="sub">Пользователь</div></div>`;
+            el.innerHTML = `<div class="${avClass(u, 'av')}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div>`;
             el.onclick = () => openChat(n);
             list.appendChild(el);
         });
@@ -1098,14 +2116,17 @@ function reactsHtml(key, m) {
 
 function paintMsg(div, key, m, isGroup) {
   const isOut = m.from === me.name;
+  const noBubble = m.type === "gift" || m.type === "sticker";
   div.className = "msg " + (profile.bubbleStyle || 'bub-default') + (isOut ? " out" : "")
-    + (m.type === "gift" ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
-  div.style.background = (isOut && profile.msgColor && m.type !== "gift" && m.type !== "post") ? profile.msgColor : "";
+    + (noBubble ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
+  div.style.background = (isOut && profile.msgColor && !noBubble && m.type !== "post") ? profile.msgColor : "";
 
   const header = isGroup && !isOut && m.type !== "post" ? `<div class="from">${esc(m.from)}</div>` : "";
   let content = "";
   if (m.type === "gift") {
     content = giftArtHtml(giftById(m.text), "giftbig");
+  } else if (m.type === "sticker") {
+    content = `<img class="stkMsgImg" data-ref="${esc(m.text)}" alt="стикер">`;
   } else if (m.type === "trade") {
     content = `<div class="tradeCard" data-tid="${esc(m.text)}">Загрузка обмена…</div>`;
   } else if (m.type === "post") {
@@ -1124,6 +2145,7 @@ function paintMsg(div, key, m, isGroup) {
   const time = new Date(m.time).toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
   div.innerHTML = `${header}${content}${reactsHtml(key, m)}<div class="meta">${views}${time}</div>`;
 
+  div.querySelectorAll(".stkMsgImg").forEach(resolveSticker);
   if (m.type === "trade") {
     loadTradeCard(div.querySelector(".tradeCard"), m.text);
   }
@@ -1159,19 +2181,34 @@ window.reactTo = async (key, idx) => {
 };
 
 window.viewBurnMessage = async function(msgKey, from, element, type) {
-    if(from === me.name) return;
+    if(from === me.name) {
+        if(type === 'photo') {
+            const snap = await get(ref(db, chatBase + "/" + msgKey));
+            window.open(snap.val().text, '_blank');
+        } else {
+            alert("Вы не можете прочитать своё же секретное сообщение в оффлайн режиме. Оно сгорит после прочтения другом.");
+        }
+        return;
+    }
+
     const msgPath = chatBase + "/" + msgKey;
     const snap = await get(ref(db, msgPath));
     const m = snap.val();
     if(!m || m.viewed) return;
-    if(m.type === 'photo') window.open(m.text, '_blank');
-    else alert("🔥 Секретное сообщение:\n\n" + m.text);
+
+    if(m.type === 'photo') {
+        window.open(m.text, '_blank');
+    } else {
+        alert("🔥 Секретное сообщение:\n\n" + m.text);
+    }
+
     await update(ref(db, msgPath), { viewed: true });
     element.parentElement.innerHTML = `<i style="color:var(--danger);opacity:0.7;">🔥 Сообщение сгорело</i>`;
 };
 
 window.openFriendProfile = function() {
-    if(!activeChat || activeChat.startsWith("GROUP_")) return;
+    if(!activeChat) return;
+    if(activeChat.startsWith("GROUP_")) return toast("Это группа");
     openProfile(activeChat);
 };
 
@@ -1205,7 +2242,7 @@ async function sendMessage(text, isSticker = false, type = 'text') {
 
 $("sendBtn").onclick = () => { const input = $("msgInput"); const text = input.value.trim(); if (!text) return; input.value = ""; sendMessage(text); };
 $("msgInput").onkeydown = e => { if (e.key === "Enter") $("sendBtn").click(); };
-$("btnSticker").onclick = () => openModal("mStickers");
+$("btnSticker").onclick = () => { renderPickStk(); openModal("mStickers"); };
 window.sendSticker = async (stick) => { closeModal("mStickers"); if (!activeChat) return; sendMessage(stick, true); };
 
 $("btnPost").onclick = async () => {
@@ -1251,6 +2288,7 @@ window.sendSecretText = async function() {
     toast("Секретное сообщение отправлено!", true);
 };
 
+/* ПОДАРКИ В ЧАТЕ */
 $("btnSendGift").onclick = () => {
     if(!activeChat) return;
     const grid = $("chatGiftsGrid"); grid.innerHTML = "";
@@ -1265,6 +2303,8 @@ $("btnSendGift").onclick = () => {
 window.sendGiftToChat = async (id) => {
     const g = giftById(id);
     if (!g) return;
+    if (g.limit) return toast("Лимитированные подарки покупаются только в магазине");
+    if (!giftAvailable(g)) return toast("Этот подарок только во время ивента");
     if (profile.balance < g.price) return toast("Недостаточно Coin!");
 
     await update(userRef(me.name), { balance: profile.balance - g.price });
@@ -1274,17 +2314,18 @@ window.sendGiftToChat = async (id) => {
         const friendSnap = await get(userRef(activeChat));
         if(friendSnap.exists()){
             const fGifts = toArr(friendSnap.val().gifts);
-            fGifts.push({ id: g.id, name: g.name, at: Date.now() });
+            fGifts.push({ id: g.id, name: g.name, emoji: g.emoji, at: Date.now() });
             await update(userRef(activeChat), { gifts: fGifts });
             toast(`Подарок отправлен ${activeChat}!`, true);
         }
     } else {
         toast("Подарок отправлен в группу!", true);
     }
-    logAct(`🎁 Отправил подарок «${g.name}»`);
+    logAct(`🎁 Отправил подарок «${g.name}» в чат ${activeChat.replace("GROUP_", "")}`);
     closeModal("mChatGifts");
 };
 
+/* СОЗДАНИЕ КАНАЛА С ЮЗЕРНЕЙМОМ */
 $("btnNewGroup").onclick = async () => {
     const name = prompt("Введите название канала:"); if(!name) return;
     let uname = prompt("Юзернейм канала (латиница, цифры, _; 4–32 символа):");
@@ -1307,6 +2348,7 @@ $("btnNewGroup").onclick = async () => {
     renderChats();
 };
 
+/* ОБМЕН NFT */
 window.openTrade = async function() {
   if (viewingProfile || !currentNftId) return;
   const friend = normName(prompt("Ник друга, с которым хотите обменяться:") || "");
@@ -1324,7 +2366,7 @@ window.openTrade = async function() {
     const tid = "t" + Date.now().toString(36) + Math.floor(Math.random() * 999);
     await set(ref(db, "trades/" + tid), { from: me.name, to: friend, give: currentNftId, take: takeId, status: "pending", time: Date.now() });
     await sendTo(friend, tid, false, "trade");
-    logAct(`🔄 Предложил обмен`);
+    logAct(`🔄 Предложил обмен ${nftBase(currentNftId).name} → ${nftBase(takeId).name} игроку ${friend}`);
     closeModal("mNftView");
     toast("Предложение обмена отправлено!", true);
   });
@@ -1335,12 +2377,12 @@ async function loadTradeCard(el, tid) {
   const t = (await get(ref(db, "trades/" + tid))).val();
   if (!t) { el.textContent = "Обмен не найден"; return; }
   const a = nftBase(t.give).name, b = nftBase(t.take).name;
-  const st = { pending: "⏳ ожидает", accepted: "✅ принят", declined: "❌ отклонён" }[t.status] || t.status;
+  const st = { pending: "⏳ ожидает ответа", accepted: "✅ принят", declined: "❌ отклонён" }[t.status] || t.status;
   const btns = (t.status === "pending" && t.to === me.name)
     ? `<div class="tradeBtns"><button class="btn" style="margin:0;padding:8px;font-size:13px" onclick="acceptTrade('${tid}')">Принять</button><button class="btn danger" style="margin:0;padding:8px;font-size:13px" onclick="declineTrade('${tid}')">Отклонить</button></div>`
     : "";
   el.innerHTML = `<div style="font-weight:800;margin-bottom:4px">🔄 Обмен NFT</div>
-    <div class="sub" style="white-space:normal">${esc(t.from)} предлагает: ${esc(a)}<br>взамен: ${esc(b)}</div>
+    <div class="sub" style="white-space:normal">${esc(t.from)} предлагает: ${esc(a)}<br>взамен: ${esc(b)} (${esc(t.to)})</div>
     <div style="font-size:12px;margin:4px 0">${st}</div>${btns}`;
 }
 
@@ -1365,6 +2407,7 @@ window.acceptTrade = async (tid) => {
   await update(userRef(t.from), { nfts: aN, nftStyles: aS });
   await update(userRef(t.to), { nfts: bN, nftStyles: bS });
   await update(ref(db, "trades/" + tid), { status: "accepted" });
+  logAct(`✅ Обмен с ${t.from} завершён`);
   toast("Обмен совершён!", true);
   document.querySelectorAll(`[data-tid="${tid}"]`).forEach(el => loadTradeCard(el, tid));
 };
@@ -1377,6 +2420,7 @@ window.declineTrade = async (tid) => {
   document.querySelectorAll(`[data-tid="${tid}"]`).forEach(el => loadTradeCard(el, tid));
 };
 
+/* ПРОФИЛЬ */
 window.openProfile = async function(targetName) {
     viewingProfile = targetName === me.name ? null : targetName;
     $("profHeader").textContent = targetName === me.name ? "Мой профиль" : "Профиль " + targetName;
@@ -1389,10 +2433,11 @@ function computeBadges(data) {
   const out = [];
   const gifts = toArr(data.gifts);
   const ids = new Set(gifts.map(g => giftKey(g)));
-  if (Date.now() - (data.createdAt || 0) > SELL_WINDOW) out.push("🎖 Ветеран");
-  if (gifts.length > 0) out.push("🎁 Первый подарок");
-  COLLECTIONS.forEach(c => { if (c.ids.every(id => ids.has(id))) out.push("🏅 " + c.name); });
-  if (toArr(data.nfts).length >= 10) out.push("💎 Коллекционер NFT");
+  if (Date.now() - (data.createdAt || 0) > SELL_WINDOW) out.push({ icon: "medal", text: "Ветеран" });
+  if (gifts.length > 0) out.push({ icon: "gift", text: "Первый подарок" });
+  COLLECTIONS.forEach(c => { if (c.ids.every(id => ids.has(id))) out.push({ icon: "trophy", text: c.name }); });
+  if (toArr(data.nfts).length >= 10) out.push({ icon: "gem", text: "Коллекционер NFT" });
+  if (data.premium) out.push({ icon: "star", text: "Premium" });
   return out;
 }
 
@@ -1400,6 +2445,7 @@ async function renderProfile(targetName) {
     const snap = await get(userRef(targetName));
     if(!snap.exists()) return toast("Профиль не найден");
     const data = snap.val();
+    const ev = activeEventKey ? EVENTS[activeEventKey] : null;
 
     const bgEl = $("profBg");
     if (data.banner) {
@@ -1408,18 +2454,20 @@ async function renderProfile(targetName) {
         bgEl.className = "profBg";
     } else {
         bgEl.style.backgroundImage = "none";
+        bgEl.style.background = ev ? ev.bg : "";
         bgEl.className = "profBg " + (data.profileBg || 'bg-blue');
     }
 
     const av = $("profAv");
-    av.className = "profAv " + (data.premium ? 'premium' : '');
+    av.className = avClass(data, "profAv");
+    av.style.borderColor = ev && !(data.premium && data.animRing !== false) ? ev.ring : "";
     if(data.avatar) av.innerHTML = `<img src="${data.avatar}">`;
     else av.textContent = targetName[0].toUpperCase();
 
-    $("profNick").innerHTML = "@" + esc(targetName) + (data.verified ? ' <span style="color:#4fa8ff;font-size:18px">✔</span>' : '');
+    $("profNick").innerHTML = "@" + nameHtml(targetName, data);
     $("profClan").textContent = data.clan ? `🛡️ Клан: ${data.clan}` : "";
     $("profBio").textContent = data.bio || "Нет описания";
-    $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${b}</span>`).join("");
+    $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${badgeIcon(b.icon, 16)}${esc(b.text)}</span>`).join("");
     $("profBalance").textContent = data.balance || 0;
     $("profNex").textContent = data.nex || 0;
     renderInventory(data, targetName);
@@ -1432,7 +2480,7 @@ async function renderProfile(targetName) {
             $("btnChangePass").style.opacity = "1";
         } else {
             const minsLeft = Math.ceil((3600000 - timePassed) / 60000);
-            $("passChangeLock").innerHTML = `<span style="color:var(--gold)">⚠️ Смена пароля через ${minsLeft} мин.</span>`;
+            $("passChangeLock").innerHTML = `<span style="color:var(--gold)">⚠️ Смена пароля будет доступна через ${minsLeft} мин. (защита аккаунта)</span>`;
             $("btnChangePass").disabled = true;
             $("btnChangePass").style.opacity = "0.5";
         }
@@ -1443,7 +2491,7 @@ window.changePassword = async function() {
     const newPass = $("newPassInput").value.trim();
     if(newPass.length < 5) return toast("Пароль минимум 5 символов!");
     await update(userRef(me.name), { password: newPass });
-    toast("Пароль изменен!", true);
+    toast("Пароль успешно изменен!", true);
     $("newPassInput").value = "";
 };
 
@@ -1479,7 +2527,7 @@ function renderInventory(data, ownerName) {
             const have = c.ids.filter(id => ids.has(id)).length;
             const done = have === c.ids.length;
             return `<div class="card" style="margin:0;text-align:left">
-                <div style="font-weight:800">${done ? '🏅' : '⬜'} ${c.name} <span class="sub" style="display:inline">${have}/${c.ids.length}</span></div>
+                <div style="font-weight:800;display:flex;align-items:center;gap:6px">${done ? badgeIcon("trophy", 18) : '⬜'} ${c.name} <span class="sub" style="display:inline">${have}/${c.ids.length}</span></div>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
                   ${c.ids.map(id => { const g = giftById(id); return `<div class="colItem ${ids.has(id) ? '' : 'off'}">${giftArtHtml(g, "art colArt")}</div>`; }).join("")}
                 </div>
@@ -1492,13 +2540,22 @@ function renderInventory(data, ownerName) {
         const gifts = toArr(data.gifts);
         if (gifts.length === 0) return grid.innerHTML = '<div class="sub center">Подарков нет</div>';
 
+        const counts = {};
+        gifts.forEach(x => { const k = giftKey(x); counts[k] = (counts[k] || 0) + 1; });
+        const craftShown = {};
+
         gifts.forEach((g, i) => {
             const gd = giftById(g.id) || giftById(g.name);
-            const visual = gd ? giftArtHtml(gd, "art") : `<div class="ic">🎁</div>`;
+            const visual = gd ? giftArtHtml(gd, "art") : `<div class="ic">${g.emoji || '🎁'}</div>`;
             const canSell = !viewingProfile && canSellGift(g);
+            const k = giftKey(g);
+            const canCraft = !viewingProfile && gd && gd.event && activeEventKey !== gd.event && counts[k] >= 4 && !craftShown[k];
+            if (canCraft) craftShown[k] = true;
             grid.innerHTML += `<div class="item">
                 ${visual}<div>${esc(g.name)}</div>
                 ${canSell ? `<button class="small" style="margin-top:5px;background:var(--danger);border:none;padding:4px;border-radius:5px;color:#fff;font-size:10px;" onclick="sellGift(${i})">Продать</button>` : ''}
+                ${(!viewingProfile && !canSell) ? `<div style="font-size:10px;color:var(--muted);margin-top:5px;">Продажа закрыта (21 день)</div>` : ''}
+                ${canCraft ? `<button class="craftBtn" onclick="event.stopPropagation();craftGifts('${k}')">✨ Крафт в NFT (4 шт)</button>` : ''}
             </div>`;
         });
     } else {
@@ -1514,8 +2571,9 @@ function renderInventory(data, ownerName) {
 
             grid.innerHTML += `<div class="item" onclick="openNftView('${nftId}')">
                 ${nftCardHtml(nftId, data.nftStyles)}
-                <div style="margin-top:5px">${esc(base.name)} ${isUpg ? '👑' : ''}</div>
+                <div style="margin-top:5px">${esc(base.name)} ${isUpg ? '👑' : ''} <span class="sub" style="display:inline">x${baseCount}</span></div>
                 ${s.rarity ? `<div style="font-size:11px;color:${s.color};font-weight:bold">${s.label}</div>` : ''}
+                ${(!viewingProfile && !isUpg && baseCount >= 4) ? `<button class="small" style="margin-top:5px;background:#ed8936;border:none;padding:5px;border-radius:5px;color:#fff;font-size:10px;" onclick="event.stopPropagation(); startUpgrade('${baseId}')">Крафт (4 шт)</button>` : ''}
             </div>`;
         });
     }
@@ -1531,14 +2589,39 @@ async function loadLog(name) {
   ).join("") + `</div>`;
 }
 
+/* КРАФТ ИВЕНТОВЫХ ПОДАРКОВ (после окончания ивента) */
+window.craftGifts = async (gid) => {
+  const g = giftById(gid);
+  if (!g || !g.event) return;
+  if (activeEventKey === g.event) return toast("Крафт откроется после окончания ивента");
+  const gifts = toArr(profile.gifts);
+  const idxs = [];
+  gifts.forEach((x, i) => { if (giftKey(x) === gid && idxs.length < 4) idxs.push(i); });
+  if (idxs.length < 4) return toast("Нужно 4 одинаковых подарка");
+
+  const left = gifts.filter((_, i) => !idxs.includes(i));
+  const nfts = toArr(profile.nfts);
+  const nft = EVENT_NFT[g.event];
+  const newId = nft.id + "_u" + Date.now().toString(36);
+  nfts.push(newId);
+  const styles = { ...(profile.nftStyles || {}), [newId]: { rarity: rollRarity(1) } };
+  await update(userRef(me.name), { gifts: left, nfts, nftStyles: styles });
+  logAct(`✨ Крафт: 4 × «${g.name}» → NFT «${nft.name}»`);
+  toast(`Получен NFT: ${nft.name}!`, true);
+  renderProfile(me.name);
+};
+
+/* ПРОДАЖА И ПОДАРКИ */
 window.sellGift = async function(index) {
     let gifts = toArr(profile.gifts);
     let item = gifts[index];
     if(!item) return;
-    const price = (giftById(item.id) || giftById(item.name))?.price || 15;
+    if (!canSellGift(item)) return toast("Срок продажи (21 день) истёк");
+    const price = (giftById(item.id) || giftById(item.name))?.price || 10;
     let sellPrice = Math.floor(price / 2);
     gifts.splice(index, 1);
     await update(userRef(me.name), { gifts: gifts, balance: profile.balance + sellPrice });
+    logAct(`💰 Продал подарок «${item.name}» за ${sellPrice} Coin`);
     toast(`Подарок продан за ${sellPrice} Coin`, true);
     renderProfile(me.name);
 };
@@ -1553,14 +2636,15 @@ window.sellNft = async function() {
     nfts.splice(idx, 1);
     let styles = { ...(profile.nftStyles || {}) }; delete styles[currentNftId];
     await update(userRef(me.name), { nfts: nfts, nftStyles: styles, balance: profile.balance + sellPrice });
+    logAct(`💰 Продал NFT «${base.name}» за ${sellPrice} Coin`);
     closeModal('mNftView');
     toast(`NFT продан за ${sellPrice} Coin`, true);
     renderProfile(me.name);
 };
 
 window.giftNft = async function() {
-    if(profile.balance < 250) return toast("Нужно 250 Coin!");
-    let friend = prompt("Ник друга:");
+    if(profile.balance < 250) return toast("Нужно 250 Coin для пересылки!");
+    let friend = prompt("Введите ник друга (кому подарить):");
     if(!friend) return;
     friend = normName(friend);
     if(friend === me.name) return toast("Нельзя подарить себе");
@@ -1582,11 +2666,13 @@ window.giftNft = async function() {
 
     await update(userRef(me.name), { nfts: nfts, nftStyles: styles, balance: profile.balance - 250 });
     await update(userRef(friend), { nfts: friendNfts, nftStyles: friendStyles });
+    logAct(`🎁 Подарил NFT «${nftBase(currentNftId).name}» игроку ${friend} (250 Coin)`);
     closeModal('mNftView');
-    toast(`NFT подарен ${friend}!`, true);
+    toast(`NFT подарен ${friend}! Списано 250 Coin`, true);
     renderProfile(me.name);
 };
 
+/* УЛУЧШЕНИЕ ФОНА NFT */
 window.upgradeNftBg = async function() {
     if (!currentNftId) return;
     if (profile.balance < UPG_COST) return toast(`Нужно ${UPG_COST} Coin!`);
@@ -1602,19 +2688,23 @@ window.upgradeNftBg = async function() {
         const next = RAR_ORDER[idx + 1];
         styles[currentNftId] = { rarity: next };
         await update(userRef(me.name), { nftStyles: styles });
-        toast(`Фон улучшен до: ${RARITY[next].label}! ✨`, true);
+        logAct(`🎨 Фон NFT «${nftBase(currentNftId).name}» улучшен до «${RARITY[next].label}»`);
+        toast(`Фон улучшен: ${RARITY[next].label}! ✨`, true);
     } else {
+        logAct(`🎨 Неудачная попытка улучшить фон «${nftBase(currentNftId).name}»`);
         toast("Не повезло — попробуйте ещё раз");
     }
-    openNftView(currentNftId);
 };
 
+/* НАСТРОЙКИ */
 window.openSettings = () => {
     $("setBio").value = profile.bio || "";
     $("setBg").value = profile.profileBg || "bg-blue";
     $("setBubbleStyle").value = profile.bubbleStyle || "bub-default";
     $("setMsgColor").value = profile.msgColor || "#2d7aff";
+    $("setAnim").checked = profile.animRing !== false;
     renderDevices(profile.devices || {});
+    renderStkList();
     show("vSettings");
 };
 
@@ -1625,18 +2715,41 @@ window.saveSettings = async () => {
         bubbleStyle: $("setBubbleStyle").value,
         msgColor: $("setMsgColor").value
     };
+    if (profile.premium) updates.animRing = $("setAnim").checked;
     await update(userRef(me.name), updates);
-    toast("Сохранено!", true);
+    toast("Настройки сохранены!", true);
     show("vProfile");
 };
 
 window.createClan = async () => {
     const name = $("setClan").value.trim();
-    if(!name) return toast("Введите название");
+    if(!name) return toast("Введите название клана");
     if(profile.nex < 500) return toast("Нужно 500 NEX!");
     await update(userRef(me.name), { clan: name, nex: profile.nex - 500 });
+    logAct(`🛡️ Создал клан «${name}» (−500 NEX)`);
     toast("Клан создан!", true);
     show("vProfile");
+};
+
+/* КРАФТ NFT (4 шт. → 1 улучшенный, минимум «Редкий») */
+window.startUpgrade = async function(baseId) {
+    let nfts = toArr(profile.nfts);
+    if (nfts.filter(id => isBaseOf(id, baseId)).length < 4) return toast("Нужно 4 NFT!");
+    openModal("mAnvil");
+    setTimeout(async () => {
+        $("anvilResult").style.opacity = "1";
+        let removed = 0;
+        nfts = nfts.filter(id => { if (isBaseOf(id, baseId) && removed < 4) { removed++; return false; } return true; });
+        const newId = baseId + '_upg_' + Date.now();
+        nfts.push(newId);
+
+        const styles = { ...(profile.nftStyles || {}) };
+        styles[newId] = { rarity: rollRarity(1) };
+
+        await update(userRef(me.name), { nfts, nftStyles: styles });
+        logAct(`🔨 Крафт: 4 × «${nftBase(baseId).name}» → улучшенный NFT`);
+        setTimeout(() => { closeModal("mAnvil"); $("anvilResult").style.opacity = "0"; renderProfile(me.name); }, 1000);
+    }, 1500);
 };
 
 window.openNftView = function(nftId) {
@@ -1664,6 +2777,7 @@ window.openNftView = function(nftId) {
 window.buyPremium = async function() {
     if(profile.nex < 5000) return toast("Нужно 5000 NEX!");
     await update(userRef(me.name), { nex: profile.nex - 5000, premium: true });
+    logAct("👑 Купил Premium (−5000 NEX)");
     toast("Premium активирован! 👑", true);
     renderProfile(me.name);
 };
@@ -1677,6 +2791,7 @@ const qok = name => !shopQuery || normName(name).includes(shopQuery);
 
 function renderShop() {
     const grid = $("shopGrid"); grid.innerHTML = "";
+    const noQuery = !shopQuery;
 
     if (shopCat === 'gift') {
         GIFTS.filter(i => qok(i.name)).forEach(i => {
@@ -1684,43 +2799,108 @@ function renderShop() {
                 ${giftArtHtml(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
             </div>`;
         });
+
+        const customG = CUSTOM_GIFTS.filter(i => qok(i.name));
+        if (customG.length) {
+            grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#00b894,#00cec9)">🎨 От админов</div>`;
+            customG.forEach(i => {
+                grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'gift')">
+                    ${giftArtHtml(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
+                    ${i.event ? `<div class="evGiftTag">ивентовый</div>` : ""}
+                </div>`;
+            });
+        }
+
+        const limG = LIMITED.filter(i => qok(i.name));
+        if (limG.length && noQuery) {
+            grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#8e44ad,#2d7aff)">⭐ Лимитированные</div>`;
+        }
+        limG.forEach(i => {
+            const left = stockLeft(i);
+            grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'gift')">
+                ${giftArtHtml(i, "art")}<div>${i.name}</div><div class="price">${i.price} 🪙</div>
+                <div class="stockTag">${left <= 0 ? 'Распродано' : `Осталось ${left} из ${i.limit}`}</div>
+            </div>`;
+        });
+
+        if (activeEventKey) {
+            const ev = EVENTS[activeEventKey];
+            const evG = ev.gifts.filter(g => qok(g.name));
+            if (evG.length && noQuery) {
+                grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1">${ev.icon} Ивент: ${ev.name}</div>`;
+            }
+            evG.forEach(g => {
+                grid.innerHTML += `<div class="item" onclick="buyItem('${g.id}', 'gift')">
+                    ${giftArtHtml(g, "art")}<div>${g.name}</div><div class="price">${g.price} 🪙</div>
+                    <div class="evGiftTag">ивентовый</div>
+                </div>`;
+            });
+        }
     } else {
         NFTS.filter(i => qok(i.name)).forEach(i => {
             grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'nft')">
                 <div class="art nftcard nft-bg-gray">${inst(i.svg)}</div><div>${i.name}</div><div class="price">${i.price} 🪙</div>
             </div>`;
         });
+
+        const customN = CUSTOM_NFTS.filter(i => qok(i.name));
+        if (customN.length) {
+            grid.innerHTML += `<div class="evBanner" style="grid-column:1/-1;background:linear-gradient(135deg,#00b894,#00cec9)">🎨 От админов</div>`;
+            customN.forEach(i => {
+                grid.innerHTML += `<div class="item" onclick="buyItem('${i.id}', 'nft')">
+                    <div class="art nftcard ${i.bgClass}">${inst(i.svg)}</div><div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
+                    ${i.event ? `<div class="evGiftTag">ивентовый</div>` : ""}
+                </div>`;
+            });
+        }
     }
+
+    if (!grid.innerHTML) grid.innerHTML = '<div class="sub center" style="grid-column:1/-1">Ничего не найдено</div>';
 }
 
 window.buyItem = async function(id, type) {
     if (type === 'gift') {
         const g = giftById(id);
         if (!g) return;
+        if (!giftAvailable(g)) return toast("Этот подарок только во время ивента");
         if (profile.balance < g.price) return toast("Недостаточно средств!");
+
+        if (g.limit) {
+            const r = await runTransaction(ref(db, "giftStock/" + g.id), cur => {
+                const left = (cur === null || cur === undefined) ? g.limit : cur;
+                if (left <= 0) return undefined;
+                return left - 1;
+            });
+            if (!r.committed) return toast("Распродано!");
+        }
 
         await update(userRef(me.name), {
             balance: profile.balance - g.price,
-            gifts: [...toArr(profile.gifts), { id: g.id, name: g.name, at: Date.now() }]
+            gifts: [...toArr(profile.gifts), { id: g.id, name: g.name, emoji: g.emoji, at: Date.now() }]
         });
+        logAct(`🛍 Купил подарок «${g.name}» за ${g.price} Coin`);
         toast(`Куплено: ${g.name}!`, true);
         return;
     }
 
-    const item = NFTS.find(i => i.id === id);
+    const item = NFTS.find(i => i.id === id) || CUSTOM_NFTS.find(i => i.id === id);
     if (!item) return;
+    if (item.event && item.event !== activeEventKey) return toast("Этот NFT только во время ивента");
     if (profile.balance < item.price) return toast("Недостаточно средств!");
 
     const copyId = item.id + "_c" + Date.now().toString(36) + Math.floor(Math.random() * 999);
     const n = toArr(profile.nfts); n.push(copyId);
     const styles = { ...(profile.nftStyles || {}) };
-    styles[copyId] = { rarity: rollRarity(0) };
+    if (!item.custom) styles[copyId] = { rarity: rollRarity(0) };
     await update(userRef(me.name), { balance: profile.balance - item.price, nfts: n, nftStyles: styles });
+    logAct(`🛍 Купил NFT «${item.name}» за ${item.price} Coin`);
     toast(`Куплено: ${item.name}!`, true);
 };
 
+/* АДМИНКА */
 window.adminAction = async function(action) {
     if (me.role !== "ADMIN") return;
+
     let fieldId = 'adminUser3';
     if (['balance', 'nex'].includes(action)) fieldId = 'adminUser1';
     if (['verify', 'unverify', 'premium', 'unpremium', 'makeadmin', 'removeadmin'].includes(action)) fieldId = 'adminUser2';
@@ -1749,9 +2929,10 @@ window.adminAction = async function(action) {
     else if (action === 'clearNft') { updates.nfts = []; updates.nftStyles = {}; }
 
     await update(userRef(user), updates);
-    toast("Готово!", true);
+    toast("Действие выполнено!", true);
 };
 
+/* НАВИГАЦИЯ */
 document.querySelectorAll("#bottomNav button[data-go]").forEach(b => {
   b.onclick = () => {
     const v = b.dataset.go;
@@ -1770,7 +2951,8 @@ $("themeBtn").onclick = () => {
 };
 if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light";
 
-renderShop();
+pxInitUI();
+
 </script>
 </body>
 </html>
