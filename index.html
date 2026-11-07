@@ -4,193 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Nexus Messenger Ultimate</title>
-<!-- Подключаем библиотеку для проигрывания Lottie (JSON) анимаций -->
-<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <style>
-:root {
-  --bg: #0b1118; --panel: #151f2b; --line: #243447; --text: #ffffff; --muted: #8b9eb0;
-  --accent: #2d7aff; --danger: #ff4757; --success: #2ed573; --gold: #ffa502;
-  --own: #2d7aff; --other: #1e2c3a;
-  --grad-blue: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  --grad-premium: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
-}
-:root[data-theme=light] {
-  --bg: #f0f2f5; --panel: #ffffff; --line: #e4e6eb; --text: #050505; --muted: #65676b;
-  --accent: #1877f2; --own: #1877f2; --other: #e4e6eb;
-}
-* { box-sizing: border-box; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background: #000; height: 100vh; display: flex; justify-content: center; overflow: hidden; }
-
-@media (min-width: 768px) {
-    #app { max-width: 100%; width: 100%; max-height: 100vh; border-radius: 0; }
-    .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important; }
-    main { padding: 20px 40px; }
-    .composer { max-width: 800px; margin: 0 auto; width: 100%; border-radius: 20px 20px 0 0; }
-    .modal-content { max-width: 500px !important; }
-}
-@media (max-width: 767px) {
-    #app { width: 100%; max-width: 450px; height: 100vh; max-height: 900px; }
-}
-
-#app { background: var(--bg); color: var(--text); position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-.view { display: none; flex: 1; flex-direction: column; min-height: 0; animation: fadeIn 0.2s ease; }
-.view.active { display: flex; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-header { display: flex; align-items: center; gap: 10px; padding: 15px; background: var(--panel); border-bottom: 1px solid var(--line); z-index: 10; }
-header h2 { font-size: 18px; flex: 1; font-weight: 700; cursor: pointer; }
-.ghost { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 5px; transition: 0.2s; }
-.ghost:active { transform: scale(0.9); }
-main { flex: 1; overflow-y: auto; padding: 15px; min-height: 0; }
-
-input, textarea, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 12px; outline: none; transition: 0.2s; }
-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 122, 255, 0.2); }
-.btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
-.btn:active { transform: scale(0.97); opacity: 0.9; }
-.btn.alt { background: var(--line); color: var(--text); }
-.btn.danger { background: var(--danger); }
-.btn.premium { background: var(--grad-premium); color: #000; font-weight: 800; box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4); }
-
-.row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: var(--panel); margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-.row:active { background: var(--line); transform: scale(0.98); }
-.av { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 20px; position: relative; overflow: hidden; }
-.av img { width: 100%; height: 100%; object-fit: cover; }
-.av.premium { border: 3px solid #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-.av.premium::after { content: '👑'; position: absolute; top: -5px; font-size: 16px; right: -2px; transform: rotate(15deg); text-shadow: 0 0 5px #000;}
-.grow { flex: 1; min-width: 0; }
-.sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* АНИМИРОВАННАЯ РАМКА (Premium) */
-@keyframes ringColor {
-  0% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
-  33% { border-color: #ff4757; box-shadow: 0 0 14px rgba(255,71,87,.7); }
-  66% { border-color: #7b2ff7; box-shadow: 0 0 14px rgba(123,47,247,.7); }
-  100% { border-color: #ffd34d; box-shadow: 0 0 14px rgba(255,211,77,.7); }
-}
-.av.anim, .profAv.anim { animation: ringColor 3s linear infinite; border: 3px solid #ffd34d; }
-.profAv.anim { border-width: 5px; }
-
-/* ЗНАЧКИ */
-.bIcon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
-.bIcon svg { width: 100%; height: 100%; display: block; }
-
-/* ЧАТ */
-.msgs { display: flex; flex-direction: column; gap: 8px; padding: 15px; min-height: 100%; max-width: 800px; margin: 0 auto; width: 100%; }
-.msg { max-width: 80%; background: var(--other); padding: 10px 14px; border-radius: 16px 16px 16px 4px; align-self: flex-start; word-break: break-word; font-size: 15px; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.1); animation: popIn 0.2s ease; position: relative; cursor: pointer; user-select: none; -webkit-user-select: none; }
-.msg.out { background: var(--own); align-self: flex-end; border-radius: 16px 16px 4px 16px; color: #fff; }
-@keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-.msg .meta { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px; text-align: right; }
-.msg .stick { font-size: 50px; line-height: 1; }
-.msg img { max-width: 100%; border-radius: 10px; margin-bottom: 5px; }
-.msg .from { font-size: 11px; font-weight: bold; color: var(--gold); margin-bottom: 2px; }
-.msg.giftmsg { background: transparent !important; box-shadow: none !important; padding: 0 !important; }
-.msg.giftmsg .meta { color: var(--muted); }
-.msg.postmsg { align-self: stretch; max-width: 100%; background: var(--panel) !important; border: 1px solid var(--line); border-radius: 16px; color: var(--text); }
-.stkMsgImg { width: 120px; height: 120px; object-fit: contain; border-radius: 0; margin-bottom: 0; }
-.postTitle { font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
-.reacts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.rchip { font-size: 12px; padding: 2px 8px; border-radius: 12px; background: rgba(255,255,255,0.12); cursor: pointer; }
-.rchip.mine { background: rgba(255,165,2,0.35); }
-.reactRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.rbtn { font-size: 32px; padding: 12px; border-radius: 14px; border: none; background: var(--bg); cursor: pointer; }
-.views { font-size: 11px; margin-right: 8px; }
-.tradeCard { background: var(--bg); border-radius: 12px; padding: 10px; margin-top: 4px; min-width: 200px; color: var(--text); text-align: left; }
-.tradeBtns { display: flex; gap: 8px; margin-top: 6px; }
-
-/* PREMIUM ПУЗЫРИ */
-.bub-default { border-radius: 16px 16px 16px 4px; }
-.bub-round { border-radius: 30px; }
-.bub-square { border-radius: 4px; }
-.bub-glass { background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-.bub-neon { box-shadow: 0 0 15px var(--accent), inset 0 0 10px rgba(255,255,255,0.5); border: 1px solid var(--accent); }
-.bub-gradient { background: linear-gradient(45deg, #ff6b6b, #feca57) !important; color: #000 !important; font-weight: bold; }
-
-.composer { display: flex; gap: 8px; padding: 10px 15px; background: var(--panel); border-top: 1px solid var(--line); align-items: center; z-index: 10;}
-.composer input { margin: 0; border-radius: 24px; background: var(--bg); }
-.composer button { border: none; border-radius: 50%; background: var(--accent); color: #fff; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; transition: 0.2s; }
-.composer button:active { transform: scale(0.9); }
-.composer .icon-btn { background: none; color: var(--muted); font-size: 26px; width: 36px; }
-
-nav { display: flex; background: var(--panel); border-top: 1px solid var(--line); padding: 5px 0; justify-content: center; z-index: 10;}
-nav button { flex: 1; max-width: 150px; padding: 10px 0; background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
-nav button .ic { font-size: 22px; }
-nav button.on { color: var(--accent); font-weight: bold; }
-
-.card { background: var(--panel); border-radius: 16px; padding: 16px; margin-bottom: 15px; border: 1px solid var(--line); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.item { background: var(--panel); border-radius: 16px; padding: 15px 5px; text-align: center; border: 1px solid var(--line); font-size: 13px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;}
-.item:active { transform: scale(0.95); background: var(--line); }
-.item .ic { font-size: 36px; margin-bottom: 5px; }
-.price { color: var(--gold); font-weight: bold; margin-top: 5px; font-size: 12px; background: rgba(255, 165, 2, 0.1); display: inline-block; padding: 2px 8px; border-radius: 10px; }
-.stockTag { font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 700; }
-.evGiftTag { font-size: 10px; color: #ff9a3c; font-weight: 800; margin-top: 4px; text-transform: uppercase; }
-#shopSearch { margin-bottom: 12px; }
-
-/* СТИКЕРЫ */
-.stkGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-.stkItem { position: relative; background: var(--bg); border-radius: 12px; padding: 6px; text-align: center; }
-.stkItem img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; display: block; }
-.stkName { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.stkDel { position: absolute; top: 2px; right: 2px; background: var(--danger); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor: pointer; }
-
-/* ВИЗУАЛ ПОДАРКОВ И NFT */
-.art { width: 76px; height: 76px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 22px; overflow: hidden; }
-.art svg { width: 100%; height: 100%; display: block; }
-.giftbig { width: 120px; height: 120px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 26px; }
-.giftbig svg { width: 100%; height: 100%; display: block; }
-.emojiArt { display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 38px; }
-.giftbig.emojiArt { font-size: 72px; }
-.nftcard { border-radius: 16px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.08); }
-.nftcard svg { width: 84%; height: 84%; display: block; }
-.craftBtn { margin-top: 5px; background: #8e44ad; border: none; padding: 5px; border-radius: 5px; color: #fff; font-size: 10px; font-weight: 700; }
-
-.tabs { display: flex; gap: 8px; margin-bottom: 15px; background: var(--panel); padding: 5px; border-radius: 12px; overflow-x: auto;}
-.tabs button { flex: 1; padding: 10px; border-radius: 8px; border: none; background: none; color: var(--muted); cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap;}
-.tabs button.on { background: var(--accent); color: #fff; box-shadow: 0 2px 10px rgba(45,122,255,0.3); }
-
-/* ИВЕНТЫ */
-.evBanner { margin: 0 0 12px; padding: 12px 14px; border-radius: 14px; background: linear-gradient(135deg, #ff9a3c, #ff5e62); color: #fff; font-weight: 800; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
-.evPickBtn { padding: 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-size: 14px; }
-.evPickBtn.on { border-color: var(--gold); background: rgba(255,165,2,.15); }
-#fxLayer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5000; }
-.fxp { position: absolute; top: -40px; animation-name: fxfall; animation-timing-function: linear; animation-iteration-count: infinite; user-select: none; }
-@keyframes fxfall {
-  0% { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(110vh) rotate(360deg); }
-}
-
-/* ПРОФИЛЬ */
-.profBg { height: 160px; border-radius: 20px 20px 0 0; margin-bottom: -45px; transition: 0.3s; position: relative; background-size: cover; background-position: center; overflow: hidden;}
-.bg-blue { background: var(--grad-blue); }
-
-.profAv { width: 90px; height: 90px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 5px solid var(--bg); position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 2; overflow: hidden; }
-.profAv img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.profAv.premium { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
-.profAv.premium::after { content: '👑'; position: absolute; top: 0px; font-size: 24px; transform: rotate(15deg); text-shadow: 0 0 5px #000; z-index: 3;}
-.badges { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
-.badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); display: inline-flex; align-items: center; gap: 6px; }
-.logRow { font-size: 13px; padding: 10px; border-bottom: 1px solid var(--line); text-align: left; }
-.logTime { font-size: 11px; color: var(--muted); }
-
-.center { text-align: center; }
-.stats { display: flex; gap: 10px; justify-content: center; margin: 15px 0; }
-.stat { background: var(--panel); border-radius: 12px; padding: 10px 15px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); flex: 1; text-align: center; }
-.stat b { display: block; color: var(--accent); font-size: 20px; margin-top: 5px; }
-
-/* МОДАЛКИ */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; }
-.modal.active { display: flex; }
-.modal-content { background: var(--panel); border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 380px; position: relative; text-align: center; border: 1px solid var(--line); max-height: 85vh; overflow-y: auto; z-index: 2001; }
-.modal-close-btn { position: absolute; top: 12px; right: 12px; background: var(--line); border: none; color: var(--text); width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 2002; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
-.modal-close-btn:hover { background: var(--danger); color: #fff; }
-
-/* NFT ПРОСМОТР */
-.nft-view-box { width: 200px; height: 200px; margin: 0 auto 15px; border-radius: 22px; display: flex; align-items: center; justify-content: center; transition: 0.3s; border: 2px solid var(--line); overflow: hidden; position: relative; background: #1c1c1e; }
-
-.toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: bold; opacity: 0; transition: .3s; pointer-events: none; z-index: 9999; max-width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.toast.show { opacity: 1; top: 30px; }
-.toast.ok { background: var(--success); }
-.hidden { display: none !important; }
+:root{--bg:#0b1118;--panel:#151f2b;--line:#243447;--text:#fff;--muted:#8b9eb0;--accent:#2d7aff;--danger:#ff4757;--success:#2ed573;--gold:#ffa502;--own:#2d7aff;--other:#1e2c3a;--grad-blue:linear-gradient(135deg,#1e3c72,#2a5298);--grad-premium:linear-gradient(135deg,#FFD700,#FFA500,#FF8C00)}
+:root[data-theme=light]{--bg:#f0f2f5;--panel:#fff;--line:#e4e6eb;--text:#050505;--muted:#65676b;--accent:#1877f2;--own:#1877f2;--other:#e4e6eb}
+*{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#000;height:100vh;display:flex;justify-content:center;overflow:hidden}
+@media(min-width:768px){#app{max-width:100%;width:100%;max-height:100vh;border-radius:0}.grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))!important}main{padding:20px 40px}.modal-content{max-width:500px!important}}
+@media(max-width:767px){#app{width:100%;max-width:450px;height:100vh;max-height:900px}}
+#app{background:var(--bg);color:var(--text);position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.5)}
+.view{display:none;flex:1;flex-direction:column;min-height:0}
+.view.active{display:flex}
+header{display:flex;align-items:center;gap:10px;padding:15px;background:var(--panel);border-bottom:1px solid var(--line);z-index:10}
+header h2{font-size:18px;flex:1;font-weight:700;cursor:pointer}
+.ghost{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:5px}
+main{flex:1;overflow-y:auto;padding:15px;min-height:0}
+input,textarea,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;margin-bottom:12px;outline:none}
+input:focus{border-color:var(--accent)}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-bottom:10px;display:flex;justify-content:center;align-items:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn.alt{background:var(--line);color:var(--text)}
+.btn.danger{background:var(--danger)}
+.btn.premium{background:var(--grad-premium);color:#000;font-weight:800}
+.row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--panel);margin-bottom:10px;cursor:pointer}
+.av{width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:20px;position:relative;overflow:hidden;border:3px solid transparent}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av.premium{border-color:#FFD700}
+.av.anim,.profAv.anim{animation:ringColor 3s linear infinite}
+@keyframes ringColor{0%{border-color:#ffd34d;box-shadow:0 0 14px rgba(255,211,77,.7)}33%{border-color:#ff4757;box-shadow:0 0 14px rgba(255,71,87,.7)}66%{border-color:#7b2ff7;box-shadow:0 0 14px rgba(123,47,247,.7)}100%{border-color:#ffd34d;box-shadow:0 0 14px rgba(255,211,77,.7)}}
+.grow{flex:1;min-width:0}
+.sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bIcon{display:inline-block;vertical-align:middle;flex-shrink:0}
+.bIcon svg{width:100%;height:100%;display:block}
+.media{width:84%;height:84%;display:flex;align-items:center;justify-content:center}
+.media svg,.media img{width:100%;height:100%;object-fit:contain;display:block}
+.msgs{display:flex;flex-direction:column;gap:8px;padding:15px;min-height:100%;max-width:800px;margin:0 auto;width:100%}
+.msg{max-width:80%;background:var(--other);padding:10px 14px;border-radius:16px 16px 16px 4px;align-self:flex-start;word-break:break-word;font-size:15px;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,.1);position:relative;cursor:pointer;user-select:none;-webkit-user-select:none}
+.msg.out{background:var(--own);align-self:flex-end;border-radius:16px 16px 4px 16px;color:#fff}
+.msg .meta{font-size:11px;color:rgba(255,255,255,.7);margin-top:4px;text-align:right}
+.msg .stick{font-size:50px;line-height:1}
+.msg img{max-width:100%;border-radius:10px;margin-bottom:5px}
+.msg .from{font-size:11px;font-weight:bold;color:var(--gold);margin-bottom:2px}
+.msg.giftmsg{background:transparent!important;box-shadow:none!important;padding:0!important;max-width:86%}
+.msg.giftmsg .meta{color:var(--muted)}
+.msg.postmsg{align-self:stretch;max-width:100%;background:var(--panel)!important;border:1px solid var(--line);color:var(--text)}
+.postTitle{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:6px}
+.reacts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.rchip{font-size:12px;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,.12);cursor:pointer}
+.rchip.mine{background:rgba(255,165,2,.35)}
+.reactRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rbtn{font-size:32px;padding:12px;border-radius:14px;border:none;background:var(--bg);cursor:pointer}
+.views{font-size:11px;margin-right:8px}
+.tradeCard{background:var(--bg);border-radius:12px;padding:10px;margin-top:4px;min-width:200px;color:var(--text);text-align:left}
+.tradeBtns{display:flex;gap:8px;margin-top:6px}
+.stkMsgImg{width:120px;height:120px;object-fit:contain;margin-bottom:0}
+.bub-round{border-radius:30px}
+.bub-square{border-radius:4px}
+.bub-glass{background:rgba(255,255,255,.1)!important;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+.bub-neon{box-shadow:0 0 15px var(--accent),inset 0 0 10px rgba(255,255,255,.5);border:1px solid var(--accent)}
+.bub-gradient{background:linear-gradient(45deg,#ff6b6b,#feca57)!important;color:#000!important;font-weight:bold}
+.composer{display:flex;gap:8px;padding:10px 15px;background:var(--panel);border-top:1px solid var(--line);align-items:center;z-index:10}
+.composer input{margin:0;border-radius:24px;background:var(--bg)}
+.composer button{border:none;border-radius:50%;background:var(--accent);color:#fff;width:44px;height:44px;cursor:pointer;font-size:18px;display:flex;justify-content:center;align-items:center;flex-shrink:0}
+.composer .icon-btn{background:none;color:var(--muted);font-size:26px;width:36px}
+nav{display:flex;background:var(--panel);border-top:1px solid var(--line);padding:5px 0;justify-content:center;z-index:10}
+nav button{flex:1;max-width:150px;padding:10px 0;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav button .ic{font-size:22px}
+nav button.on{color:var(--accent);font-weight:bold}
+.card{background:var(--panel);border-radius:16px;padding:16px;margin-bottom:15px;border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.item{background:var(--panel);border-radius:16px;padding:15px 5px;text-align:center;border:1px solid var(--line);font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.item:active{transform:scale(.95);background:var(--line)}
+.price{color:var(--gold);font-weight:bold;margin-top:5px;font-size:12px;background:rgba(255,165,2,.1);display:inline-block;padding:2px 8px;border-radius:10px}
+.stockTag{font-size:10px;color:var(--muted);margin-top:4px;font-weight:700}
+.evGiftTag{font-size:10px;color:#ff9a3c;font-weight:800;margin-top:4px;text-transform:uppercase}
+.art{width:76px;height:76px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:22px}
+.nftcard{border-radius:16px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.08)}
+.nft-bg-gray{background:#333}
+.nft-bg-black{background:#000}
+.nft-bg-pink{background:#ff69b4}
+.nft-bg-rainbow{background:linear-gradient(45deg,red,orange,yellow,green,blue,indigo,violet)}
+.nft-bg-aurora{background:linear-gradient(120deg,#0f2027,#2c5364,#00c9a7,#7b2ff7,#0f2027);background-size:300% 300%;animation:aurora 6s ease infinite}
+@keyframes aurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.nft-bg-space{background:radial-gradient(circle at 30% 30%,#4b2a8a 0%,transparent 55%),radial-gradient(circle at 75% 75%,#0b4d8a 0%,transparent 60%),#05060f}
+.nft-style-rainbow{filter:drop-shadow(2px 2px 0 #ff3b3b) drop-shadow(-2px -2px 0 #3bf0ff)}
+.nft-fx-neon{animation:neonPulse 2s ease-in-out infinite}
+@keyframes neonPulse{0%,100%{filter:drop-shadow(0 0 3px #00f0ff) drop-shadow(0 0 8px #7b2ff7)}50%{filter:drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 22px #7b2ff7)}}
+.nft-fx-holo{animation:holo 4s linear infinite}
+@keyframes holo{from{filter:hue-rotate(0deg) saturate(1.4) drop-shadow(0 0 8px gold)}to{filter:hue-rotate(360deg) saturate(1.4) drop-shadow(0 0 8px gold)}}
+.gcard{width:180px;margin:4px auto;border-radius:22px;padding:12px 10px 14px;text-align:center;background:linear-gradient(160deg,var(--gc,#8e44ad),#0b1118 95%);box-shadow:0 10px 30px rgba(0,0,0,.4);color:#fff;position:relative;overflow:hidden}
+.gcTop{font-size:11px;font-weight:800;letter-spacing:.5px;opacity:.9;text-transform:uppercase}
+.gcArt{width:120px;height:120px;margin:6px auto;display:flex;align-items:center;justify-content:center}
+.gcName{font-weight:800;font-size:15px}
+.gcFrom{font-size:12px;opacity:.85;margin-top:2px}
+.stkGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.stkItem{position:relative;background:var(--bg);border-radius:12px;padding:6px;text-align:center}
+.stkItem img{width:100%;aspect-ratio:1/1;object-fit:contain;display:block}
+.stkName{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stkDel{position:absolute;top:2px;right:2px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer}
+.pxBox{display:flex;justify-content:center}
+#pxCanvas{width:100%;max-width:320px;aspect-ratio:1/1;touch-action:none;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:crosshair}
+.pxRow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pxSw{width:30px;height:30px;border-radius:8px;border:2px solid transparent;cursor:pointer;padding:0}
+.pxSw.on{border-color:var(--gold);transform:scale(1.1)}
+.pxTool{padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--text);font-weight:700;cursor:pointer;font-size:13px}
+.pxTool.on{border-color:var(--accent)}
+.admItem{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid var(--line);text-align:left}
+.admItem .thumb{width:44px;height:44px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.admItem .thumb svg,.admItem .thumb img{width:40px;height:40px;display:block;object-fit:contain}
+.tabs{display:flex;gap:8px;margin-bottom:15px;background:var(--panel);padding:5px;border-radius:12px;overflow-x:auto}
+.tabs button{flex:1;padding:10px;border-radius:8px;border:none;background:none;color:var(--muted);cursor:pointer;font-weight:bold;white-space:nowrap}
+.tabs button.on{background:var(--accent);color:#fff}
+.evBanner{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,#ff9a3c,#ff5e62);color:#fff;font-weight:800;text-align:center}
+.evPickBtn{padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font-weight:700;cursor:pointer;font-size:14px}
+.evPickBtn.on{border-color:var(--gold);background:rgba(255,165,2,.15)}
+#fxLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5000}
+.fxp{position:absolute;top:-40px;animation:fxfall linear infinite;user-select:none}
+@keyframes fxfall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
+.profBg{height:160px;border-radius:20px 20px 0 0;margin-bottom:-45px;position:relative;background-size:cover;background-position:center;overflow:hidden}
+.bg-blue{background:var(--grad-blue)}
+.bg-red{background:linear-gradient(135deg,#4a1a1a,#e53e3e)}
+.bg-green{background:linear-gradient(135deg,#1b4a1b,#38a169)}
+.bg-purple{background:linear-gradient(135deg,#2d1b4e,#8E2DE2)}
+.bg-orange{background:linear-gradient(135deg,#F7971E,#FFD200)}
+.bg-neon{background:linear-gradient(135deg,#00ff87,#60efff)}
+.bg-cyberpunk{background:linear-gradient(135deg,#fc00ff,#00dbde)}
+.bg-sunset{background:linear-gradient(135deg,#ff512f,#dd2476)}
+.bg-ocean{background:linear-gradient(135deg,#2193b0,#6dd5ed)}
+.bg-fire{background:linear-gradient(135deg,#cb2d3e,#ef473a)}
+.bg-forest{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.bg-lava{background:linear-gradient(135deg,#ff7e5f,#feb47b)}
+.bg-ice{background:linear-gradient(135deg,#83a4d4,#b6fbff)}
+.bg-royal{background:linear-gradient(135deg,#141E30,#243B55)}
+.bg-candy{background:linear-gradient(135deg,#ff9a9e,#fecfef)}
+.bg-matrix{background:linear-gradient(135deg,#000,#0f9b0f)}
+.bg-gold{background:linear-gradient(135deg,#BF953F,#FCF6BA,#B38728)}
+.bg-dark{background:linear-gradient(135deg,#232526,#414345)}
+.profAv{width:90px;height:90px;border-radius:50%;background:var(--accent);color:#fff;font-size:36px;font-weight:bold;display:flex;align-items:center;justify-content:center;margin:0 auto;border:5px solid var(--bg);position:relative;z-index:2;overflow:hidden}
+.profAv img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profAv.premium{border-color:#FFD700}
+.badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.badge{font-size:12px;padding:4px 10px;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}
+.logRow{font-size:13px;padding:10px;border-bottom:1px solid var(--line);text-align:left}
+.logTime{font-size:11px;color:var(--muted)}
+.center{text-align:center}
+.stats{display:flex;gap:10px;justify-content:center;margin:15px 0}
+.stat{background:var(--panel);border-radius:12px;padding:10px 15px;font-size:12px;color:var(--muted);border:1px solid var(--line);flex:1;text-align:center}
+.stat b{display:block;color:var(--accent);font-size:20px;margin-top:5px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:none;justify-content:center;align-items:center;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:var(--panel);border-radius:20px;padding:25px 20px;width:100%;max-width:380px;position:relative;text-align:center;border:1px solid var(--line);max-height:85vh;overflow-y:auto;z-index:2001}
+.modal-close-btn{position:absolute;top:12px;right:12px;background:var(--line);border:none;color:var(--text);width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;z-index:2002}
+.nft-view-box{width:200px;height:200px;margin:0 auto 15px;border-radius:22px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);overflow:hidden;position:relative}
+.anvil-box{font-size:80px;position:relative;margin:20px 0;height:100px;display:flex;justify-content:center;align-items:flex-end}
+@keyframes hammerStrike{0%{transform:rotate(-45deg) translateY(-20px)}20%{transform:rotate(20deg) translateY(10px)}40%{transform:rotate(-45deg) translateY(-20px)}60%{transform:rotate(20deg) translateY(10px)}80%{transform:rotate(-45deg) translateY(-20px)}100%{transform:rotate(20deg) translateY(10px)}}
+.hammer{position:absolute;font-size:60px;top:0;left:20%;animation:hammerStrike .5s 3;transform-origin:bottom right}
+.anvil{font-size:80px;z-index:2}
+.toast{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:bold;opacity:0;transition:.3s;pointer-events:none;z-index:9999;max-width:90%;text-align:center}
+.toast.show{opacity:1;top:30px}
+.toast.ok{background:var(--success)}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -198,550 +170,1424 @@ nav button.on { color: var(--accent); font-weight: bold; }
 <div class="toast" id="toast"></div>
 <div id="fxLayer"></div>
 
-<!-- ОНБОРДИНГ -->
-<div class="view active" id="vOnboarding" style="background:#000;color:#fff;justify-content:center;align-items:center;text-align:center;padding:30px;">
-  <div id="onboardContent" style="max-width:400px;transition:0.3s;">
-    <div style="font-size:80px;margin-bottom:20px;">🔐</div>
-    <h2 style="font-size:24px;margin-bottom:15px;font-weight:bold;">Полное шифрование</h2>
-    <p style="color:#888;font-size:15px;line-height:1.4;">Сквозное шифрование для всех сообщений и звонков.</p>
+<div class="view active" id="vOnboarding" style="background:#000;color:#fff;justify-content:center;align-items:center;text-align:center;padding:30px">
+  <div id="onboardContent" style="max-width:400px">
+    <div style="font-size:80px;margin-bottom:20px">🔐</div>
+    <h2 style="font-size:24px;margin-bottom:15px;font-weight:bold">Полное шифрование</h2>
+    <p style="color:#888;font-size:15px;line-height:1.4">Сквозное шифрование для всех сообщений и звонков. Никто не может прочитать ваши разговоры — даже мы.</p>
   </div>
-  <button class="btn" style="margin-top:40px;width:100%;max-width:300px;" onclick="nextOnboard()">Далее</button>
+  <button class="btn" style="margin-top:40px;width:100%;max-width:300px" onclick="nextOnboard()">Далее</button>
+  <button class="btn alt" style="background:none;border:none;color:#888;margin-top:10px" onclick="skipOnboard()">Пропустить</button>
 </div>
 
-<!-- АВТОРИЗАЦИЯ -->
 <div class="view" id="vAuth">
   <main style="display:flex;flex-direction:column;justify-content:center;padding:30px">
-    <h1 class="center" style="font-size:28px;margin-bottom:30px;font-weight:800;color:var(--accent)">Nexus</h1>
-    <input id="authNick" placeholder="Ваш ник (3-20 символов)">
-    <input id="authPass" type="password" placeholder="Пароль (минимум 6)">
+    <div class="center" style="font-size:70px;margin-bottom:10px">🛡️</div>
+    <h1 class="center" style="font-size:28px;margin-bottom:30px;font-weight:800;background:var(--grad-blue);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Nexus</h1>
+    <input id="authNick" placeholder="Ваш ник (3-20 символов)" autocomplete="username">
+    <input id="authPass" type="password" placeholder="Пароль (минимум 6)" autocomplete="current-password">
+    <div id="adminSecretBox" class="hidden" style="background:var(--danger);padding:15px;border-radius:12px;margin-bottom:15px">
+      <div style="font-size:13px;color:#fff;margin-bottom:8px;font-weight:bold">🔐 Пароль админа</div>
+      <input id="secretPhrase" type="password" placeholder="Пароль от аккаунта админа" style="margin:0;background:rgba(0,0,0,.3);border:none;color:#fff">
+    </div>
     <div id="authError" style="color:var(--danger);font-size:14px;text-align:center;margin-bottom:15px;font-weight:bold;display:none"></div>
     <button class="btn" id="btnLogin">Войти в аккаунт</button>
     <button class="btn alt" id="btnRegister">Создать аккаунт</button>
   </main>
 </div>
 
-<!-- СПИСОК ЧАТОВ -->
 <div class="view" id="vChats">
-  <header><h2>Чаты</h2></header>
+  <header><h2>Чаты</h2><button class="ghost" id="btnNewGroup">➕</button></header>
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
-        <input id="searchInput" placeholder="Поиск по нику... 🔍">
-        <div id="chatList"></div>
+      <div id="evBanner" class="evBanner hidden"></div>
+      <input id="searchInput" placeholder="Поиск по нику или @каналу... 🔍">
+      <div id="chatList"></div>
     </div>
   </main>
 </div>
 
-<!-- ЧАТ -->
 <div class="view" id="vChat">
   <header>
     <button class="ghost" id="chatBack">←</button>
-    <div class="av" id="chatAvatar" style="width:40px;height:40px;font-size:16px; cursor:pointer;" onclick="openFriendProfile()"></div>
+    <div class="av" id="chatAvatar" style="width:40px;height:40px;font-size:16px;cursor:pointer" onclick="openFriendProfile()"></div>
     <h2 id="chatTitle" style="cursor:pointer" onclick="openFriendProfile()"></h2>
-    <button class="ghost" id="btnSendGift" style="font-size:20px;">🎁</button>
+    <button class="ghost hidden" id="btnPost" style="font-size:20px">📢</button>
+    <button class="ghost" id="btnSendGift" style="font-size:20px">🎁</button>
   </header>
-  <main id="msgsWrap" style="padding:0; position:relative;">
-    <div class="msgs" id="msgs" style="position:relative;z-index:1;"></div>
+  <main id="msgsWrap" style="padding:0;position:relative">
+    <div id="chatWallpaper" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:.3;z-index:0;pointer-events:none"></div>
+    <div class="msgs" id="msgs" style="position:relative;z-index:1"></div>
   </main>
   <div class="composer">
+    <button class="icon-btn" id="btnAttach" style="font-size:22px">🖇️</button>
+    <button class="icon-btn" id="btnSticker">😀</button>
     <input id="msgInput" placeholder="Сообщение...">
     <button id="sendBtn">➤</button>
   </div>
 </div>
 
-<!-- МАГАЗИН -->
 <div class="view" id="vShop">
-  <header><h2>Магазин NFT</h2></header>
+  <header><h2>Магазин</h2></header>
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
-        <div class="card center" style="background:var(--grad-blue);color:#fff;border:none">
-          <div style="font-size:14px;opacity:0.9">Баланс</div>
-          <div class="balanceTxt" style="font-size:24px;font-weight:bold;color:#FFD700;margin-top:5px">0 🪙 Coin</div>
-          <div class="nexTxt" style="font-size:20px;font-weight:bold;color:#00ffcc;margin-top:5px">0 NEX</div>
-        </div>
-        <input id="shopSearch" placeholder="Поиск NFT... 🔍">
-        <div class="grid" id="shopGrid"></div>
+      <div class="card center" style="background:var(--grad-blue);color:#fff;border:none">
+        <div style="font-size:14px;opacity:.9">NEXUS Crypto Wallet</div>
+        <div class="nexTxt" style="font-size:36px;font-weight:900;margin:10px 0">0 NEX</div>
+        <div style="font-size:14px;opacity:.9">Баланс Coin</div>
+        <div class="balanceTxt" style="font-size:24px;font-weight:bold;color:#FFD700">0 🪙</div>
+      </div>
+      <div class="tabs">
+        <button id="catGift" class="on">🎁 Подарки</button>
+        <button id="catNft">🖼️ NFT</button>
+      </div>
+      <input id="shopSearch" placeholder="Поиск предмета по названию... 🔍">
+      <div class="grid" id="shopGrid"></div>
     </div>
   </main>
 </div>
 
-<!-- ПРОФИЛЬ -->
 <div class="view" id="vProfile">
-  <header>
-    <button class="ghost" id="profBack">←</button>
-    <h2 id="profHeader">Мой профиль</h2>
-  </header>
+  <header><button class="ghost" id="profBack">←</button><h2 id="profHeader">Мой профиль</h2></header>
   <main style="padding-top:0">
     <div style="max-width:800px;margin:0 auto;width:100%">
-        <div class="profBg bg-blue" id="profBg"></div>
-        <div class="profAv" id="profAv"></div>
-        <div class="center" style="margin-top:10px">
-          <div style="font-size:22px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:5px" id="profNick"></div>
+      <div class="profBg bg-blue" id="profBg"></div>
+      <div class="profAv" id="profAv"></div>
+      <div class="center" style="margin-top:10px">
+        <div style="font-size:22px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:5px" id="profNick"></div>
+        <div class="sub" id="profClan" style="color:var(--gold);font-weight:bold;margin-bottom:5px"></div>
+        <div class="sub" id="profBio"></div>
+        <div class="badges" id="profBadges"></div>
+      </div>
+      <div class="stats">
+        <div class="stat">Coin<b id="profBalance">0</b></div>
+        <div class="stat">NEX<b id="profNex">0</b></div>
+      </div>
+      <div id="profOwn">
+        <div class="card" style="border-color:var(--gold)" id="premCard">
+          <div style="font-weight:bold;margin-bottom:10px;color:var(--gold)">👑 Premium Подписка</div>
+          <button class="btn premium" id="buyPremiumBtn" onclick="buyPremium()">Купить Premium (5000 NEX)</button>
+          <button class="btn alt" onclick="openSettings()">⚙️ Настройки профиля</button>
         </div>
-        <div class="stats">
-          <div class="stat">Coin<b id="profBalance">0</b></div>
-          <div class="stat">NEX<b id="profNex">0</b></div>
+        <div class="card">
+          <button class="btn alt" id="themeBtn">🌓 Сменить тему</button>
+          <button class="btn danger" id="logoutBtn">Выйти из аккаунта</button>
         </div>
-        <div id="profOwn">
-          <div class="card" style="border-color:var(--gold)" id="premCard">
-            <button class="btn premium" id="buyPremiumBtn" onclick="buyPremium()">Купить Premium (5000 NEX)</button>
-          </div>
-          <div class="card">
-            <button class="btn danger" id="logoutBtn">Выйти из аккаунта</button>
-          </div>
-        </div>
-
-        <div class="tabs" id="profTabs">
-          <button id="tab_nft" class="on" onclick="setProfTab('nft')">🖼️ Мои NFT</button>
-        </div>
-        <div class="grid" id="invGrid"></div>
+      </div>
+      <div class="tabs">
+        <button id="tab_gifts" class="on" onclick="setProfTab('gifts')">🎁 Подарки</button>
+        <button id="tab_nft" onclick="setProfTab('nft')">🖼️ NFT</button>
+        <button id="tab_log" onclick="setProfTab('log')">📜 Журнал</button>
+      </div>
+      <div class="grid" id="invGrid"></div>
     </div>
   </main>
 </div>
-
-<!-- АДМИНКА -->
-<div class="view" id="vAdmin">
-  <header><h2>Админ-панель</h2></header>
-  <main>
-    <div style="max-width:800px;margin:0 auto;width:100%">
-        <div class="card">
-          <h3 style="margin-bottom:10px">💰 Валюты</h3>
-          <input id="adminUser1" placeholder="Ник">
-          <input id="adminAmount1" type="number" placeholder="Сумма">
-          <div style="display:flex;gap:8px;">
-            <button class="btn" style="background:var(--success);margin:0" onclick="adminAction('balance')">Дать Coin</button>
-            <button class="btn" style="background:var(--accent);margin:0" onclick="adminAction('nex')">Дать NEX</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-bottom:10px">🎖️ Статусы</h3>
-          <input id="adminUser2" placeholder="Ник">
-          <div style="display:flex;gap:8px;margin-bottom:8px">
-            <button class="btn" style="background:var(--gold);margin:0" onclick="adminAction('premium')">Дать 👑</button>
-            <button class="btn" style="background:#555;margin:0" onclick="adminAction('unpremium')">Снять 👑</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-bottom:10px; color: var(--danger)">🚫 Модерация</h3>
-          <input id="adminUser3" placeholder="Ник">
-          <div style="display:flex;gap:8px;margin-bottom:8px">
-            <button class="btn danger" style="margin:0" onclick="adminAction('ban')">Бан</button>
-            <button class="btn" style="background:var(--success);margin:0" onclick="adminAction('unban')">Разбан</button>
-          </div>
-          <button class="btn danger" onclick="adminAction('clearNft')">УДАЛИТЬ ВСЕ NFT И ПОДАРКИ</button>
-        </div>
-    </div>
-  </main>
-</div>
-
-<nav id="bottomNav" class="hidden">
-  <button data-go="vChats" class="on"><span class="ic">💬</span>Чаты</button>
-  <button data-go="vShop"><span class="ic">🛍️</span>Магазин</button>
-  <button data-go="vProfile"><span class="ic">👤</span>Профиль</button>
-  <button data-go="vAdmin" id="navAdmin" class="hidden"><span class="ic">🛠️</span>Админ</button>
-</nav>
-
-<!-- МОДАЛКА ПРОСМОТРА NFT -->
-<div class="modal" id="mNftView">
-  <div class="modal-content">
-    <button class="modal-close-btn" onclick="closeModal('mNftView')">✖</button>
-    <div class="nft-view-box" id="nftViewBox"></div>
-    <h3 id="nftViewName" style="margin-bottom:4px">NFT</h3>
-    <div id="nftRarity" style="font-size:14px;margin-bottom:12px"></div>
-  </div>
-</div>
-
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Вставьте сюда ваши конфиги Firebase
 const firebaseConfig = { apiKey: "AIzaSyBkNR9ZrRFwB39CYlhk2CNz4jWD-WGWuD8", authDomain: "chat-d7385.firebaseapp.com", databaseURL: "https://chat-d7385-default-rtdb.europe-west1.firebasedatabase.app", projectId: "chat-d7385", storageBucket: "chat-d7385.firebasestorage.app", messagingSenderId: "421202112650", appId: "1:421202112650:web:7b53494f3d32fd02a87d73" };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
 const ADMIN_NICK = "evdo";
 const ADMIN_EMAIL = "admin@nexus.app";
-
 const authReady = new Promise(resolve => {
-  onAuthStateChanged(auth, u => {
-    if (!u) { signInAnonymously(auth).catch(console.error); return; }
-    resolve(u);
-  });
+  onAuthStateChanged(auth, u => { if (!u) { signInAnonymously(auth).catch(console.error); return; } resolve(u); });
 });
 
+const DAY = 24 * 60 * 60 * 1000;
+const SELL_WINDOW = 21 * DAY;
+const MAX_STICKERS = 20;
+const MAX_IMG_CHARS = 380000;
+
 const $ = id => document.getElementById(id);
-const normName = s => String(s || "").trim().toLowerCase();
-const toArr = v => Array.isArray(v) ? v.filter(x => x != null) : Object.values(v || {});
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const userRef = name => ref(db, "users/" + name);
+const normName = s => String(s || "").trim().toLowerCase();
+const chatKey = (a, b) => [a, b].sort().join("_");
+const userRef = n => ref(db, "users/" + n);
+const evRef = ref(db, "events/active");
+const toArr = v => Array.isArray(v) ? v.filter(x => x != null) : Object.values(v || {});
 
-let me = null, profile = null, activeChat = null, chatBase = null, unsubChat = null, currentNftId = null, activeProfileTab = 'nft';
+let _uid = 0;
+const inst = raw => raw.replace(/UID/g, () => "u" + (++_uid));
 
-function toast(msg, ok = false) {
-    const t = $("toast"); t.textContent = msg;
-    t.className = "toast show" + (ok ? " ok" : "");
-    clearTimeout(t._t);
-    t._t = setTimeout(() => t.classList.remove("show"), 2500);
+/* ==========================================================
+   ПРЕДМЕТЫ
+   ========================================================== */
+const ITEMS = {};
+let ITEM_LIST = [];
+let activeEventKey = null, adminEventPick = null, stockCache = {};
+
+const EVENTS = {
+  halloween:  { name: "Хэллоуин", icon: "🎃", particles: ["🎃", "🦇", "🕸️", "🍬"], bg: "linear-gradient(135deg,#2a0a3a,#ff7a1a)", ring: "#ff7a1a" },
+  newyear:    { name: "Новый год", icon: "🎄", particles: ["❄️", "❅", "⭐", "🎄"], bg: "linear-gradient(135deg,#0b3a6b,#1e88c9)", ring: "#7fe0ff" },
+  easter:     { name: "Пасха", icon: "🥚", particles: ["🥚", "🐣", "🌷", "🐰"], bg: "linear-gradient(135deg,#ffd1f0,#9fe6c1)", ring: "#ff8ad8" },
+  maslenitsa: { name: "Масленица", icon: "🥞", particles: ["🥞", "🌞", "🍯", "🌻"], bg: "linear-gradient(135deg,#ffb347,#ff5e62)", ring: "#ffd34d" }
+};
+
+const DEFAULT_GIFTS = [
+  ["Сердце",15],["Мишка",25],["Роза",50],["Алмаз",100],["Звезда",30],["Колокольчик",60],["Торт",75],
+  ["Синий бант",25],["Розовый бант",25],["Зелёный бант",30],["Фиолетовый бант",35],["Золотой бант",45],
+  ["Красный шарик",20],["Голубой шарик",20],["Жёлтый шарик",20],["Зелёный шарик",20],["Фиолетовый шарик",20],
+  ["Леденец радуга",40],["Леденец мята",40],["Леденец вишня",40],["Леденец лимон",40],["Леденец виноград",40],
+  ["Волшебный шар",55],["Снежок",55],["Мячик",55],["Жемчужина",65],["Янтарь",65],
+  ["Кубок огня",90],["Кубок океана",90],["Кубок леса",90],["Кубок ночи",90],["Кубок солнца",90],
+  ["Корона",120],["Медаль",80],["Пряник",35],["Снежинка",45],["Тюльпан",50],["Голубое сердце",25],
+  ["Оранжевое сердце",40],["Ёлочная звезда",55],["Ледяной бокс",50],["Кристалл",110],["Фейерверк",75],
+  ["Кекс",45],["Печенька",30],["Кружка",35],["Пирожок",40],["Розовый кот",60]
+];
+const DEFAULT_NFTS = [
+  ["Кот-Босс",100],["Лягушонок",200],["Хомяк",200],["Единорог",500],["Зайка",220],["Панда",260],["Лис",300],
+  ["Волк",320],["Кибер-мишка",450],["Ёжик",240],["Дух огня",600],["Ледяной",700],["Король",800],["Маг",550],
+  ["Пират",500],["Ниндзя",420],["Пушистик",380],["Ангел",650],["Демон",650],["Инопланетянин",480],
+  ["Робот-бочонок",400],["Сакура",360],["Кактус",340],["Осьминог",330],["Огонёк",560],["Тыквочка",300],
+  ["Призрак",350],["Пингвин",250],["Дракоша",450],["Грибочек",150]
+];
+
+/* Заглушка: буква на цветном шаре. Градиент получает уникальный id на каждый вызов */
+function placeholderSvg(name, color) {
+  let h = 0; for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const hue = h % 360;
+  const c1 = color && color.startsWith("#") && color.length >= 7 ? color : `hsl(${hue},80%,60%)`;
+  const c2 = `hsl(${(hue + 40) % 360},70%,40%)`;
+  const letter = esc(String(name).trim()[0] || "?").toUpperCase();
+  const gid = "pg" + inst("UID");
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="${gid}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient></defs>
+    <ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".25"/>
+    <circle cx="50" cy="50" r="36" fill="url(#${gid})"/>
+    <ellipse cx="38" cy="32" rx="10" ry="6" fill="#fff" opacity=".45"/>
+    <text x="50" y="62" font-size="36" font-weight="800" text-anchor="middle" fill="#fff" opacity=".9" font-family="Arial,sans-serif">${letter}</text>
+  </svg>`;
 }
+
+/* Картинка предмета: data-URL, SVG из редактора или заглушка */
+function mediaOf(it) {
+  if (it.img) return it.img.startsWith("data:") ? `<img src="${it.img}" alt="">` : it.img;
+  return placeholderSvg(it.name, it.bg);
+}
+function itemArt(it, cls = "art") {
+  return `<div class="${cls}" style="background:${it.bg || "#f0f2f5"}"><div class="media">${mediaOf(it)}</div></div>`;
+}
+function giftCard(it, from) {
+  const c = it.bg && it.bg.startsWith("#") ? it.bg : "#8e44ad";
+  const kind = it.kind === "nft" ? "🖼️ NFT" : (it.limit ? "⭐ Лимитированный" : "🎁 Подарок");
+  return `<div class="gcard" style="--gc:${c}"><div class="gcTop">${kind}</div><div class="gcArt"><div class="media">${mediaOf(it)}</div></div><div class="gcName">${esc(it.name)}</div><div class="gcFrom">от ${esc(from)}</div></div>`;
+}
+
+const itemById = id => ITEMS[id] || null;
+const giftAvailable = it => !it.event || it.event === activeEventKey;
+const stockLeft = it => (stockCache[it.id] != null) ? stockCache[it.id] : it.limit;
+const canSellItem = g => !g.at || (Date.now() - g.at) < SELL_WINDOW;
+const itemsOf = kind => ITEM_LIST.filter(i => i.kind === kind);
+
+/* ==========================================================
+   РЕДКОСТЬ NFT
+   ========================================================== */
+const RARITY = {
+  common:    { label: "Обычный",     color: "#8b9eb0", style: "", bg: "nft-bg-gray" },
+  rare:      { label: "Редкий",      color: "#4fa8ff", style: "nft-style-rainbow", bg: "nft-bg-rainbow" },
+  epic:      { label: "Эпический",   color: "#b57bff", style: "nft-fx-neon", bg: "nft-bg-aurora" },
+  legendary: { label: "Легендарный", color: "#FFD700", style: "nft-fx-holo", bg: "nft-bg-space" }
+};
+const RAR_ORDER = ["common", "rare", "epic", "legendary"];
+const RAR_WEIGHTS = [60, 25, 12, 3];
+const UPG_CHANCE = [0.7, 0.45, 0.2, 0];
+const UPG_COST = 150;
+const REACT_LIST = ["❤️", "🔥", "😂", "😮", "😢", "👍"];
+
+function rollRarity(minIdx = 0) {
+  const w = RAR_WEIGHTS.slice(minIdx);
+  const total = w.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < w.length; i++) { r -= w[i]; if (r < 0) return RAR_ORDER[minIdx + i]; }
+  return "legendary";
+}
+function styleOf(nftId, styles) {
+  const s = (styles || {})[nftId];
+  if (!s) return { style: "", bg: "nft-bg-gray", rarity: null };
+  if (s.rarity && RARITY[s.rarity]) return { ...RARITY[s.rarity], rarity: s.rarity };
+  return { style: "", bg: "nft-bg-gray", rarity: null };
+}
+function nftBaseOf(nftId) {
+  return ITEMS[String(nftId).split("_")[0]] || { name: "Неизвестный", price: 0, kind: "nft", bg: "#333", img: "" };
+}
+function nftCardHtml(nftId, styles, extraCls = "") {
+  const base = nftBaseOf(nftId);
+  const s = styleOf(nftId, styles);
+  return `<div class="art nftcard ${extraCls} ${s.bg} ${s.style}"><div class="media">${mediaOf(base)}</div></div>`;
+}
+const isBaseOf = (id, baseId) => id.split("_")[0] === baseId && !id.includes("_upg");
+</script>
+/* ==========================================================
+   ВХОД
+   ========================================================== */
+function authErr(msg) { const e = $("authError"); e.textContent = msg; e.style.display = "block"; }
+$("authNick").addEventListener("input", () => { $("adminSecretBox").classList.toggle("hidden", normName($("authNick").value) !== ADMIN_NICK); });
+$("btnLogin").addEventListener("click", () => login(false));
+$("btnRegister").addEventListener("click", () => register());
+
+window.addEventListener("load", async () => {
+  const saved = localStorage.getItem("savedUser");
+  if (!saved) return;
+  try {
+    const u = JSON.parse(saved);
+    $("authNick").value = u.name;
+    $("authNick").dispatchEvent(new Event("input"));
+    const fbUser = await authReady;
+    if (u.name === ADMIN_NICK) {
+      if (fbUser && fbUser.email === ADMIN_EMAIL) login(true);
+      else authErr("Введите пароль админа и нажмите «Войти»");
+    } else login(true);
+  } catch (e) { localStorage.removeItem("savedUser"); }
+});
+
+async function login(isAuto = false) {
+  $("authError").style.display = "none";
+  const name = normName($("authNick").value);
+  const pass = $("authPass").value.trim();
+  if (!name) return authErr("Введите ник!");
+  const isAdmin = name === ADMIN_NICK;
+
+  if (isAdmin && !isAuto) {
+    const adminPass = $("secretPhrase").value.trim();
+    if (!adminPass) return authErr("Введите пароль админа!");
+    try { await signInWithEmailAndPassword(auth, ADMIN_EMAIL, adminPass); }
+    catch (e) { return authErr("Неверный пароль админа (" + e.code + ")"); }
+  }
+
+  try {
+    await authReady;
+    const snap = await get(userRef(name));
+    if (!snap.exists()) {
+      if (isAdmin) {
+        await set(userRef(name), { balance: 9999999, nex: 9999999, gifts: [], nfts: [], chats: [], password: "", profileBg: "bg-blue", bio: "Главный админ", verified: true, premium: true, role: "ADMIN", avatar: "", clan: "ADMIN", banner: "", msgColor: "#2d7aff", nftStyles: {}, devices: {}, createdAt: Date.now() });
+      } else return authErr("Аккаунт не найден.");
+    } else {
+      const d = snap.val();
+      if (!isAuto && !isAdmin && d.password && d.password !== pass) return authErr("Неверный пароль!");
+      if (d.banned) return authErr("Вы забанены!");
+      if (d.frozen) return authErr("Аккаунт заморожен!");
+    }
+    const cur = (await get(userRef(name))).val();
+    me = { name, role: cur.role === "ADMIN" || isAdmin ? "ADMIN" : "USER" };
+    loginTime = Date.now();
+
+    if (!isAuto) {
+      const info = navigator.userAgent.includes("Mobi") ? "📱 Телефон" : "💻 Компьютер";
+      const devices = cur.devices || {};
+      devices["dev_" + loginTime] = { device: info, ip: "Скрыт", time: loginTime };
+      await update(userRef(name), { devices });
+    }
+
+    onValue(userRef(me.name), s => {
+      profile = s.val();
+      if (!profile) return;
+      if (!profile.gifts) profile.gifts = [];
+      if (!profile.nfts) profile.nfts = [];
+      if (!profile.nftStyles) profile.nftStyles = {};
+      document.querySelectorAll(".balanceTxt").forEach(e => e.textContent = (profile.balance || 0) + " 🪙");
+      document.querySelectorAll(".nexTxt").forEach(e => e.textContent = (profile.nex || 0) + " NEX");
+      $("navAdmin").classList.toggle("hidden", me.role !== "ADMIN");
+      $("buyPremiumBtn").style.display = profile.premium ? "none" : "flex";
+      $("premSettings").style.display = profile.premium ? "block" : "none";
+      $("stickerCard").classList.toggle("hidden", !profile.premium);
+      $("premLock").classList.toggle("hidden", !!profile.premium);
+      $("btnSendGift").style.display = "block";
+      $("clanStatus").textContent = profile.clan ? `Ваш клан: ${profile.clan}` : "У вас нет клана";
+      renderDevices(profile.devices || {});
+      if ($("vProfile").classList.contains("active") && !viewingProfile) renderProfile(me.name);
+      if (activeChat) applyWallpaper();
+    });
+    onValue(ref(db, "stickers/" + me.name), s => { stkMine = s.val() || {}; renderStkList(); renderPickStk(); });
+
+    show("vChats");
+    toast("Успешный вход!", true);
+    localStorage.setItem("savedUser", JSON.stringify({ name: me.name }));
+  } catch (e) { authErr("Ошибка: " + e.message); }
+}
+
+async function register() {
+  const name = normName($("authNick").value), pass = $("authPass").value.trim();
+  if (name.length < 3) return toast("Ник слишком короткий");
+  if (pass.length < 5) return toast("Пароль минимум 5 символов");
+  try {
+    await authReady;
+    const res = await runTransaction(userRef(name), cur => cur === null
+      ? { balance: 100, nex: 100, gifts: [], nfts: [], chats: [], password: pass, profileBg: "bg-blue", bio: "Пользователь Nexus", verified: false, premium: false, role: "USER", avatar: "", clan: "", banner: "", msgColor: "#2d7aff", nftStyles: {}, devices: {}, createdAt: Date.now() }
+      : undefined);
+    if (!res.committed) return toast("Этот ник уже занят!");
+    $("authPass").value = pass;
+    toast("Аккаунт создан!", true);
+    login(true);
+  } catch (e) { toast("Ошибка: " + e.message); }
+}
+
+let me = null, profile = null, loginTime = 0, viewingProfile = null;
+
+function renderDevices(devices) {
+  const list = $("deviceList");
+  if (!list) return;
+  const entries = Object.entries(devices);
+  if (!entries.length) { list.innerHTML = "Нет данных"; return; }
+  list.innerHTML = entries.sort((a, b) => b[1].time - a[1].time).map(([, d]) =>
+    `<div style="padding:8px;border-bottom:1px solid var(--line)"><b>${d.device}</b><br><span style="font-size:11px;color:var(--muted)">${d.ip} | ${new Date(d.time).toLocaleString("ru-RU", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span></div>`).join("");
+}
+window.logoutAllDevices = async () => { await update(userRef(me.name), { devices: {} }); toast("Сброшено!", true); renderDevices({}); };
+$("logoutBtn").onclick = async () => {
+  localStorage.removeItem("savedUser");
+  try { await signOut(auth); } catch (e) {}
+  location.reload();
+};
+
+/* ==========================================================
+   ФОТО
+   ========================================================== */
+const readFileAsDataURL = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("не удалось открыть картинку")); };
+    img.src = url;
+  });
+}
+async function shrinkImage(file, maxSide, quality = 0.85, type = "image/jpeg") {
+  const img = await loadImage(file);
+  const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.width * k));
+  c.height = Math.max(1, Math.round(img.height * k));
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL(type, quality);
+}
+window.uploadPhoto = function (type) {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*";
+  input.onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      if (type === "avatar") {
+        const premium = !!(profile && profile.premium);
+        const animated = premium && file.type === "image/gif" && file.size <= 300000;
+        const data = animated ? await readFileAsDataURL(file) : await shrinkImage(file, 256, 0.85);
+        if (data.length > MAX_IMG_CHARS) return toast("Файл слишком большой");
+        await update(userRef(me.name), { avatar: data, avatarAnim: animated });
+        toast("Аватарка обновлена!", true);
+        renderProfile(me.name);
+      } else if (type === "banner") {
+        const data = await shrinkImage(file, 900, 0.8);
+        if (data.length > MAX_IMG_CHARS) return toast("Баннер слишком большой");
+        await update(userRef(me.name), { banner: data });
+        toast("Баннер обновлён!", true);
+        renderProfile(me.name);
+      } else if (type === "wallpaper") {
+        const data = await shrinkImage(file, 900, 0.7);
+        if (data.length > MAX_IMG_CHARS) return toast("Обои слишком большие");
+        await update(userRef(me.name), { wallpaper: data });
+        toast("Обои обновлены!", true);
+        if (activeChat) openChat(activeChat);
+      }
+    } catch (err) { toast("Не удалось загрузить: " + err.message); }
+  };
+  input.click();
+};
+
+/* ==========================================================
+   КАТАЛОГ И ОБЩИЕ СОБЫТИЯ
+   ========================================================== */
+onValue(ref(db, "items"), snap => {
+  const v = snap.val() || {};
+  for (const k of Object.keys(ITEMS)) delete ITEMS[k];
+  Object.entries(v).forEach(([id, d]) => { if (d && d.name) ITEMS[id] = { id, ...d }; });
+  ITEM_LIST = Object.values(ITEMS);
+  renderAdminList();
+  refreshAll();
+});
+onValue(evRef, snap => {
+  const v = snap.val();
+  activeEventKey = v && v.id && EVENTS[v.id] ? v.id : null;
+  applyEventUI();
+});
+onValue(ref(db, "giftStock"), snap => { stockCache = snap.val() || {}; if ($("vShop").classList.contains("active")) renderShop(); });
+
+function refreshAll() {
+  if ($("vShop").classList.contains("active")) renderShop();
+  if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
+}
+function applyEventUI() {
+  const e = activeEventKey ? EVENTS[activeEventKey] : null;
+  const fx = $("fxLayer"); fx.innerHTML = "";
+  if (e) for (let i = 0; i < 40; i++) {
+    const p = document.createElement("span");
+    p.className = "fxp";
+    p.textContent = e.particles[i % e.particles.length];
+    p.style.left = Math.random() * 100 + "%";
+    p.style.fontSize = (12 + Math.random() * 16) + "px";
+    p.style.animationDuration = (6 + Math.random() * 8) + "s";
+    p.style.animationDelay = (-Math.random() * 12) + "s";
+    fx.appendChild(p);
+  }
+  $("evBanner").classList.toggle("hidden", !e);
+  if (e) $("evBanner").textContent = `${e.icon} Ивент: ${e.name}`;
+  if ($("evStatus")) $("evStatus").textContent = e ? `Сейчас идёт: ${e.icon} ${e.name}` : "Ивент не идёт";
+  refreshAll();
+}
+function renderEventPick() {
+  $("evPick").innerHTML = Object.entries(EVENTS).map(([k, e]) =>
+    `<button class="evPickBtn ${adminEventPick === k ? "on" : ""}" onclick="adminPickEvent('${k}')">${e.icon} ${e.name}</button>`).join("");
+}
+window.adminPickEvent = k => { adminEventPick = k; renderEventPick(); };
+window.startEvent = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  if (!adminEventPick) return toast("Сначала выберите ивент");
+  await set(evRef, { id: adminEventPick, startedAt: Date.now() });
+  toast("Ивент запущен!", true);
+};
+window.endEvent = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  await set(evRef, null);
+  toast("Ивент завершён", true);
+};
+renderEventPick();
+
+/* ==========================================================
+   ТОАСТ, НАВИГАЦИЯ, МОДАЛКИ
+   ========================================================== */
 function show(id) {
-    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-    $(id).classList.add("active");
-    $("bottomNav").classList.toggle("hidden", id === "vAuth" || id === "vOnboarding" || !me);
-    if (id === "vChats") renderChats();
-    if (id === "vShop") renderShop();
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  $(id).classList.add("active");
+  $("bottomNav").classList.toggle("hidden", id === "vAuth" || id === "vOnboarding" || !me);
+  if (id === "vChats") renderChats();
+  if (id === "vShop") renderShop();
 }
 const openModal = id => $(id).classList.add("active");
 const closeModal = id => $(id).classList.remove("active");
 window.show = show; window.openModal = openModal; window.closeModal = closeModal;
 
-/* ==========================================================
-   НОВАЯ БАЗА ДАННЫХ NFT (Только рабочие ссылки)
-   ========================================================== */
-const FRAGMENT_BASE = "https://nft.fragment.com/gift/";
-
-// Легендарные NFT (продаются за NEX)
-const LEGENDARY_NFTS = [
-  { id: "plushpepe-2133", name: "Plush Pepe", currency: "NEX", price: 5000, url: FRAGMENT_BASE + "plushpepe-2133.lottie.json" },
-  { id: "hexpot-10348", name: "Hex Pot", currency: "NEX", price: 1500, url: FRAGMENT_BASE + "hexpot-10348.lottie.json" },
-  { id: "astralshard-1000", name: "Astral Shard", currency: "NEX", price: 3000, url: FRAGMENT_BASE + "astralshard-1000.lottie.json" },
-  { id: "prettyposy-5000", name: "Pretty Posy", currency: "NEX", price: 2000, url: FRAGMENT_BASE + "prettyposy-5000.lottie.json" },
-  { id: "lushbouquet-10000", name: "Lush Bouquet", currency: "NEX", price: 2500, url: FRAGMENT_BASE + "lushbouquet-10000.lottie.json" }
-];
-
-// Обычные NFT (продаются за Coin)
-const COMMON_NFTS = [
-  { id: "lootbag-6207", name: "Loot Bag", currency: "Coin", price: 500, url: FRAGMENT_BASE + "lootbag-6207.lottie.json" },
-  { id: "lovepotion-1000", name: "Love Potion", currency: "Coin", price: 400, url: FRAGMENT_BASE + "lovepotion-1000.lottie.json" },
-  { id: "kissedfrog-1000", name: "Kissed Frog", currency: "Coin", price: 350, url: FRAGMENT_BASE + "kissedfrog-1000.lottie.json" },
-  { id: "moussecake-10000", name: "Mousse Cake", currency: "Coin", price: 300, url: FRAGMENT_BASE + "moussecake-10000.lottie.json" },
-  { id: "petsnake-10000", name: "Pet Snake", currency: "Coin", price: 250, url: FRAGMENT_BASE + "petsnake-10000.lottie.json" },
-  { id: "bdycandle-10000", name: "B-Day Candle", currency: "Coin", price: 200, url: FRAGMENT_BASE + "bdycandle-10000.lottie.json" },
-  { id: "cookiheart-1000", name: "Cookie Heart", currency: "Coin", price: 150, url: FRAGMENT_BASE + "cookiheart-1000.lottie.json" },
-  { id: "jinglebells-1000", name: "Jingle Bells", currency: "Coin", price: 100, url: FRAGMENT_BASE + "jinglebells-1000.lottie.json" }
-];
-
-const ALL_NFTS = [...LEGENDARY_NFTS, ...COMMON_NFTS];
-
-function getNftById(id) {
-  return ALL_NFTS.find(n => n.id === id) || { name: "Unknown NFT", url: "" };
+function toast(msg, ok = false) {
+  const t = $("toast"); t.textContent = msg;
+  t.className = "toast show" + (ok ? " ok" : "");
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove("show"), 2500);
 }
-
-// Функция для отрисовки Lottie-плеера в карточке
-function nftCardHtml(nft) {
-  return `<div class="art nftcard" style="background:#1c1c1e; display:flex; justify-content:center; align-items:center;">
-    <lottie-player src="${nft.url}" background="transparent" speed="1" loop autoplay style="width:80%; height:80%;"></lottie-player>
-  </div>`;
-}
-
-/* ==========================================================
-   АВТОРИЗАЦИЯ
-   ========================================================== */
-$("btnLogin").addEventListener("click", () => login(false));
-$("btnRegister").addEventListener("click", () => register());
-
-async function login(isAuto = false) {
-    const name = normName($("authNick").value);
-    const pass = $("authPass").value.trim();
-    if (!name) return toast("Введите ник!");
-    const isAdmin = name === ADMIN_NICK;
-
-    if (isAdmin && !isAuto) {
-        try { await signInWithEmailAndPassword(auth, ADMIN_EMAIL, $("authPass").value); } catch (e) { return toast("Неверный пароль админа"); }
-    }
-
-    try {
-        await authReady;
-        const snap = await get(userRef(name));
-        if (!snap.exists()) {
-            if (isAdmin) {
-                await set(userRef(name), { balance: 9999999, nex: 9999999, gifts: [], nfts: [], chats: [], password: "", premium: true, role: "ADMIN", createdAt: Date.now() });
-            } else {
-                return toast("Аккаунт не найден. Зарегистрируйтесь.");
-            }
-        } else {
-            const data = snap.val();
-            if (!isAuto && !isAdmin && data.password && data.password !== pass) return toast("Неверный пароль!");
-            if (data.banned) return toast("Вы забанены!");
-        }
-
-        const currentData = (await get(userRef(name))).val();
-        me = { name, role: currentData.role === "ADMIN" || isAdmin ? "ADMIN" : "USER" };
-
-        onValue(userRef(me.name), updateProfileUI);
-        show("vChats");
-        toast("Вход выполнен!", true);
-    } catch (e) { toast("Ошибка: " + e.message); }
-}
-
-async function register() {
-    const name = normName($("authNick").value), pass = $("authPass").value.trim();
-    if (name.length < 3) return toast("Ник слишком короткий");
-    if (pass.length < 5) return toast("Пароль минимум 5 символов");
-
-    try {
-        await authReady;
-        const res = await runTransaction(userRef(name), cur => {
-            if (cur === null) {
-                return { balance: 500, nex: 100, gifts: [], nfts: [], chats: [], password: pass, role: "USER", premium: false, createdAt: Date.now() };
-            }
-            return undefined;
-        });
-        if (!res.committed) return toast("Этот ник уже занят!");
-        $("authPass").value = pass;
-        toast("Аккаунт создан!", true);
-        login(true);
-    } catch (e) { toast("Ошибка: " + e.message); }
-}
-
-function updateProfileUI(snapshot) {
-    profile = snapshot.val();
-    if (!profile) return;
-    if (!profile.nfts) profile.nfts = [];
-
-    document.querySelectorAll(".balanceTxt").forEach(e => e.textContent = (profile.balance || 0) + " 🪙 Coin");
-    document.querySelectorAll(".nexTxt").forEach(e => e.textContent = (profile.nex || 0) + " NEX");
-    $("navAdmin").classList.toggle("hidden", me.role !== "ADMIN");
-    
-    if($("vProfile").classList.contains('active') && !viewingProfile) renderProfile(me.name);
+async function logAct(text) {
+  if (!me) return;
+  try { await push(ref(db, "logs/" + me.name), { t: text, time: Date.now() }); } catch (e) {}
 }
 
 /* ==========================================================
    МАГАЗИН
    ========================================================== */
-let shopQuery = "";
+let shopCat = "gift", shopQuery = "";
+$("catGift").onclick = () => { shopCat = "gift"; $("catGift").classList.add("on"); $("catNft").classList.remove("on"); renderShop(); };
+$("catNft").onclick = () => { shopCat = "nft"; $("catNft").classList.add("on"); $("catGift").classList.remove("on"); renderShop(); };
 $("shopSearch").oninput = e => { shopQuery = normName(e.target.value); renderShop(); };
 
 function renderShop() {
-    const grid = $("shopGrid"); grid.innerHTML = "";
-    
-    const filtered = ALL_NFTS.filter(n => !shopQuery || normName(n.name).includes(shopQuery));
-
-    if (filtered.length === 0) {
-        grid.innerHTML = '<div class="sub center" style="grid-column:1/-1">Ничего не найдено</div>';
-        return;
-    }
-
-    filtered.forEach(nft => {
-        const isLegendary = nft.currency === "NEX";
-        const priceColor = isLegendary ? "#00ffcc" : "var(--gold)";
-        const currencyIcon = isLegendary ? "💠" : "🪙";
-        
-        grid.innerHTML += `<div class="item" onclick="buyNft('${nft.id}')">
-            ${nftCardHtml(nft)}
-            <div style="margin-top:5px;font-weight:bold;">${esc(nft.name)}</div>
-            <div class="price" style="color:${priceColor}; background: rgba(255,255,255,0.05)">${currencyIcon} ${nft.price} ${nft.currency}</div>
-        </div>`;
-    });
+  const grid = $("shopGrid"); grid.innerHTML = "";
+  const list = itemsOf(shopCat).filter(i => !shopQuery || normName(i.name).includes(shopQuery));
+  if (!list.length) { grid.innerHTML = `<div class="sub center" style="grid-column:1/-1">Пусто</div>`; return; }
+  list.forEach(i => {
+    const left = i.limit ? stockLeft(i) : null;
+    const hidden = !giftAvailable(i);
+    grid.innerHTML += `<div class="item" style="${hidden ? "opacity:.5" : ""}" onclick="buyItem('${i.id}')">
+      ${itemArt(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
+      ${i.limit ? `<div class="stockTag">${left <= 0 ? "Распродано" : `Осталось ${left} из ${i.limit}`}</div>` : ""}
+      ${i.event ? `<div class="evGiftTag">${EVENTS[i.event]?.name || "ивентовый"}</div>` : ""}
+    </div>`;
+  });
 }
-
-window.buyNft = async function(id) {
-    const nft = getNftById(id);
-    if (!nft) return;
-    
-    if (profile.nfts.includes(id)) return toast("У вас уже есть этот NFT!");
-
-    if (nft.currency === "NEX") {
-        if (profile.nex < nft.price) return toast("Недостаточно NEX!");
-        await update(userRef(me.name), { nex: profile.nex - nft.price, nfts: [...profile.nfts, id] });
-    } else {
-        if (profile.balance < nft.price) return toast("Недостаточно Coin!");
-        await update(userRef(me.name), { balance: profile.balance - nft.price, nfts: [...profile.nfts, id] });
-    }
-    
-    toast(`Куплено: ${nft.name}!`, true);
+window.buyItem = async function (id) {
+  const it = itemById(id);
+  if (!it) return;
+  if (!giftAvailable(it)) return toast("Этот предмет только во время ивента");
+  if (profile.balance < it.price) return toast("Недостаточно Coin!");
+  if (it.limit) {
+    const r = await runTransaction(ref(db, "giftStock/" + it.id), cur => {
+      const left = (cur == null) ? it.limit : cur;
+      if (left <= 0) return undefined;
+      return left - 1;
+    });
+    if (!r.committed) return toast("Распродано!");
+  }
+  if (it.kind === "nft") {
+    const copyId = it.id + "_c" + Date.now().toString(36) + Math.floor(Math.random() * 999);
+    const nfts = toArr(profile.nfts); nfts.push(copyId);
+    const styles = { ...(profile.nftStyles || {}) };
+    styles[copyId] = { rarity: rollRarity(0) };
+    await update(userRef(me.name), { balance: profile.balance - it.price, nfts, nftStyles: styles });
+    logAct(`🛍 Купил NFT «${it.name}» за ${it.price} Coin`);
+  } else {
+    await update(userRef(me.name), {
+      balance: profile.balance - it.price,
+      gifts: [...toArr(profile.gifts), { id: it.id, at: Date.now() }]
+    });
+    logAct(`🛍 Купил подарок «${it.name}» за ${it.price} Coin`);
+  }
+  toast(`Куплено: ${it.name}!`, true);
 };
 
 /* ==========================================================
    ПРОФИЛЬ И ИНВЕНТАРЬ
    ========================================================== */
-window.openProfile = async function(targetName) {
-    $("profHeader").textContent = targetName === me.name ? "Мой профиль" : "Профиль " + targetName;
-    $("profOwn").style.display = targetName === me.name ? "block" : "none";
-    show("vProfile");
-    renderProfile(targetName);
+let invData = null, activeProfileTab = "gifts";
+window.openProfile = async function (targetName) {
+  viewingProfile = targetName === me.name ? null : targetName;
+  $("profHeader").textContent = targetName === me.name ? "Мой профиль" : "Профиль " + targetName;
+  $("profOwn").style.display = targetName === me.name ? "block" : "none";
+  show("vProfile");
+  renderProfile(targetName);
 };
-$("profBack").onclick = () => show("vChats");
-$("logoutBtn").onclick = async () => { try { await signOut(auth); } catch (e) {} location.reload(); };
-
-async function renderProfile(targetName) {
-    const snap = await get(userRef(targetName));
-    if(!snap.exists()) return toast("Профиль не найден");
-    const data = snap.val();
-
-    $("profAv").textContent = targetName[0].toUpperCase();
-    $("profNick").innerHTML = "@" + esc(targetName);
-    $("profBalance").textContent = data.balance || 0;
-    $("profNex").textContent = data.nex || 0;
-    $("buyPremiumBtn").style.display = data.premium ? "none" : "flex";
-
-    renderInventory(data);
+window.openFriendProfile = function () {
+  if (!activeChat) return;
+  if (activeChat.startsWith("GROUP_")) return toast("Это группа");
+  openProfile(activeChat);
+};
+function computeBadges(data) {
+  const out = [];
+  if (Date.now() - (data.createdAt || 0) > SELL_WINDOW) out.push({ icon: "medal", text: "Ветеран" });
+  if (toArr(data.gifts).length) out.push({ icon: "gift", text: "Первый подарок" });
+  if (toArr(data.nfts).length >= 10) out.push({ icon: "gem", text: "Коллекционер NFT" });
+  if (data.premium) out.push({ icon: "star", text: "Premium" });
+  return out;
 }
-
-window.setProfTab = (t) => {
+async function renderProfile(targetName) {
+  const snap = await get(userRef(targetName));
+  if (!snap.exists()) return toast("Профиль не найден");
+  const data = snap.val();
+  invData = data;
+  const evE = activeEventKey ? EVENTS[activeEventKey] : null;
+  const bgEl = $("profBg");
+  if (data.banner) { bgEl.style.background = ""; bgEl.style.backgroundImage = `url(${data.banner})`; bgEl.className = "profBg"; }
+  else { bgEl.style.backgroundImage = "none"; bgEl.style.background = evE ? evE.bg : ""; bgEl.className = "profBg " + (data.profileBg || "bg-blue"); }
+  const av = $("profAv");
+  av.className = avClass(data, "profAv");
+  if (data.avatar) av.innerHTML = `<img src="${data.avatar}">`;
+  else av.textContent = targetName[0].toUpperCase();
+  $("profNick").innerHTML = "@" + nameHtml(targetName, data);
+  $("profClan").textContent = data.clan ? `🛡️ Клан: ${data.clan}` : "";
+  $("profBio").textContent = data.bio || "Нет описания";
+  $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${badgeIcon(b.icon, 16)}${esc(b.text)}</span>`).join("");
+  $("profBalance").textContent = data.balance || 0;
+  $("profNex").textContent = data.nex || 0;
+  renderInventory(data, targetName);
+}
+function renderInventory(data, ownerName) {
+  const grid = $("invGrid");
+  grid.innerHTML = "";
+  grid.style.gridTemplateColumns = activeProfileTab === "log" ? "1fr" : "";
+  if (activeProfileTab === "log") {
+    if (viewingProfile) { grid.innerHTML = `<div class="sub center">Журнал виден только владельцу</div>`; return; }
+    loadLog(ownerName); return;
+  }
+  if (activeProfileTab === "gifts") {
+    const gifts = toArr(data.gifts);
+    if (!gifts.length) { grid.innerHTML = `<div class="sub center">Подарков нет</div>`; return; }
+    gifts.forEach((g, i) => {
+      const it = itemById(g.id) || { name: "Удалённый подарок", price: 0, kind: "gift", bg: "#f0f2f5" };
+      const canSell = !viewingProfile && canSellItem(g) && it.price;
+      grid.innerHTML += `<div class="item">${itemArt(it, "art")}<div>${esc(it.name)}</div>
+        ${canSell ? `<button class="btn danger" style="margin:5px 0 0;padding:6px;font-size:11px" onclick="event.stopPropagation();sellGift(${i})">Продать</button>` : ""}
+        ${(!viewingProfile && !canSellItem(g)) ? `<div class="stockTag">Продажа закрыта (21 день)</div>` : ""}
+      </div>`;
+    });
+  } else {
+    const nfts = toArr(data.nfts);
+    if (!nfts.length) { grid.innerHTML = `<div class="sub center">Нет NFT</div>`; return; }
+    nfts.forEach(nftId => {
+      const base = nftBaseOf(nftId);
+      const baseId = nftId.split("_")[0];
+      const count = nfts.filter(id => isBaseOf(id, baseId)).length;
+      const s = styleOf(nftId, data.nftStyles);
+      grid.innerHTML += `<div class="item" onclick="openNftView('${nftId}')">
+        ${nftCardHtml(nftId, data.nftStyles)}
+        <div style="margin-top:5px">${esc(base.name)} <span class="sub" style="display:inline">x${count}</span></div>
+        ${s.rarity ? `<div style="font-size:11px;color:${s.color};font-weight:bold">${s.label}</div>` : ""}
+        ${(!viewingProfile && !nftId.includes("_upg") && count >= 4) ? `<button class="btn" style="margin:5px 0 0;padding:6px;font-size:11px;background:#ed8936" onclick="event.stopPropagation();startUpgrade('${baseId}')">Крафт (4 шт)</button>` : ""}
+      </div>`;
+    });
+  }
+}
+window.setProfTab = t => {
   activeProfileTab = t;
+  ["gifts", "nft", "log"].forEach(k => $("tab_" + k).classList.toggle("on", k === t));
+  renderProfile(viewingProfile || me.name);
+};
+async function loadLog(name) {
+  const grid = $("invGrid");
+  const snap = await get(ref(db, "logs/" + name));
+  if (!snap.exists()) { grid.innerHTML = `<div class="sub center">Журнал пуст</div>`; return; }
+  const entries = Object.values(snap.val()).sort((a, b) => b.time - a.time).slice(0, 100);
+  grid.innerHTML = `<div class="card" style="margin:0;text-align:left">` + entries.map(e =>
+    `<div class="logRow">${esc(e.t)}<div class="logTime">${new Date(e.time).toLocaleString("ru-RU", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div></div>`).join("") + `</div>`;
+}
+window.sellGift = async function (index) {
+  const gifts = toArr(profile.gifts);
+  const item = gifts[index]; if (!item) return;
+  if (!canSellItem(item)) return toast("Срок продажи истёк");
+  const it = itemById(item.id);
+  const price = it ? Math.floor(it.price / 2) : 0;
+  gifts.splice(index, 1);
+  await update(userRef(me.name), { gifts, balance: profile.balance + price });
+  logAct(`💰 Продал подарок за ${price} Coin`);
+  toast(`Продано за ${price} Coin`, true);
+};
+window.craftGifts = async gid => {
+  const g = itemById(gid);
+  if (!g || !g.event) return;
+  if (activeEventKey === g.event) return toast("Крафт откроется после окончания ивента");
+  const gifts = toArr(profile.gifts), idxs = [];
+  gifts.forEach((x, i) => { if (x.id === gid && idxs.length < 4) idxs.push(i); });
+  if (idxs.length < 4) return toast("Нужно 4 одинаковых");
+  const left = gifts.filter((_, i) => !idxs.includes(i));
+  const nfts = toArr(profile.nfts);
+  nfts.push(gid + "_u" + Date.now().toString(36));
+  await update(userRef(me.name), { gifts: left, nfts });
+  toast("Получен NFT!", true);
   renderProfile(me.name);
 };
 
-function renderInventory(data) {
-    const grid = $("invGrid");
-    grid.innerHTML = "";
-    const nfts = toArr(data.nfts);
-
-    if (nfts.length === 0) {
-        return grid.innerHTML = '<div class="sub center" style="grid-column:1/-1">У вас пока нет NFT</div>';
-    }
-
-    nfts.forEach(nftId => {
-        const nft = getNftById(nftId);
-        grid.innerHTML += `<div class="item" onclick="openNftView('${nftId}')">
-            ${nftCardHtml(nft)}
-            <div style="margin-top:5px">${esc(nft.name)}</div>
-        </div>`;
-    });
+/* ==========================================================
+   NFT: просмотр, продажа, подарок, обмен, улучшение, крафт
+   ========================================================== */
+let currentNftId = null, pickItems = [], pickCb = null;
+window.openNftView = function (nftId) {
+  currentNftId = nftId;
+  const src = viewingProfile ? (invData || {}) : (profile || {});
+  const base = nftBaseOf(nftId);
+  const s = styleOf(nftId, src.nftStyles);
+  const idx = RAR_ORDER.indexOf(s.rarity || "common");
+  $("nftViewBox").className = `nft-view-box ${s.bg} ${s.style}`;
+  $("nftViewBox").innerHTML = `<div class="media">${mediaOf(base)}</div>`;
+  $("nftViewName").textContent = base.name + (nftId.includes("_upg") ? " 👑" : "");
+  $("nftRarity").innerHTML = s.rarity ? `<b style="color:${s.color}">${s.label}</b>` : `<span class="sub">Обычный — улучшите фон!</span>`;
+  $("nftActions").style.display = viewingProfile ? "none" : "block";
+  $("nftUpgradeBtn").textContent = idx >= RAR_ORDER.length - 1 ? "✨ Максимальный уровень" : `🎨 Улучшить фон (${UPG_COST} 🪙) — шанс ${Math.round(UPG_CHANCE[idx] * 100)}%`;
+  $("nftUpgradeBtn").disabled = idx >= RAR_ORDER.length - 1;
+  openModal("mNftView");
+};
+window.upgradeNftBg = async function () {
+  if (!currentNftId) return;
+  if (profile.balance < UPG_COST) return toast(`Нужно ${UPG_COST} Coin!`);
+  const styles = { ...(profile.nftStyles || {}) };
+  const cur = styleOf(currentNftId, styles);
+  const idx = RAR_ORDER.indexOf(cur.rarity || "common");
+  if (idx >= RAR_ORDER.length - 1) return toast("Максимальный уровень!");
+  await update(userRef(me.name), { balance: profile.balance - UPG_COST });
+  if (Math.random() < UPG_CHANCE[idx]) {
+    const next = RAR_ORDER[idx + 1];
+    styles[currentNftId] = { rarity: next };
+    await update(userRef(me.name), { nftStyles: styles });
+    logAct(`🎨 Фон NFT улучшен до «${RARITY[next].label}»`);
+    toast(`Фон улучшен: ${RARITY[next].label}!`, true);
+  } else toast("Не повезло — попробуйте ещё раз");
+};
+window.sellNft = async function () {
+  if (!currentNftId) return;
+  const nfts = toArr(profile.nfts);
+  const idx = nfts.indexOf(currentNftId); if (idx === -1) return;
+  const price = Math.floor(nftBaseOf(currentNftId).price / 2);
+  nfts.splice(idx, 1);
+  const styles = { ...(profile.nftStyles || {}) }; delete styles[currentNftId];
+  await update(userRef(me.name), { nfts, nftStyles: styles, balance: profile.balance + price });
+  logAct(`💰 Продал NFT за ${price} Coin`);
+  closeModal("mNftView");
+  toast(`NFT продан за ${price} Coin`, true);
+};
+window.giftNft = async function () {
+  if (profile.balance < 250) return toast("Нужно 250 Coin!");
+  const friend = normName(prompt("Ник друга:") || "");
+  if (!friend || friend === me.name) return;
+  const fs = await get(userRef(friend));
+  if (!fs.exists()) return toast("Друг не найден");
+  const nfts = toArr(profile.nfts);
+  const idx = nfts.indexOf(currentNftId); if (idx === -1) return;
+  nfts.splice(idx, 1);
+  const styles = { ...(profile.nftStyles || {}) };
+  const give = styles[currentNftId] || {};
+  delete styles[currentNftId];
+  const fN = toArr(fs.val().nfts); fN.push(currentNftId);
+  const fS = { ...(fs.val().nftStyles || {}) }; fS[currentNftId] = give;
+  await update(userRef(me.name), { nfts, nftStyles: styles, balance: profile.balance - 250 });
+  await update(userRef(friend), { nfts: fN, nftStyles: fS });
+  await sendTo(friend, currentNftId, false, "nftgift");
+  logAct(`🎁 Подарил NFT игроку ${friend} (250 Coin)`);
+  closeModal("mNftView");
+  toast(`NFT подарен ${friend}!`, true);
+};
+window.openTrade = async function () {
+  if (viewingProfile || !currentNftId) return;
+  const friend = normName(prompt("Ник друга для обмена:") || "");
+  if (!friend || friend === me.name) return;
+  const fs = await get(userRef(friend));
+  if (!fs.exists()) return toast("Пользователь не найден");
+  const fd = fs.val();
+  const fN = toArr(fd.nfts);
+  if (!fN.length) return toast("У друга нет NFT");
+  openPick("Какой NFT хотите получить?", fN.map(id => ({ id, html: nftCardHtml(id, fd.nftStyles), label: nftBaseOf(id).name })), async takeId => {
+    const tid = "t" + Date.now().toString(36) + Math.floor(Math.random() * 999);
+    await set(ref(db, "trades/" + tid), { from: me.name, to: friend, give: currentNftId, take: takeId, status: "pending", time: Date.now() });
+    await sendTo(friend, tid, false, "trade");
+    closeModal("mNftView");
+    toast("Предложение обмена отправлено!", true);
+  });
+};
+function openPick(title, items, cb) {
+  $("pickTitle").textContent = title;
+  $("pickGrid").innerHTML = items.map((it, i) => `<div class="item" onclick="pickChosen(${i})">${it.html}<div>${esc(it.label)}</div></div>`).join("") || `<div class="sub">Пусто</div>`;
+  pickItems = items; pickCb = cb; openModal("mPick");
 }
+window.pickChosen = i => { const cb = pickCb, it = pickItems[i]; closeModal("mPick"); if (cb && it) cb(it.id); };
 
-window.openNftView = function(nftId) {
-    currentNftId = nftId;
-    const nft = getNftById(nftId);
-    
-    $("nftViewBox").innerHTML = `<lottie-player src="${nft.url}" background="transparent" speed="1" loop autoplay style="width:100%; height:100%;"></lottie-player>`;
-    $("nftViewName").textContent = nft.name;
-    $("nftRarity").textContent = nft.currency === "NEX" ? "Легендарный" : "Обычный";
-    
-    openModal("mNftView");
+async function loadTradeCard(el, tid) {
+  if (!el) return;
+  const t = (await get(ref(db, "trades/" + tid))).val();
+  if (!t) { el.textContent = "Обмен не найден"; return; }
+  const a = nftBaseOf(t.give).name, b = nftBaseOf(t.take).name;
+  const st = { pending: "⏳ ожидает ответа", accepted: "✅ принят", declined: "❌ отклонён" }[t.status] || t.status;
+  const btns = (t.status === "pending" && t.to === me.name)
+    ? `<div class="tradeBtns"><button class="btn" style="margin:0;padding:8px;font-size:13px" onclick="acceptTrade('${tid}')">Принять</button><button class="btn danger" style="margin:0;padding:8px;font-size:13px" onclick="declineTrade('${tid}')">Отклонить</button></div>` : "";
+  el.innerHTML = `<div style="font-weight:800;margin-bottom:4px">🔄 Обмен NFT</div><div class="sub" style="white-space:normal">${esc(t.from)} предлагает: ${esc(a)}<br>взамен: ${esc(b)} (${esc(t.to)})</div><div style="font-size:12px;margin:4px 0">${st}</div>${btns}`;
+}
+window.acceptTrade = async tid => {
+  const t = (await get(ref(db, "trades/" + tid))).val();
+  if (!t || t.status !== "pending" || t.to !== me.name) return toast("Обмен недоступен");
+  const a = (await get(userRef(t.from))).val(), b = (await get(userRef(t.to))).val();
+  const aN = toArr(a.nfts), bN = toArr(b.nfts);
+  if (!aN.includes(t.give) || !bN.includes(t.take)) return toast("Один из NFT уже не у владельца");
+  const aS = { ...(a.nftStyles || {}) }, bS = { ...(b.nftStyles || {}) };
+  const gS = aS[t.give], tS = bS[t.take];
+  aN.splice(aN.indexOf(t.give), 1); bN.splice(bN.indexOf(t.take), 1);
+  aN.push(t.take); bN.push(t.give);
+  delete aS[t.give]; delete bS[t.take];
+  if (tS) aS[t.take] = tS;
+  if (gS) bS[t.give] = gS;
+  await update(userRef(t.from), { nfts: aN, nftStyles: aS });
+  await update(userRef(t.to), { nfts: bN, nftStyles: bS });
+  await update(ref(db, "trades/" + tid), { status: "accepted" });
+  toast("Обмен совершён!", true);
+  document.querySelectorAll(`[data-tid="${tid}"]`).forEach(el => loadTradeCard(el, tid));
+};
+window.declineTrade = async tid => {
+  await update(ref(db, "trades/" + tid), { status: "declined" });
+  toast("Обмен отклонён");
+  document.querySelectorAll(`[data-tid="${tid}"]`).forEach(el => loadTradeCard(el, tid));
+};
+window.startUpgrade = async function (baseId) {
+  let nfts = toArr(profile.nfts);
+  if (nfts.filter(id => isBaseOf(id, baseId)).length < 4) return toast("Нужно 4 NFT!");
+  openModal("mAnvil");
+  setTimeout(async () => {
+    $("anvilResult").style.opacity = "1";
+    let removed = 0;
+    nfts = nfts.filter(id => { if (isBaseOf(id, baseId) && removed < 4) { removed++; return false; } return true; });
+    const newId = baseId + "_upg_" + Date.now();
+    nfts.push(newId);
+    const styles = { ...(profile.nftStyles || {}) };
+    styles[newId] = { rarity: rollRarity(1) };
+    await update(userRef(me.name), { nfts, nftStyles: styles });
+    logAct("🔨 Крафт NFT → улучшенный");
+    setTimeout(() => { closeModal("mAnvil"); $("anvilResult").style.opacity = "0"; renderProfile(me.name); }, 1000);
+  }, 1500);
 };
 
 /* ==========================================================
-   ЧАТЫ (Базовый функционал)
+   НАСТРОЙКИ, СТИКЕРЫ, ПРЕМИУМ
    ========================================================== */
-async function renderChats(filter = "") {
-    const list = $("chatList"); list.innerHTML = "";
-    if(!profile || !profile.chats) return;
-    const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0));
-
-    for (const c of chats) {
-        if(filter && !c.name.includes(filter)) continue;
-        const el = document.createElement("div"); el.className = "row";
-        el.innerHTML = `
-        <div class="av">${c.name[0].toUpperCase()}</div>
-        <div class="grow">
-            <div style="font-weight:bold;">${esc(c.name)}</div>
-            <div class="sub">${esc(c.last || 'Нажмите чтобы открыть')}</div>
-        </div>`;
-        el.onclick = () => openChat(c.name);
-        list.appendChild(el);
-    }
+let stkMine = {};
+window.openSettings = () => {
+  $("setBio").value = profile.bio || "";
+  $("setBg").value = profile.profileBg || "bg-blue";
+  $("setBubbleStyle").value = profile.bubbleStyle || "bub-default";
+  $("setMsgColor").value = profile.msgColor || "#2d7aff";
+  $("setAnim").checked = profile.animRing !== false;
+  renderDevices(profile.devices || {});
+  renderStkList();
+  show("vSettings");
+};
+window.saveSettings = async () => {
+  const u = { bio: $("setBio").value, profileBg: $("setBg").value, bubbleStyle: $("setBubbleStyle").value, msgColor: $("setMsgColor").value };
+  if (profile.premium) u.animRing = $("setAnim").checked;
+  await update(userRef(me.name), u);
+  toast("Настройки сохранены!", true);
+  show("vProfile");
+};
+window.createClan = async () => {
+  const name = $("setClan").value.trim();
+  if (!name) return toast("Введите название клана");
+  if (profile.nex < 500) return toast("Нужно 500 NEX!");
+  await update(userRef(me.name), { clan: name, nex: profile.nex - 500 });
+  toast("Клан создан!", true);
+  show("vProfile");
+};
+window.changePassword = async function () {
+  const p = $("newPassInput").value.trim();
+  if (p.length < 5) return toast("Пароль минимум 5 символов!");
+  await update(userRef(me.name), { password: p });
+  toast("Пароль изменён!", true);
+  $("newPassInput").value = "";
+};
+window.buyPremium = async function () {
+  if (profile.nex < 5000) return toast("Нужно 5000 NEX!");
+  await update(userRef(me.name), { nex: profile.nex - 5000, premium: true });
+  toast("Premium активирован! 👑", true);
+};
+function renderStkList() {
+  const box = $("stkList"); if (!box) return;
+  const ids = Object.keys(stkMine);
+  $("stkCount").textContent = `${ids.length} / ${MAX_STICKERS}`;
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem"><img src="${stkMine[id].data}" alt=""><button class="stkDel" onclick="stkDelete('${id}')">✖</button><div class="stkName">${esc(stkMine[id].name)}</div></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Стикеров пока нет</div>`;
+}
+function renderPickStk() {
+  const box = $("pickStk"); if (!box) return;
+  const ids = Object.keys(stkMine);
+  box.innerHTML = ids.length
+    ? ids.map(id => `<div class="stkItem" style="cursor:pointer" onclick="sendStickerImg('${id}')"><img src="${stkMine[id].data}" alt=""></div>`).join("")
+    : `<div class="sub" style="grid-column:1/-1">Своих стикеров нет (Premium)</div>`;
+}
+window.stkCreate = () => {
+  if (!profile.premium) return toast("Стикеры доступны в Premium");
+  if (Object.keys(stkMine).length >= MAX_STICKERS) return toast(`Лимит ${MAX_STICKERS}`);
+  const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+  input.onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const name = (prompt("Название стикера (до 20):") || "").trim().slice(0, 20);
+    if (!name) return;
+    try {
+      const data = await shrinkImage(f, 128, 0.9, "image/png");
+      if (data.length > 90000) return toast("Картинка слишком сложная");
+      const id = "s" + Date.now().toString(36) + Math.floor(Math.random() * 99);
+      await set(ref(db, `stickers/${me.name}/${id}`), { name, data });
+      toast("Стикер создан!", true);
+    } catch (err) { toast("Ошибка: " + err.message); }
+  };
+  input.click();
+};
+window.stkDelete = async id => { if (confirm("Удалить стикер?")) await remove(ref(db, `stickers/${me.name}/${id}`)); };
+window.sendStickerImg = async id => {
+  closeModal("mStickers");
+  if (!activeChat) return;
+  if (!profile.premium) return toast("Стикеры в Premium");
+  await sendMessage(`${me.name}|${id}`, false, "sticker");
+};
+const stkCache = {};
+async function resolveSticker(img) {
+  const r = img.dataset.ref; if (!r) return;
+  if (stkCache[r] === undefined) {
+    const [owner, id] = r.split("|");
+    const s = await get(ref(db, `stickers/${owner}/${id}`));
+    stkCache[r] = s.exists() ? s.val().data : "";
+  }
+  if (stkCache[r]) img.src = stkCache[r]; else img.alt = "стикер удалён";
 }
 
+/* ==========================================================
+   ЧАТЫ
+   ========================================================== */
+async function renderChats(filter = "") {
+  const list = $("chatList"); list.innerHTML = "";
+  if (!profile || !profile.chats) return;
+  const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0));
+  for (const c of chats) {
+    if (filter && !c.name.includes(filter)) continue;
+    const isGroup = c.name.startsWith("GROUP_");
+    const uData = isGroup ? { premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
+    const el = document.createElement("div"); el.className = "row";
+    el.innerHTML = `<div class="${avClass(uData, "av")}">${uData.avatar ? `<img src="${uData.avatar}">` : (isGroup ? "👥" : c.name[0].toUpperCase())}</div>
+      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), uData)}</div>
+      <div class="sub">${esc(c.last || "Нажмите чтобы открыть")}</div></div>`;
+    el.onclick = () => openChat(c.name);
+    list.appendChild(el);
+  }
+}
 let searchTimer;
 $("searchInput").oninput = () => { clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 250); };
 async function doSearch() {
-    const q = normName($("searchInput").value);
-    if (!q) return renderChats();
-    const list = $("chatList");
-    list.innerHTML = "";
-    const snap = await get(ref(db, "users"));
-    if (snap.exists()) {
-        const users = snap.val();
-        Object.keys(users).filter(n => n.includes(q) && n !== me.name).forEach(n => {
-            const el = document.createElement("div"); el.className = "row";
-            el.innerHTML = `<div class="av">${n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;">${esc(n)}</div><div class="sub">Пользователь</div></div>`;
-            el.onclick = () => openChat(n);
-            list.appendChild(el);
-        });
-    }
-}
-
-async function openChat(target) {
-    activeChat = target;
-    $("chatTitle").textContent = target;
-    $("chatAvatar").textContent = target[0].toUpperCase();
-    $("msgs").innerHTML = "";
-    show("vChat");
-
-    let chats = toArr(profile.chats);
-    if (!chats.find(c => c.name === target)) {
-        chats.push({ name: target, time: Date.now() });
-        await update(userRef(me.name), { chats });
-    }
-
-    if (unsubChat) unsubChat();
-    chatBase = "chats/" + [me.name, target].sort().join("_");
-    const path = ref(db, chatBase);
-
-    unsubChat = onChildAdded(path, snap => {
-        const m = snap.val();
-        if (!m) return;
-        const div = document.createElement("div");
-        div.className = "msg " + (m.from === me.name ? "out" : "");
-        div.innerHTML = `${m.type === 'nft' ? nftCardHtml(getNftById(m.text)) : esc(m.text)}<div class="meta">${new Date(m.time).toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"})}</div>`;
-        $("msgs").appendChild(div);
-        $("msgsWrap").scrollTop = $("msgsWrap").scrollHeight;
+  const q = normName($("searchInput").value);
+  if (!q) return renderChats();
+  const list = $("chatList"); list.innerHTML = "";
+  const snap = await get(ref(db, "users"));
+  if (snap.exists()) {
+    const users = snap.val();
+    Object.keys(users).filter(n => n.includes(q) && n !== me.name).forEach(n => {
+      const u = users[n] || {};
+      const el = document.createElement("div"); el.className = "row";
+      el.innerHTML = `<div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div>`;
+      el.onclick = () => openChat(n);
+      list.appendChild(el);
     });
+  }
 }
-
+async function applyWallpaper() {
+  $("chatWallpaper").style.backgroundImage = profile.wallpaper ? `url(${profile.wallpaper})` : "none";
+  $("chatWallpaper").style.opacity = profile.wallpaper ? ".4" : "0";
+}
+let unsubChat = null, activeChat = null, chatBase = null, msgEls = {};
+async function openChat(target) {
+  activeChat = target;
+  const isGroup = target.startsWith("GROUP_");
+  $("chatTitle").textContent = target.replace("GROUP_", "");
+  if (isGroup) $("chatAvatar").innerHTML = "👥";
+  else {
+    const u = (await get(userRef(target))).val() || {};
+    $("chatAvatar").innerHTML = u.avatar ? `<img src="${u.avatar}">` : target[0].toUpperCase();
+  }
+  $("msgs").innerHTML = ""; msgEls = {};
+  show("vChat");
+  applyWallpaper();
+  const entry = toArr(profile.chats).find(c => c.name === target);
+  $("btnPost").classList.toggle("hidden", !(isGroup && (entry?.owner === me.name || me.role === "ADMIN")));
+  if (!isGroup && target !== me.name) {
+    const chats = toArr(profile.chats);
+    if (!chats.find(c => c.name === target)) { chats.push({ name: target, time: Date.now() }); await update(userRef(me.name), { chats }); }
+  }
+  if (unsubChat) unsubChat();
+  chatBase = isGroup ? "groupMessages/" + target : "chats/" + chatKey(me.name, target);
+  const path = ref(db, chatBase);
+  const u1 = onChildAdded(path, snap => {
+    const m = snap.val(); if (!m) return;
+    const div = document.createElement("div");
+    msgEls[snap.key] = div;
+    attachPress(div, snap.key);
+    paintMsg(div, snap.key, m, isGroup);
+    $("msgs").appendChild(div);
+    $("msgsWrap").scrollTop = $("msgsWrap").scrollHeight;
+  });
+  const u2 = onChildChanged(path, snap => { const d = msgEls[snap.key]; if (d) paintMsg(d, snap.key, snap.val(), isGroup); });
+  unsubChat = () => { u1(); u2(); };
+}
 $("chatBack").onclick = () => { if (unsubChat) { unsubChat(); unsubChat = null; } activeChat = null; chatBase = null; show("vChats"); };
 
-async function sendMessage(text, type = 'text') {
-    if (!activeChat) return;
-    const base = "chats/" + [me.name, activeChat].sort().join("_");
-    await push(ref(db, base), { from: me.name, text, type, time: Date.now() });
+function reactsHtml(key, m) {
+  const r = m.reactions || {};
+  const chips = REACT_LIST.map((e, i) => {
+    const users = r["r" + i] ? Object.keys(r["r" + i]) : [];
+    if (!users.length) return "";
+    return `<span class="rchip ${users.includes(me.name) ? "mine" : ""}" onclick="event.stopPropagation();reactTo('${key}',${i})">${e} ${users.length}</span>`;
+  }).join("");
+  return chips ? `<div class="reacts">${chips}</div>` : "";
 }
-$("sendBtn").onclick = () => { const input = $("msgInput"); const text = input.value.trim(); if (!text) return; input.value = ""; sendMessage(text); };
-$("msgInput").onkeydown = e => { if (e.key === "Enter") $("sendBtn").click(); };
-
-/* ==========================================================
-   АДМИНКА
-   ========================================================== */
-window.adminAction = async function(action) {
-    if (me.role !== "ADMIN") return;
-
-    let fieldId = 'adminUser3';
-    if (['balance', 'nex'].includes(action)) fieldId = 'adminUser1';
-    if (['premium', 'unpremium'].includes(action)) fieldId = 'adminUser2';
-
-    const user = normName($(fieldId).value);
-    if (!user) return toast("Введите ник");
-    const snap = await get(userRef(user));
-    if (!snap.exists()) return toast("Пользователь не найден");
-
-    let updates = {};
-    if (action === 'balance' || action === 'nex') {
-        const amount = Number($("adminAmount1").value);
-        if (!amount) return toast("Введите сумму");
-        updates[action] = (snap.val()[action] || 0) + amount;
-    } else if (action === 'ban') updates.banned = true;
-    else if (action === 'unban') updates.banned = false;
-    else if (action === 'premium') updates.premium = true;
-    else if (action === 'unpremium') updates.premium = false;
-    else if (action === 'clearNft') { 
-        updates.nfts = []; 
-        updates.gifts = []; 
-    }
-
-    await update(userRef(user), updates);
-    toast("Действие выполнено!", true);
+function paintMsg(div, key, m, isGroup) {
+  const isOut = m.from === me.name;
+  const noBubble = m.type === "gift" || m.type === "sticker" || m.type === "nftgift";
+  div.className = "msg " + (profile.bubbleStyle || "") + (isOut ? " out" : "") + (noBubble ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
+  div.style.background = (isOut && profile.msgColor && !noBubble && m.type !== "post") ? profile.msgColor : "";
+  const header = isGroup && !isOut && m.type !== "post" ? `<div class="from">${esc(m.from)}</div>` : "";
+  let content = "";
+  if (m.type === "gift") {
+    const it = itemById(m.text) || { name: "Подарок", kind: "gift", bg: "#8e44ad" };
+    content = giftCard(it, m.from);
+  } else if (m.type === "nftgift") {
+    const base = nftBaseOf(m.text);
+    content = `<div class="gcard" style="--gc:#7b2ff7"><div class="gcTop">🖼️ NFT</div><div class="gcArt"><div class="media">${mediaOf(base)}</div></div><div class="gcName">${esc(base.name)}</div><div class="gcFrom">от ${esc(m.from)}</div></div>`;
+  } else if (m.type === "sticker") {
+    content = `<img class="stkMsgImg" data-ref="${esc(m.text)}" alt="стикер">`;
+  } else if (m.type === "trade") {
+    content = `<div class="tradeCard" data-tid="${esc(m.text)}">Загрузка обмена…</div>`;
+  } else if (m.type === "post") {
+    content = `<div class="postTitle">📢 Пост канала · ${esc(m.from)}</div><div>${esc(m.text)}</div>`;
+  } else if (m.burn && m.viewed) {
+    content = `<i style="color:var(--danger);opacity:.7">🔥 Сообщение сгорело</i>`;
+  } else if (m.burn) {
+    content = `<div style="cursor:pointer;color:var(--gold);font-weight:bold" onclick="viewBurnMessage('${key}','${esc(m.from)}',this,'${m.type || "text"}')">🔥 Нажмите чтобы открыть</div>`;
+  } else if (m.type === "photo") {
+    content = `<img src="${m.text}" onclick="window.open('${m.text}','_blank')">`;
+  } else {
+    content = `<div>${esc(m.text)}</div>`;
+  }
+  const views = m.type === "post" ? `<span class="views">👁 ${Object.keys(m.seen || {}).length}</span>` : "";
+  const time = new Date(m.time).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  div.innerHTML = `${header}${content}${reactsHtml(key, m)}<div class="meta">${views}${time}</div>`;
+  div.querySelectorAll(".stkMsgImg").forEach(resolveSticker);
+  if (m.type === "trade") loadTradeCard(div.querySelector(".tradeCard"), m.text);
+  if (m.type === "post" && !isOut && !(m.seen && m.seen[me.name])) set(ref(db, `${chatBase}/${key}/seen/${me.name}`), true);
+}
+function attachPress(div, key) {
+  let t = null;
+  div.addEventListener("pointerdown", () => { t = setTimeout(() => openReact(key), 450); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(ev => div.addEventListener(ev, () => clearTimeout(t)));
+  div.addEventListener("contextmenu", e => e.preventDefault());
+}
+window.openReact = key => {
+  $("reactBtns").innerHTML = REACT_LIST.map((e, i) => `<button class="rbtn" onclick="reactTo('${key}',${i});closeModal('mReact')">${e}</button>`).join("");
+  openModal("mReact");
+};
+window.reactTo = async (key, idx) => {
+  if (!chatBase) return;
+  const path = `${chatBase}/${key}/reactions/r${idx}/${me.name}`;
+  const s = await get(ref(db, path));
+  if (s.exists()) await remove(ref(db, path)); else await set(ref(db, path), true);
+};
+window.viewBurnMessage = async function (msgKey, from, element, type) {
+  if (from === me.name) return alert("Своё секретное сообщение нельзя открыть. Оно сгорит после прочтения другом.");
+  const msgPath = chatBase + "/" + msgKey;
+  const m = (await get(ref(db, msgPath))).val();
+  if (!m || m.viewed) return;
+  if (type === "photo") window.open(m.text, "_blank"); else alert("🔥 Секретное сообщение:\n\n" + m.text);
+  await update(ref(db, msgPath), { viewed: true });
+  element.parentElement.innerHTML = `<i style="color:var(--danger);opacity:.7">🔥 Сообщение сгорело</i>`;
 };
 
-/* НАВИГАЦИЯ */
+async function sendTo(target, text, isSticker = false, type = "text") {
+  if (!text || !target) return;
+  const isGroup = target.startsWith("GROUP_");
+  const base = isGroup ? "groupMessages/" + target : "chats/" + chatKey(me.name, target);
+  await push(ref(db, base), { from: me.name, text, isSticker, type, time: Date.now() });
+  if (!isGroup) {
+    const preview = { gift: "🎁 Подарок", photo: "Фото", trade: "🔄 Обмен", post: "📢 Пост", sticker: "🧩 Стикер", nftgift: "🖼️ NFT" }[type] || text;
+    const os = await get(userRef(target));
+    if (os.exists()) {
+      const oc = toArr(os.val().chats);
+      const f = oc.find(c => c.name === me.name);
+      if (f) { f.last = preview; f.time = Date.now(); } else oc.push({ name: me.name, time: Date.now(), last: preview });
+      await update(userRef(target), { chats: oc });
+    }
+    const myChats = toArr(profile.chats).map(c => c.name === target ? { ...c, last: preview, time: Date.now() } : c);
+    await update(userRef(me.name), { chats: myChats });
+  }
+}
+async function sendMessage(text, isSticker = false, type = "text") {
+  if (!activeChat) return;
+  return sendTo(activeChat, text, isSticker, type);
+}
+$("sendBtn").onclick = () => { const i = $("msgInput"); const t = i.value.trim(); if (!t) return; i.value = ""; sendMessage(t); };
+$("msgInput").onkeydown = e => { if (e.key === "Enter") $("sendBtn").click(); };
+$("btnSticker").onclick = () => { renderPickStk(); openModal("mStickers"); };
+window.sendSticker = async stick => { closeModal("mStickers"); if (activeChat) sendMessage(stick, true); };
+$("btnPost").onclick = async () => {
+  if (!activeChat || !activeChat.startsWith("GROUP_")) return;
+  const t = prompt("Текст поста:");
+  if (t && t.trim()) await sendMessage(t.trim(), false, "post");
+};
+$("btnAttach").onclick = () => openModal("mAttach");
+window.sendSecretPhoto = () => { closeModal("mAttach"); $("secretPhotoInput").click(); };
+window.handleSecretPhoto = event => {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    await sendMessage(e.target.result, false, "photo");
+    const snap = await get(ref(db, chatBase));
+    let last = null; snap.forEach(c => { last = c.key; });
+    if (last) await update(ref(db, chatBase + "/" + last), { burn: true, viewed: false });
+    toast("Секретное фото отправлено!", true);
+  };
+  reader.readAsDataURL(file);
+  event.target.value = "";
+};
+window.sendSecretText = async () => {
+  closeModal("mAttach");
+  const text = prompt("Введите секретный текст:");
+  if (!text) return;
+  await sendMessage(text);
+  const snap = await get(ref(db, chatBase));
+  let last = null; snap.forEach(c => { last = c.key; });
+  if (last) await update(ref(db, chatBase + "/" + last), { burn: true, viewed: false });
+  toast("Секретное сообщение отправлено!", true);
+};
+
+$("btnSendGift").onclick = () => {
+  if (!activeChat) return;
+  const grid = $("chatGiftsGrid"); grid.innerHTML = "";
+  ITEM_LIST.filter(i => i.kind === "gift" && giftAvailable(i) && !i.limit).forEach(i => {
+    grid.innerHTML += `<div class="item" onclick="sendGiftToChat('${i.id}')">${itemArt(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div></div>`;
+  });
+  openModal("mChatGifts");
+};
+window.sendGiftToChat = async id => {
+  const it = itemById(id); if (!it) return;
+  if (profile.balance < it.price) return toast("Недостаточно Coin!");
+  await update(userRef(me.name), { balance: profile.balance - it.price });
+  await sendMessage(it.id, false, "gift");
+  if (activeChat && !activeChat.startsWith("GROUP_")) {
+    const fs = await get(userRef(activeChat));
+    if (fs.exists()) {
+      const fg = toArr(fs.val().gifts);
+      fg.push({ id: it.id, at: Date.now() });
+      await update(userRef(activeChat), { gifts: fg });
+    }
+  }
+  logAct(`🎁 Отправил подарок «${it.name}»`);
+  closeModal("mChatGifts");
+  toast("Подарок отправлен!", true);
+};
+$("btnNewGroup").onclick = async () => {
+  const name = prompt("Название канала:"); if (!name) return;
+  let uname = prompt("Юзернейм (латиница, цифры, _; 4–32):"); if (!uname) return;
+  uname = normName(uname).replace(/^@/, "");
+  if (!/^[a-z0-9_]{4,32}$/.test(uname)) return toast("Неверный юзернейм");
+  const claim = await runTransaction(ref(db, "usernames/" + uname), cur => cur === null ? { type: "channel", name, owner: me.name } : undefined);
+  if (!claim.committed) return toast("Юзернейм занят!");
+  await push(ref(db, "channels"), { name, username: uname, owner: me.name, admins: [me.name] });
+  const chats = toArr(profile.chats);
+  chats.push({ name: "GROUP_" + name, time: Date.now(), owner: me.name });
+  await update(userRef(me.name), { chats });
+  toast(`Канал @${uname} создан!`, true);
+  renderChats();
+};
+
+/* ==========================================================
+   ПИКСЕЛЬНЫЙ РЕДАКТОР И ЗАГРУЗКА КАРТИНКИ
+   ========================================================== */
+const PCH = "0123456789abcdef";
+const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
+const PX_CANVAS = 320;
+let pxN = 16, pxGrid = new Array(256).fill("0"), pxToolName = "brush", pxColor = 1, pxPainting = false;
+let pxUploaded = null;
+
+function pixelSvg(px, n) {
+  let rects = "";
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const col = PAL[PCH.indexOf(px[y * n + x])];
+    if (col) rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col}"/>`;
+  }
+  return `<svg viewBox="0 0 ${n} ${n}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${rects}</svg>`;
+}
+function pxInitUI() {
+  $("pxEvent").innerHTML = `<option value="">Без ивента</option>` + Object.entries(EVENTS).map(([k, e]) => `<option value="${k}">${e.icon} ${e.name}</option>`).join("");
+  pxUI();
+  const c = $("pxCanvas");
+  c.width = PX_CANVAS; c.height = PX_CANVAS;
+  c.addEventListener("pointerdown", e => { pxPainting = true; c.setPointerCapture(e.pointerId); pxApply(e, true); });
+  c.addEventListener("pointermove", e => { if (pxPainting) pxApply(e, false); });
+  c.addEventListener("pointerup", () => { pxPainting = false; });
+  c.addEventListener("pointercancel", () => { pxPainting = false; });
+  drawEditor(); updPreview();
+}
+function pxUI() {
+  $("pxPalette").innerHTML = PAL.map((col, i) => i === 0 ? "" : `<button class="pxSw ${pxColor === i ? "on" : ""}" style="background:${col}" onclick="pxPick(${i})"></button>`).join("");
+  const tools = [["brush", "🖌 Кисть"], ["fill", "🪣 Заливка"], ["eraser", "🧽 Ластик"], ["clear", "🗑 Очистить"]];
+  $("pxTools").innerHTML = tools.map(([k, l]) => `<button class="pxTool ${pxToolName === k ? "on" : ""}" onclick="pxTool('${k}')">${l}</button>`).join("");
+}
+window.pxPick = i => { pxColor = i; if (pxToolName === "eraser") pxToolName = "brush"; pxUI(); };
+window.pxTool = t => {
+  if (t === "clear") { if (!confirm("Очистить холст?")) return; pxGrid = new Array(pxN * pxN).fill("0"); pxUploaded = null; drawEditor(); updPreview(); return; }
+  pxToolName = t; pxUI();
+};
+window.pxSizeChange = v => {
+  const n = Number(v);
+  if (pxGrid.some(c => c !== "0") && !confirm("Смена размера очистит холст?")) { $("pxSize").value = String(pxN); return; }
+  pxN = n; pxGrid = new Array(n * n).fill("0"); drawEditor(); updPreview();
+};
+window.pxTypeChange = () => {
+  const isNft = $("pxType").value === "nft";
+  $("pxBgNftWrap").classList.toggle("hidden", !isNft);
+  $("pxBgGiftWrap").classList.toggle("hidden", isNft);
+  updPreview();
+};
+window.pxFileChosen = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    pxUploaded = f.type === "image/svg+xml" ? await readFileAsDataURL(f) : await shrinkImage(f, 256, 0.9, "image/png");
+    updPreview();
+    toast("Картинка загружена", true);
+  } catch (err) { toast("Не удалось открыть: " + err.message); }
+};
+function drawEditor() {
+  const c = $("pxCanvas"), ctx = c.getContext("2d"), cell = PX_CANVAS / pxN;
+  ctx.clearRect(0, 0, PX_CANVAS, PX_CANVAS);
+  for (let y = 0; y < pxN; y++) for (let x = 0; x < pxN; x++) {
+    const ch = pxGrid[y * pxN + x];
+    ctx.fillStyle = ch !== "0" ? PAL[PCH.indexOf(ch)] : (((x + y) % 2) ? "#e9edf2" : "#ffffff");
+    ctx.fillRect(x * cell, y * cell, cell + .5, cell + .5);
+  }
+}
+function pxCell(e) {
+  const r = $("pxCanvas").getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / r.width * pxN), y = Math.floor((e.clientY - r.top) / r.height * pxN);
+  return [Math.min(pxN - 1, Math.max(0, x)), Math.min(pxN - 1, Math.max(0, y))];
+}
+function pxApply(e, isDown) {
+  const [x, y] = pxCell(e), idx = y * pxN + x;
+  if (pxToolName === "fill") { if (isDown) pxFill(idx); return; }
+  pxGrid[idx] = pxToolName === "eraser" ? "0" : PCH[pxColor];
+  pxUploaded = null;
+  drawEditor(); updPreview();
+}
+function pxFill(start) {
+  const target = pxGrid[start], rep = PCH[pxColor];
+  if (target === rep) return;
+  const stack = [start];
+  while (stack.length) {
+    const i = stack.pop();
+    if (pxGrid[i] !== target) continue;
+    pxGrid[i] = rep;
+    const x = i % pxN, y = Math.floor(i / pxN);
+    if (x > 0) stack.push(i - 1);
+    if (x < pxN - 1) stack.push(i + 1);
+    if (y > 0) stack.push(i - pxN);
+    if (y < pxN - 1) stack.push(i + pxN);
+  }
+  drawEditor(); updPreview();
+}
+function updPreview() {
+  if (!$("pxPreview")) return;
+  const isNft = $("pxType").value === "nft";
+  const img = pxUploaded
+    ? (pxUploaded.includes("svg") ? pxUploaded : `<img src="${pxUploaded}">`)
+    : pixelSvg(pxGrid.join(""), pxN);
+  const bgStyle = isNft ? "" : `background:${$("pxBgColor").value}`;
+  $("pxPreview").innerHTML = `<div class="art ${isNft ? "nftcard " + $("pxBgClass").value : ""}" style="width:110px;height:110px;margin:0 auto;${bgStyle}"><div class="media">${img}</div></div>`;
+}
+window.pxPublish = async () => {
+  const name = $("pxName").value.trim();
+  if (!name || name.length > 30) return toast("Введите название (до 30 символов)");
+  const price = Number($("pxPrice").value);
+  if (!price || price < 1) return toast("Укажите цену");
+  const isNft = $("pxType").value === "nft";
+  const img = pxUploaded || pixelSvg(pxGrid.join(""), pxN);
+  if (img.length > MAX_IMG_CHARS) return toast("Картинка слишком большая");
+  const id = (isNft ? "y" : "x") + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  await set(ref(db, "items/" + id), {
+    name, price, kind: isNft ? "nft" : "gift",
+    bg: isNft ? $("pxBgClass").value : $("pxBgColor").value,
+    img,
+    event: $("pxEvent").value || "",
+    by: me.name, at: Date.now()
+  });
+  logAct(`🎨 Создал ${isNft ? "NFT" : "подарок"} «${name}»`);
+  toast("Опубликовано в магазине!", true);
+};
+window.pxDeleteItem = async id => {
+  if (!confirm(`Удалить «${ITEMS[id]?.name}»?`)) return;
+  await remove(ref(db, "items/" + id));
+  toast("Удалено", true);
+};
+window.pxDeleteByName = async () => {
+  const q = normName($("pxDelName").value);
+  if (!q) return toast("Введите название");
+  const ids = ITEM_LIST.filter(i => normName(i.name) === q).map(i => i.id);
+  if (!ids.length) return toast("Не найдено");
+  if (!confirm(`Удалить ${ids.length} шт.?`)) return;
+  for (const id of ids) await remove(ref(db, "items/" + id));
+  $("pxDelName").value = "";
+  toast("Удалено", true);
+};
+function renderAdminList() {
+  const list = $("pxList"); if (!list) return;
+  if (!ITEM_LIST.length) { list.innerHTML = `<div class="sub center">Каталог пуст</div>`; return; }
+  list.innerHTML = ITEM_LIST.map(i => `<div class="admItem"><div class="thumb" style="background:${esc(i.bg || "#f0f2f5")}"><div class="media">${mediaOf(i)}</div></div>
+    <div class="grow"><div style="font-weight:700">${esc(i.name)}</div><div class="sub">${i.kind === "nft" ? "NFT" : "Подарок"} · ${i.price} 🪙${i.event ? " · ивент" : ""}${i.limit ? " · лимит " + i.limit : ""}</div></div>
+    <button class="btn danger" style="width:auto;margin:0;padding:8px 12px;font-size:13px" onclick="pxDeleteItem('${i.id}')">✖</button></div>`).join("");
+}
+
+/* ==========================================================
+   МАССОВЫЕ ДЕЙСТВИЯ АДМИНА
+   ========================================================== */
+window.loadDefaultSet = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  if (!confirm("Загрузить набор по умолчанию (50 подарков + 30 NFT)? Картинки будут заглушками, их можно заменить.")) return;
+  const updates = {};
+  DEFAULT_GIFTS.forEach(([name, price], i) => {
+    updates["items/s" + (i + 1)] = { name, price, kind: "gift", bg: "#ffe3ea", img: "", by: "system", at: Date.now() };
+  });
+  DEFAULT_NFTS.forEach(([name, price], i) => {
+    updates["items/n" + (i + 1)] = { name, price, kind: "nft", bg: "#333333", img: "", by: "system", at: Date.now() };
+  });
+  await update(ref(db), updates);
+  toast("Набор загружен!", true);
+};
+window.wipeAllItemsAndInventories = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  if (!confirm("УДАЛИТЬ все предметы и у всех игроков подарки и NFT? Это необратимо.")) return;
+  if (!confirm("Точно? Второе подтверждение.")) return;
+  await remove(ref(db, "items"));
+  await remove(ref(db, "giftStock"));
+  const snap = await get(ref(db, "users"));
+  if (snap.exists()) {
+    const upd = {};
+    Object.keys(snap.val()).forEach(n => {
+      upd[`users/${n}/gifts`] = [];
+      upd[`users/${n}/nfts`] = [];
+      upd[`users/${n}/nftStyles`] = {};
+    });
+    await update(ref(db), upd);
+  }
+  logAct("🧹 Удалены все предметы и инвентари");
+  toast("Всё удалено", true);
+};
+
+/* ==========================================================
+   АДМИН: валюты, статусы, модерация
+   ========================================================== */
+window.adminAction = async function (action) {
+  if (!me || me.role !== "ADMIN") return;
+  let fieldId = "adminUser3";
+  if (["balance", "nex"].includes(action)) fieldId = "adminUser1";
+  if (["verify", "unverify", "premium", "unpremium", "makeadmin", "removeadmin"].includes(action)) fieldId = "adminUser2";
+  const user = normName($(fieldId).value);
+  if (!user) return toast("Введите ник");
+  const snap = await get(userRef(user));
+  if (!snap.exists()) return toast("Пользователь не найден");
+  const u = {};
+  if (action === "balance" || action === "nex") {
+    const amount = Number($("adminAmount1").value);
+    if (!amount) return toast("Введите сумму");
+    u[action] = (snap.val()[action] || 0) + amount;
+  } else if (action === "ban") u.banned = true;
+  else if (action === "unban") u.banned = false;
+  else if (action === "freeze") u.frozen = true;
+  else if (action === "unfreeze") u.frozen = false;
+  else if (action === "verify") u.verified = true;
+  else if (action === "unverify") u.verified = false;
+  else if (action === "premium") u.premium = true;
+  else if (action === "unpremium") u.premium = false;
+  else if (action === "makeadmin") u.role = "ADMIN";
+  else if (action === "removeadmin") u.role = "USER";
+  else if (action === "clearClan") u.clan = "";
+  else if (action === "clearNft") { u.nfts = []; u.nftStyles = {}; }
+  await update(userRef(user), u);
+  toast("Действие выполнено!", true);
+};
+
+/* ==========================================================
+   НАВИГАЦИЯ, ТЕМА, ОНБОРДИНГ
+   ========================================================== */
 document.querySelectorAll("#bottomNav button[data-go]").forEach(b => {
   b.onclick = () => {
     const v = b.dataset.go;
-    document.querySelectorAll("#bottomNav button").forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll("#bottomNav button").forEach(x => x.classList.toggle("on", x === b));
     if (v === "vChats") show("vChats");
     if (v === "vShop") show("vShop");
     if (v === "vProfile") openProfile(me.name);
     if (v === "vAdmin") show("vAdmin");
   };
 });
+$("themeBtn").onclick = () => {
+  const light = document.documentElement.dataset.theme === "light";
+  document.documentElement.dataset.theme = light ? "dark" : "light";
+  localStorage.setItem("theme", light ? "dark" : "light");
+};
+if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light";
 
+let currentSlide = 0;
+const onboardSlides = [
+  { icon: "🔐", title: "Полное шифрование", desc: "Сквозное шифрование для всех сообщений и звонков." },
+  { icon: "🕵️", title: "Анонимная личность", desc: "Не требуется номер телефона." },
+  { icon: "🗑️", title: "Исчезающие сообщения", desc: "Сообщения исчезают после прочтения." },
+  { icon: "🛡️", title: "Нулевой сбор данных", desc: "Мы не собираем ваши данные." }
+];
+window.nextOnboard = () => {
+  currentSlide++;
+  if (currentSlide >= onboardSlides.length) return skipOnboard();
+  const s = onboardSlides[currentSlide];
+  $("onboardContent").innerHTML = `<div style="font-size:80px;margin-bottom:20px">${s.icon}</div><h2 style="font-size:24px;margin-bottom:15px;font-weight:bold">${s.title}</h2><p style="color:#888;font-size:15px;line-height:1.4">${s.desc}</p>`;
+};
+window.skipOnboard = () => {
+  $("vOnboarding").classList.remove("active");
+  $("vAuth").classList.add("active");
+  localStorage.setItem("onboarded", "true");
+};
+if (localStorage.getItem("onboarded")) window.addEventListener("load", () => { $("vOnboarding").classList.remove("active"); $("vAuth").classList.add("active"); });
+
+pxInitUI();
 </script>
 </body>
 </html>
