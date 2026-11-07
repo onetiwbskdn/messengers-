@@ -30,7 +30,7 @@ input:focus{border-color:var(--accent)}
 .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .av.premium{border-color:#FFD700}
 .av.anim,.profAv.anim{animation:ringColor 3s linear infinite}
-@keyframes ringColor{0%{border-color:#ffd34d;box-shadow:0 0 14px rgba(255,211,77,.7)}33%{border-color:#ff4757;box-shadow:0 0 14px rgba(255,71,87,.7)}66%{border-color:#7b2ff7;box-shadow:0 0 14px rgba(123,47,247,.7)}100%{border-color:#ffd34d;box-shadow:0 0 14px rgba(255,211,77,.7)}}
+@keyframes ringColor{0%{border-color:#ffd34d}33%{border-color:#ff4757}66%{border-color:#7b2ff7}100%{border-color:#ffd34d}}
 .grow{flex:1;min-width:0}
 .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bIcon{display:inline-block;vertical-align:middle;flex-shrink:0}
@@ -81,14 +81,9 @@ nav button.on{color:var(--accent);font-weight:bold}
 .nft-bg-black{background:#000}
 .nft-bg-pink{background:#ff69b4}
 .nft-bg-rainbow{background:linear-gradient(45deg,red,orange,yellow,green,blue,indigo,violet)}
-.nft-bg-aurora{background:linear-gradient(120deg,#0f2027,#2c5364,#00c9a7,#7b2ff7,#0f2027);background-size:300% 300%;animation:aurora 6s ease infinite}
-@keyframes aurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.nft-bg-aurora{background:linear-gradient(120deg,#0f2027,#2c5364,#00c9a7,#7b2ff7,#0f2027)}
 .nft-bg-space{background:radial-gradient(circle at 30% 30%,#4b2a8a 0%,transparent 55%),radial-gradient(circle at 75% 75%,#0b4d8a 0%,transparent 60%),#05060f}
 .nft-style-rainbow{filter:drop-shadow(2px 2px 0 #ff3b3b) drop-shadow(-2px -2px 0 #3bf0ff)}
-.nft-fx-neon{animation:neonPulse 2s ease-in-out infinite}
-@keyframes neonPulse{0%,100%{filter:drop-shadow(0 0 3px #00f0ff) drop-shadow(0 0 8px #7b2ff7)}50%{filter:drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 22px #7b2ff7)}}
-.nft-fx-holo{animation:holo 4s linear infinite}
-@keyframes holo{from{filter:hue-rotate(0deg) saturate(1.4) drop-shadow(0 0 8px gold)}to{filter:hue-rotate(360deg) saturate(1.4) drop-shadow(0 0 8px gold)}}
 .gcard{width:180px;margin:4px auto;border-radius:22px;padding:12px 10px 14px;text-align:center;background:linear-gradient(160deg,var(--gc,#8e44ad),#0b1118 95%);box-shadow:0 10px 30px rgba(0,0,0,.4);color:#fff;position:relative;overflow:hidden}
 .gcTop{font-size:11px;font-weight:800;letter-spacing:.5px;opacity:.9;text-transform:uppercase}
 .gcArt{width:120px;height:120px;margin:6px auto;display:flex;align-items:center;justify-content:center}
@@ -345,9 +340,8 @@ nav button.on{color:var(--accent);font-weight:bold}
       </div>
       <div class="card" style="border-color:var(--danger)">
         <h3 style="margin-bottom:10px;color:var(--danger)">🔐 Безопасность</h3>
-        <div id="passChangeLock" class="sub" style="margin-bottom:10px;color:var(--gold)"></div>
         <input id="newPassInput" type="password" placeholder="Новый пароль (мин. 5 символов)">
-        <button class="btn danger" id="btnChangePass" onclick="changePassword()">Сменить пароль</button>
+        <button class="btn danger" onclick="changePassword()">Сменить пароль</button>
       </div>
       <button class="btn" onclick="saveSettings()" style="margin-top:20px;padding:20px">СОХРАНИТЬ ВСЁ</button>
     </div>
@@ -386,7 +380,6 @@ nav button.on{color:var(--accent);font-weight:bold}
         </div>
         <label class="sub" style="display:block;margin-bottom:5px">Картинка (PNG, JPG, WebP или SVG):</label>
         <input type="file" id="pxFile" accept="image/*" onchange="pxFileChosen(event)" style="padding:10px">
-        <div class="sub" style="margin-bottom:8px;white-space:normal">Если картинку не загрузить, можно нарисовать её ниже.</div>
         <select id="pxSize" onchange="pxSizeChange(this.value)">
           <option value="16">Сетка 16 × 16</option><option value="24">Сетка 24 × 24</option>
         </select>
@@ -406,9 +399,8 @@ nav button.on{color:var(--accent);font-weight:bold}
       </div>
       <div class="card" style="border-color:var(--danger)">
         <h3 style="margin-bottom:10px;color:var(--danger)">⚠️ Массовые действия</h3>
-        <button class="btn" style="background:var(--success)" onclick="loadDefaultSet()">📦 Загрузить набор (50 подарков + 30 NFT)</button>
+        <button class="btn" style="background:var(--success)" onclick="loadDefaultSet()">📦 Загрузить набор (10 подарков + 5 NFT)</button>
         <button class="btn danger" onclick="wipeAllItemsAndInventories()">🧹 Удалить ВСЕ подарки и NFT (у всех игроков тоже)</button>
-        <div class="sub" style="white-space:normal;font-size:11px">Удаление необратимо.</div>
       </div>
       <div class="card">
         <h3 style="margin-bottom:10px">💰 Валюты</h3>
@@ -541,6 +533,8 @@ const ITEMS = {};
 let ITEM_LIST = [];
 let me = null, profile = null, loginTime = 0, viewingProfile = null;
 let activeEventKey = null, adminEventPick = null, stockCache = {};
+const userCache = {};
+const stkCache = {};
 
 const EVENTS = {
   halloween:  { name: "Хэллоуин", icon: "🎃", particles: ["🎃", "🦇", "🕸️", "🍬"], bg: "linear-gradient(135deg,#2a0a3a,#ff7a1a)", ring: "#ff7a1a" },
@@ -550,29 +544,18 @@ const EVENTS = {
 };
 
 const DEFAULT_GIFTS = [
-  ["Сердце",15],["Мишка",25],["Роза",50],["Алмаз",100],["Звезда",30],["Колокольчик",60],["Торт",75],
-  ["Синий бант",25],["Розовый бант",25],["Зелёный бант",30],["Фиолетовый бант",35],["Золотой бант",45],
-  ["Красный шарик",20],["Голубой шарик",20],["Жёлтый шарик",20],["Зелёный шарик",20],["Фиолетовый шарик",20],
-  ["Леденец радуга",40],["Леденец мята",40],["Леденец вишня",40],["Леденец лимон",40],["Леденец виноград",40],
-  ["Волшебный шар",55],["Снежок",55],["Мячик",55],["Жемчужина",65],["Янтарь",65],
-  ["Кубок огня",90],["Кубок океана",90],["Кубок леса",90],["Кубок ночи",90],["Кубок солнца",90],
-  ["Корона",120],["Медаль",80],["Пряник",35],["Снежинка",45],["Тюльпан",50],["Голубое сердце",25],
-  ["Оранжевое сердце",40],["Ёлочная звезда",55],["Ледяной бокс",50],["Кристалл",110],["Фейерверк",75],
-  ["Кекс",45],["Печенька",30],["Кружка",35],["Пирожок",40],["Розовый кот",60]
+  ["Сердце",15],["Мишка",25],["Роза",50],["Алмаз",100],["Звезда",30],
+  ["Торт",75],["Колокольчик",60],["Мячик",55],["Корона",120],["Кубок",90]
 ];
 const DEFAULT_NFTS = [
-  ["Кот-Босс",100],["Лягушонок",200],["Хомяк",200],["Единорог",500],["Зайка",220],["Панда",260],["Лис",300],
-  ["Волк",320],["Кибер-мишка",450],["Ёжик",240],["Дух огня",600],["Ледяной",700],["Король",800],["Маг",550],
-  ["Пират",500],["Ниндзя",420],["Пушистик",380],["Ангел",650],["Демон",650],["Инопланетянин",480],
-  ["Робот-бочонок",400],["Сакура",360],["Кактус",340],["Осьминог",330],["Огонёк",560],["Тыквочка",300],
-  ["Призрак",350],["Пингвин",250],["Дракоша",450],["Грибочек",150]
+  ["Кот-Босс",100],["Лягушонок",200],["Единорог",500],["Пингвин",250],["Дракоша",450]
 ];
 
 const RARITY = {
   common:    { label: "Обычный",     color: "#8b9eb0", style: "", bg: "nft-bg-gray" },
   rare:      { label: "Редкий",      color: "#4fa8ff", style: "nft-style-rainbow", bg: "nft-bg-rainbow" },
-  epic:      { label: "Эпический",   color: "#b57bff", style: "nft-fx-neon", bg: "nft-bg-aurora" },
-  legendary: { label: "Легендарный", color: "#FFD700", style: "nft-fx-holo", bg: "nft-bg-space" }
+  epic:      { label: "Эпический",   color: "#b57bff", style: "", bg: "nft-bg-aurora" },
+  legendary: { label: "Легендарный", color: "#FFD700", style: "", bg: "nft-bg-space" }
 };
 const RAR_ORDER = ["common", "rare", "epic", "legendary"];
 const RAR_WEIGHTS = [60, 25, 12, 3];
@@ -589,9 +572,8 @@ function rollRarity(minIdx = 0) {
 }
 function styleOf(nftId, styles) {
   const s = (styles || {})[nftId];
-  if (!s) return { style: "", bg: "nft-bg-gray", rarity: null };
-  if (s.rarity && RARITY[s.rarity]) return { ...RARITY[s.rarity], rarity: s.rarity };
-  return { style: "", bg: "nft-bg-gray", rarity: null };
+  if (!s || !s.rarity || !RARITY[s.rarity]) return { style: "", bg: "nft-bg-gray", rarity: null };
+  return { ...RARITY[s.rarity], rarity: s.rarity };
 }
 const itemById = id => ITEMS[id] || null;
 const nftBaseOf = nftId => ITEMS[String(nftId).split("_")[0]] || { name: "Неизвестный", price: 0, kind: "nft", bg: "#333", img: "" };
@@ -600,9 +582,17 @@ const giftAvailable = it => !it.event || it.event === activeEventKey;
 const stockLeft = it => (stockCache[it.id] != null) ? stockCache[it.id] : it.limit;
 const canSellItem = g => !g.at || (Date.now() - g.at) < SELL_WINDOW;
 const itemsOf = kind => ITEM_LIST.filter(i => i.kind === kind);
+const exists = d => !!d && (d.createdAt !== undefined || d.balance !== undefined);
+
+async function getUser(name, fresh = false) {
+  if (!fresh && userCache[name]) return userCache[name];
+  const s = await get(userRef(name));
+  userCache[name] = s.val() || {};
+  return userCache[name];
+}
 
 /* ==========================================================
-   КАРТИНКИ: сжатие, заглушки, вывод
+   КАРТИНКИ
    ========================================================== */
 const readFileAsDataURL = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
 function loadImage(file) {
@@ -624,8 +614,6 @@ async function shrinkImage(file, maxSide, quality = 0.85, type = "image/jpeg") {
   return c.toDataURL(type, quality);
 }
 let _uid = 0;
-const inst = raw => raw.replace(/UID/g, () => "u" + (++_uid));
-
 function placeholderSvg(name, color) {
   let h = 0; for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   const hue = h % 360;
@@ -635,7 +623,6 @@ function placeholderSvg(name, color) {
   const gid = "pg" + (++_uid);
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs><radialGradient id="${gid}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient></defs>
-    <ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".25"/>
     <circle cx="50" cy="50" r="36" fill="url(#${gid})"/>
     <ellipse cx="38" cy="32" rx="10" ry="6" fill="#fff" opacity=".45"/>
     <text x="50" y="62" font-size="36" font-weight="800" text-anchor="middle" fill="#fff" opacity=".9" font-family="Arial,sans-serif">${letter}</text>
@@ -661,11 +648,11 @@ function nftCardHtml(nftId, styles, extraCls = "") {
 
 /* Значки */
 const BADGE = {
-  check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><ellipse cx="8.5" cy="5.5" rx="4" ry="2" fill="#fff" opacity=".4"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  star: `<svg viewBox="0 0 24 24"><path d="M12 4 L14.6 9.6 L20.6 10.2 L16.1 14.2 L17.5 20 L12 16.8 L6.5 20 L7.9 14.2 L3.4 10.2 L9.4 9.6Z" fill="#b07a00" transform="translate(0,1.2)"/><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d"/></svg>`,
-  crown: `<svg viewBox="0 0 24 24"><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#b07a00" transform="translate(0,1)"/><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#ffd34d"/><rect x="3" y="18" width="18" height="3" rx="1" fill="#e0a400"/></svg>`,
-  medal: `<svg viewBox="0 0 24 24"><path d="M8 2 L11 9 L9 9Z M16 2 L13 9 L15 9Z" fill="#c0392b"/><circle cx="12" cy="15.5" r="7.5" fill="#b07a00"/><circle cx="12" cy="14.5" r="7.5" fill="#ffc83a"/><circle cx="12" cy="14.5" r="3.5" fill="#fff3b0"/></svg>`,
-  gift: `<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" fill="#9b1c1c"/><rect x="3" y="7" width="18" height="4.5" rx="1.5" fill="#c0392b"/><rect x="11" y="7" width="2" height="14" fill="#fff"/></svg>`,
+  check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  star: `<svg viewBox="0 0 24 24"><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d" stroke="#b07a00" stroke-width="1"/></svg>`,
+  crown: `<svg viewBox="0 0 24 24"><path d="M3 18 L5 8 L9 12 L12 5 L15 12 L19 8 L21 18Z" fill="#ffd34d" stroke="#b07a00" stroke-width="1"/><rect x="3" y="18" width="18" height="3" rx="1" fill="#e0a400"/></svg>`,
+  medal: `<svg viewBox="0 0 24 24"><circle cx="12" cy="14.5" r="7.5" fill="#ffc83a" stroke="#b07a00"/><circle cx="12" cy="14.5" r="3.5" fill="#fff3b0"/></svg>`,
+  gift: `<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" fill="#c0392b"/><rect x="3" y="7" width="18" height="4.5" rx="1.5" fill="#e74c3c"/><rect x="11" y="7" width="2" height="14" fill="#fff"/></svg>`,
   gem: `<svg viewBox="0 0 24 24"><polygon points="6,4 18,4 22,10 12,21 2,10" fill="#1c6fc4"/><polygon points="6,4 18,4 16,10 8,10" fill="#8fdcff"/></svg>`
 };
 const badgeIcon = (name, px = 16) => `<span class="bIcon" style="width:${px}px;height:${px}px">${BADGE[name] || ""}</span>`;
@@ -679,7 +666,7 @@ function nameHtml(name, data = {}) {
 const avClass = (data, base) => `${base} ${data && data.premium ? "premium" : ""} ${data && data.premium && data.animRing !== false ? "anim" : ""}`;
 
 /* ==========================================================
-   ОБЩИЕ UI-ФУНКЦИИ
+   ОБЩИЕ UI
    ========================================================== */
 function toast(msg, ok = false) {
   const t = $("toast"); t.textContent = msg;
@@ -701,12 +688,15 @@ async function logAct(text) {
   if (!me) return;
   try { await push(ref(db, "logs/" + me.name), { t: text, time: Date.now() }); } catch (e) {}
 }
+let redrawTimer = null;
 function refreshAll() {
-  if ($("vShop").classList.contains("active")) renderShop();
-  if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
+  clearTimeout(redrawTimer);
+  redrawTimer = setTimeout(() => {
+    if ($("vShop").classList.contains("active")) renderShop();
+    if ($("vProfile").classList.contains("active") && me) renderProfile(viewingProfile || me.name);
+  }, 150);
 }
 
-/* Онбординг */
 let currentSlide = 0;
 const onboardSlides = [
   { icon: "🔐", title: "Полное шифрование", desc: "Сквозное шифрование для всех сообщений и звонков." },
@@ -787,6 +777,7 @@ async function login(isAuto = false) {
     onValue(userRef(me.name), s => {
       profile = s.val();
       if (!profile) return;
+      userCache[me.name] = profile;
       if (!profile.gifts) profile.gifts = [];
       if (!profile.nfts) profile.nfts = [];
       if (!profile.nftStyles) profile.nftStyles = {};
@@ -797,10 +788,9 @@ async function login(isAuto = false) {
       $("premSettings").style.display = profile.premium ? "block" : "none";
       $("stickerCard").classList.toggle("hidden", !profile.premium);
       $("premLock").classList.toggle("hidden", !!profile.premium);
-      $("btnSendGift").style.display = "block";
       $("clanStatus").textContent = profile.clan ? `Ваш клан: ${profile.clan}` : "У вас нет клана";
       renderDevices(profile.devices || {});
-      if ($("vProfile").classList.contains("active") && !viewingProfile) renderProfile(me.name);
+      refreshAll();
       if (activeChat) applyWallpaper();
     });
     onValue(ref(db, "stickers/" + me.name), s => { stkMine = s.val() || {}; renderStkList(); renderPickStk(); });
@@ -834,7 +824,7 @@ function renderDevices(devices) {
   list.innerHTML = entries.sort((a, b) => b[1].time - a[1].time).map(([, d]) =>
     `<div style="padding:8px;border-bottom:1px solid var(--line)"><b>${d.device}</b><br><span style="font-size:11px;color:var(--muted)">${d.ip} | ${new Date(d.time).toLocaleString("ru-RU", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span></div>`).join("");
 }
-window.logoutAllDevices = async () => { await update(userRef(me.name), { devices: {} }); toast("Сброшено!", true); renderDevices({}); };
+window.logoutAllDevices = async () => { await update(userRef(me.name), { devices: {} }); toast("Сброшено!", true); };
 $("logoutBtn").onclick = async () => {
   localStorage.removeItem("savedUser");
   try { await signOut(auth); } catch (e) {}
@@ -857,13 +847,11 @@ window.uploadPhoto = function (type) {
         if (data.length > MAX_IMG_CHARS) return toast("Файл слишком большой");
         await update(userRef(me.name), { avatar: data, avatarAnim: animated });
         toast("Аватарка обновлена!", true);
-        renderProfile(me.name);
       } else if (type === "banner") {
         const data = await shrinkImage(file, 900, 0.8);
         if (data.length > MAX_IMG_CHARS) return toast("Баннер слишком большой");
         await update(userRef(me.name), { banner: data });
         toast("Баннер обновлён!", true);
-        renderProfile(me.name);
       } else if (type === "wallpaper") {
         const data = await shrinkImage(file, 900, 0.7);
         if (data.length > MAX_IMG_CHARS) return toast("Обои слишком большие");
@@ -877,7 +865,7 @@ window.uploadPhoto = function (type) {
 };
 
 /* ==========================================================
-   КАТАЛОГ И СОБЫТИЯ (из базы)
+   КАТАЛОГ И СОБЫТИЯ
    ========================================================== */
 onValue(ref(db, "items"), snap => {
   const v = snap.val() || {};
@@ -897,7 +885,7 @@ onValue(ref(db, "giftStock"), snap => { stockCache = snap.val() || {}; if ($("vS
 function applyEventUI() {
   const e = activeEventKey ? EVENTS[activeEventKey] : null;
   const fx = $("fxLayer"); fx.innerHTML = "";
-  if (e) for (let i = 0; i < 40; i++) {
+  if (e) for (let i = 0; i < 20; i++) {
     const p = document.createElement("span");
     p.className = "fxp";
     p.textContent = e.particles[i % e.particles.length];
@@ -939,17 +927,17 @@ $("catNft").onclick = () => { shopCat = "nft"; $("catNft").classList.add("on"); 
 $("shopSearch").oninput = e => { shopQuery = normName(e.target.value); renderShop(); };
 
 function renderShop() {
-  const grid = $("shopGrid"); grid.innerHTML = "";
+  const grid = $("shopGrid");
   const list = itemsOf(shopCat).filter(i => !shopQuery || normName(i.name).includes(shopQuery));
   if (!list.length) { grid.innerHTML = `<div class="sub center" style="grid-column:1/-1">Пусто</div>`; return; }
-  list.forEach(i => {
+  grid.innerHTML = list.map(i => {
     const left = i.limit ? stockLeft(i) : null;
-    grid.innerHTML += `<div class="item" style="${giftAvailable(i) ? "" : "opacity:.5"}" onclick="buyItem('${i.id}')">
+    return `<div class="item" style="${giftAvailable(i) ? "" : "opacity:.5"}" onclick="buyItem('${i.id}')">
       ${itemArt(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div>
       ${i.limit ? `<div class="stockTag">${left <= 0 ? "Распродано" : `Осталось ${left} из ${i.limit}`}</div>` : ""}
       ${i.event ? `<div class="evGiftTag">${EVENTS[i.event]?.name || "ивентовый"}</div>` : ""}
     </div>`;
-  });
+  }).join("");
 }
 window.buyItem = async function (id) {
   const it = itemById(id);
@@ -984,7 +972,7 @@ window.buyItem = async function (id) {
 /* ==========================================================
    ПРОФИЛЬ И ИНВЕНТАРЬ
    ========================================================== */
-let invData = null, activeProfileTab = "gifts";
+let activeProfileTab = "gifts";
 window.openProfile = async function (targetName) {
   viewingProfile = targetName === me.name ? null : targetName;
   $("profHeader").textContent = targetName === me.name ? "Мой профиль" : "Профиль " + targetName;
@@ -1006,10 +994,8 @@ function computeBadges(data) {
   return out;
 }
 async function renderProfile(targetName) {
-  const snap = await get(userRef(targetName));
-  if (!snap.exists()) return toast("Профиль не найден");
-  const data = snap.val();
-  invData = data;
+  const data = await getUser(targetName, true);
+  if (!exists(data)) return toast("Профиль не найден");
   const evE = activeEventKey ? EVENTS[activeEventKey] : null;
   const bgEl = $("profBg");
   if (data.banner) { bgEl.style.background = ""; bgEl.style.backgroundImage = `url(${data.banner})`; bgEl.className = "profBg"; }
@@ -1028,7 +1014,6 @@ async function renderProfile(targetName) {
 }
 function renderInventory(data, ownerName) {
   const grid = $("invGrid");
-  grid.innerHTML = "";
   grid.style.gridTemplateColumns = activeProfileTab === "log" ? "1fr" : "";
   if (activeProfileTab === "log") {
     if (viewingProfile) { grid.innerHTML = `<div class="sub center">Журнал виден только владельцу</div>`; return; }
@@ -1037,29 +1022,29 @@ function renderInventory(data, ownerName) {
   if (activeProfileTab === "gifts") {
     const gifts = toArr(data.gifts);
     if (!gifts.length) { grid.innerHTML = `<div class="sub center">Подарков нет</div>`; return; }
-    gifts.forEach((g, i) => {
+    grid.innerHTML = gifts.map((g, i) => {
       const it = itemById(g.id) || { name: "Удалённый подарок", price: 0, kind: "gift", bg: "#f0f2f5" };
       const canSell = !viewingProfile && canSellItem(g) && it.price;
-      grid.innerHTML += `<div class="item">${itemArt(it, "art")}<div>${esc(it.name)}</div>
+      return `<div class="item">${itemArt(it, "art")}<div>${esc(it.name)}</div>
         ${canSell ? `<button class="btn danger" style="margin:5px 0 0;padding:6px;font-size:11px" onclick="event.stopPropagation();sellGift(${i})">Продать</button>` : ""}
         ${(!viewingProfile && !canSellItem(g)) ? `<div class="stockTag">Продажа закрыта (21 день)</div>` : ""}
       </div>`;
-    });
+    }).join("");
   } else {
     const nfts = toArr(data.nfts);
     if (!nfts.length) { grid.innerHTML = `<div class="sub center">Нет NFT</div>`; return; }
-    nfts.forEach(nftId => {
+    grid.innerHTML = nfts.map(nftId => {
       const base = nftBaseOf(nftId);
       const baseId = nftId.split("_")[0];
       const count = nfts.filter(id => isBaseOf(id, baseId)).length;
       const s = styleOf(nftId, data.nftStyles);
-      grid.innerHTML += `<div class="item" onclick="openNftView('${nftId}')">
+      return `<div class="item" onclick="openNftView('${nftId}')">
         ${nftCardHtml(nftId, data.nftStyles)}
         <div style="margin-top:5px">${esc(base.name)} <span class="sub" style="display:inline">x${count}</span></div>
         ${s.rarity ? `<div style="font-size:11px;color:${s.color};font-weight:bold">${s.label}</div>` : ""}
         ${(!viewingProfile && !nftId.includes("_upg") && count >= 4) ? `<button class="btn" style="margin:5px 0 0;padding:6px;font-size:11px;background:#ed8936" onclick="event.stopPropagation();startUpgrade('${baseId}')">Крафт (4 шт)</button>` : ""}
       </div>`;
-    });
+    }).join("");
   }
 }
 window.setProfTab = t => {
@@ -1086,28 +1071,14 @@ window.sellGift = async function (index) {
   logAct(`💰 Продал подарок за ${price} Coin`);
   toast(`Продано за ${price} Coin`, true);
 };
-window.craftGifts = async gid => {
-  const g = itemById(gid);
-  if (!g || !g.event) return;
-  if (activeEventKey === g.event) return toast("Крафт откроется после окончания ивента");
-  const gifts = toArr(profile.gifts), idxs = [];
-  gifts.forEach((x, i) => { if (x.id === gid && idxs.length < 4) idxs.push(i); });
-  if (idxs.length < 4) return toast("Нужно 4 одинаковых");
-  const left = gifts.filter((_, i) => !idxs.includes(i));
-  const nfts = toArr(profile.nfts);
-  nfts.push(gid + "_u" + Date.now().toString(36));
-  await update(userRef(me.name), { gifts: left, nfts });
-  toast("Получен NFT!", true);
-  renderProfile(me.name);
-};
 
 /* ==========================================================
-   NFT: просмотр, продажа, подарок, обмен, улучшение, крафт
+   NFT
    ========================================================== */
 let currentNftId = null, pickItems = [], pickCb = null;
 window.openNftView = function (nftId) {
   currentNftId = nftId;
-  const src = viewingProfile ? (invData || {}) : (profile || {});
+  const src = viewingProfile ? (userCache[viewingProfile] || {}) : (profile || {});
   const base = nftBaseOf(nftId);
   const s = styleOf(nftId, src.nftStyles);
   const idx = RAR_ORDER.indexOf(s.rarity || "common");
@@ -1152,16 +1123,16 @@ window.giftNft = async function () {
   if (profile.balance < 250) return toast("Нужно 250 Coin!");
   const friend = normName(prompt("Ник друга:") || "");
   if (!friend || friend === me.name) return;
-  const fs = await get(userRef(friend));
-  if (!fs.exists()) return toast("Друг не найден");
+  const fd = await getUser(friend, true);
+  if (!exists(fd)) return toast("Друг не найден");
   const nfts = toArr(profile.nfts);
   const idx = nfts.indexOf(currentNftId); if (idx === -1) return;
   nfts.splice(idx, 1);
   const styles = { ...(profile.nftStyles || {}) };
   const give = styles[currentNftId] || {};
   delete styles[currentNftId];
-  const fN = toArr(fs.val().nfts); fN.push(currentNftId);
-  const fS = { ...(fs.val().nftStyles || {}) }; fS[currentNftId] = give;
+  const fN = toArr(fd.nfts); fN.push(currentNftId);
+  const fS = { ...(fd.nftStyles || {}), [currentNftId]: give };
   await update(userRef(me.name), { nfts, nftStyles: styles, balance: profile.balance - 250 });
   await update(userRef(friend), { nfts: fN, nftStyles: fS });
   await sendTo(friend, currentNftId, false, "nftgift");
@@ -1173,9 +1144,8 @@ window.openTrade = async function () {
   if (viewingProfile || !currentNftId) return;
   const friend = normName(prompt("Ник друга для обмена:") || "");
   if (!friend || friend === me.name) return;
-  const fs = await get(userRef(friend));
-  if (!fs.exists()) return toast("Пользователь не найден");
-  const fd = fs.val();
+  const fd = await getUser(friend, true);
+  if (!exists(fd)) return toast("Пользователь не найден");
   const fN = toArr(fd.nfts);
   if (!fN.length) return toast("У друга нет NFT");
   openPick("Какой NFT хотите получить?", fN.map(id => ({ id, html: nftCardHtml(id, fd.nftStyles), label: nftBaseOf(id).name })), async takeId => {
@@ -1205,7 +1175,7 @@ async function loadTradeCard(el, tid) {
 window.acceptTrade = async tid => {
   const t = (await get(ref(db, "trades/" + tid))).val();
   if (!t || t.status !== "pending" || t.to !== me.name) return toast("Обмен недоступен");
-  const a = (await get(userRef(t.from))).val(), b = (await get(userRef(t.to))).val();
+  const a = await getUser(t.from, true), b = await getUser(t.to, true);
   const aN = toArr(a.nfts), bN = toArr(b.nfts);
   if (!aN.includes(t.give) || !bN.includes(t.take)) return toast("Один из NFT уже не у владельца");
   const aS = { ...(a.nftStyles || {}) }, bS = { ...(b.nftStyles || {}) };
@@ -1240,7 +1210,7 @@ window.startUpgrade = async function (baseId) {
     styles[newId] = { rarity: rollRarity(1) };
     await update(userRef(me.name), { nfts, nftStyles: styles });
     logAct("🔨 Крафт NFT → улучшенный");
-    setTimeout(() => { closeModal("mAnvil"); $("anvilResult").style.opacity = "0"; renderProfile(me.name); }, 1000);
+    setTimeout(() => { closeModal("mAnvil"); $("anvilResult").style.opacity = "0"; }, 1000);
   }, 1500);
 };
 
@@ -1248,7 +1218,6 @@ window.startUpgrade = async function (baseId) {
    НАСТРОЙКИ, СТИКЕРЫ, ПРЕМИУМ
    ========================================================== */
 let stkMine = {};
-const stkCache = {};
 window.openSettings = () => {
   $("setBio").value = profile.bio || "";
   $("setBg").value = profile.profileBg || "bg-blue";
@@ -1340,51 +1309,45 @@ async function resolveSticker(img) {
    ЧАТЫ
    ========================================================== */
 async function renderChats(filter = "") {
-  const list = $("chatList"); list.innerHTML = "";
-  if (!profile || !profile.chats) return;
-  const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0));
-  for (const c of chats) {
-    if (filter && !c.name.includes(filter)) continue;
+  if (!profile || !profile.chats) { $("chatList").innerHTML = ""; return; }
+  const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0))
+    .filter(c => !filter || c.name.includes(filter));
+  const datas = await Promise.all(chats.map(c => c.name.startsWith("GROUP_") ? Promise.resolve({ premium: false, verified: true }) : getUser(c.name)));
+  $("chatList").innerHTML = chats.map((c, i) => {
     const isGroup = c.name.startsWith("GROUP_");
-    const uData = isGroup ? { premium: false, verified: true } : ((await get(userRef(c.name))).val() || {});
-    const el = document.createElement("div"); el.className = "row";
-    el.innerHTML = `<div class="${avClass(uData, "av")}">${uData.avatar ? `<img src="${uData.avatar}">` : (isGroup ? "👥" : c.name[0].toUpperCase())}</div>
-      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), uData)}</div>
-      <div class="sub">${esc(c.last || "Нажмите чтобы открыть")}</div></div>`;
-    el.onclick = () => openChat(c.name);
-    list.appendChild(el);
-  }
+    const u = datas[i] || {};
+    return `<div class="row" onclick="openChat('${esc(c.name)}')">
+      <div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : (isGroup ? "👥" : c.name[0].toUpperCase())}</div>
+      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), u)}</div>
+      <div class="sub">${esc(c.last || "Нажмите чтобы открыть")}</div></div></div>`;
+  }).join("");
 }
 let searchTimer;
-$("searchInput").oninput = () => { clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 250); };
+$("searchInput").oninput = () => { clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 300); };
 async function doSearch() {
   const q = normName($("searchInput").value);
   if (!q) return renderChats();
-  const list = $("chatList"); list.innerHTML = "";
   const snap = await get(ref(db, "users"));
-  if (snap.exists()) {
-    const users = snap.val();
-    Object.keys(users).filter(n => n.includes(q) && n !== me.name).forEach(n => {
-      const u = users[n] || {};
-      const el = document.createElement("div"); el.className = "row";
-      el.innerHTML = `<div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div>`;
-      el.onclick = () => openChat(n);
-      list.appendChild(el);
-    });
-  }
+  if (!snap.exists()) return;
+  const users = snap.val();
+  const names = Object.keys(users).filter(n => n.includes(q) && n !== me.name);
+  $("chatList").innerHTML = names.map(n => {
+    const u = users[n] || {};
+    return `<div class="row" onclick="openChat('${esc(n)}')"><div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div></div>`;
+  }).join("");
 }
-async function applyWallpaper() {
+function applyWallpaper() {
   $("chatWallpaper").style.backgroundImage = profile.wallpaper ? `url(${profile.wallpaper})` : "none";
   $("chatWallpaper").style.opacity = profile.wallpaper ? ".4" : "0";
 }
 let unsubChat = null, activeChat = null, chatBase = null, msgEls = {};
-async function openChat(target) {
+window.openChat = async function (target) {
   activeChat = target;
   const isGroup = target.startsWith("GROUP_");
   $("chatTitle").textContent = target.replace("GROUP_", "");
   if (isGroup) $("chatAvatar").innerHTML = "👥";
   else {
-    const u = (await get(userRef(target))).val() || {};
+    const u = await getUser(target);
     $("chatAvatar").innerHTML = u.avatar ? `<img src="${u.avatar}">` : target[0].toUpperCase();
   }
   $("msgs").innerHTML = ""; msgEls = {};
@@ -1410,7 +1373,7 @@ async function openChat(target) {
   });
   const u2 = onChildChanged(path, snap => { const d = msgEls[snap.key]; if (d) paintMsg(d, snap.key, snap.val(), isGroup); });
   unsubChat = () => { u1(); u2(); };
-}
+};
 $("chatBack").onclick = () => { if (unsubChat) { unsubChat(); unsubChat = null; } activeChat = null; chatBase = null; show("vChats"); };
 
 function reactsHtml(key, m) {
@@ -1430,8 +1393,7 @@ function paintMsg(div, key, m, isGroup) {
   const header = isGroup && !isOut && m.type !== "post" ? `<div class="from">${esc(m.from)}</div>` : "";
   let content = "";
   if (m.type === "gift") {
-    const it = itemById(m.text) || { name: "Подарок", kind: "gift", bg: "#8e44ad" };
-    content = giftCard(it, m.from);
+    content = giftCard(itemById(m.text) || { name: "Подарок", kind: "gift", bg: "#8e44ad" }, m.from);
   } else if (m.type === "nftgift") {
     const base = nftBaseOf(m.text);
     content = `<div class="gcard" style="--gc:#7b2ff7"><div class="gcTop">🖼️ NFT</div><div class="gcArt"><div class="media">${mediaOf(base)}</div></div><div class="gcName">${esc(base.name)}</div><div class="gcFrom">от ${esc(m.from)}</div></div>`;
@@ -1489,13 +1451,11 @@ async function sendTo(target, text, isSticker = false, type = "text") {
   await push(ref(db, base), { from: me.name, text, isSticker, type, time: Date.now() });
   if (!isGroup) {
     const preview = { gift: "🎁 Подарок", photo: "Фото", trade: "🔄 Обмен", post: "📢 Пост", sticker: "🧩 Стикер", nftgift: "🖼️ NFT" }[type] || text;
-    const os = await get(userRef(target));
-    if (os.exists()) {
-      const oc = toArr(os.val().chats);
-      const f = oc.find(c => c.name === me.name);
-      if (f) { f.last = preview; f.time = Date.now(); } else oc.push({ name: me.name, time: Date.now(), last: preview });
-      await update(userRef(target), { chats: oc });
-    }
+    const other = await getUser(target, true);
+    const oc = toArr(other.chats);
+    const f = oc.find(c => c.name === me.name);
+    if (f) { f.last = preview; f.time = Date.now(); } else oc.push({ name: me.name, time: Date.now(), last: preview });
+    await update(userRef(target), { chats: oc });
     const myChats = toArr(profile.chats).map(c => c.name === target ? { ...c, last: preview, time: Date.now() } : c);
     await update(userRef(me.name), { chats: myChats });
   }
@@ -1540,10 +1500,8 @@ window.sendSecretText = async () => {
 };
 $("btnSendGift").onclick = () => {
   if (!activeChat) return;
-  const grid = $("chatGiftsGrid"); grid.innerHTML = "";
-  itemsOf("gift").filter(i => giftAvailable(i) && !i.limit).forEach(i => {
-    grid.innerHTML += `<div class="item" onclick="sendGiftToChat('${i.id}')">${itemArt(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div></div>`;
-  });
+  $("chatGiftsGrid").innerHTML = itemsOf("gift").filter(i => giftAvailable(i) && !i.limit).map(i =>
+    `<div class="item" onclick="sendGiftToChat('${i.id}')">${itemArt(i, "art")}<div>${esc(i.name)}</div><div class="price">${i.price} 🪙</div></div>`).join("");
   openModal("mChatGifts");
 };
 window.sendGiftToChat = async id => {
@@ -1552,12 +1510,10 @@ window.sendGiftToChat = async id => {
   await update(userRef(me.name), { balance: profile.balance - it.price });
   await sendMessage(it.id, false, "gift");
   if (activeChat && !activeChat.startsWith("GROUP_")) {
-    const fs = await get(userRef(activeChat));
-    if (fs.exists()) {
-      const fg = toArr(fs.val().gifts);
-      fg.push({ id: it.id, at: Date.now() });
-      await update(userRef(activeChat), { gifts: fg });
-    }
+    const fd = await getUser(activeChat, true);
+    const fg = toArr(fd.gifts);
+    fg.push({ id: it.id, at: Date.now() });
+    await update(userRef(activeChat), { gifts: fg });
   }
   logAct(`🎁 Отправил подарок «${it.name}»`);
   closeModal("mChatGifts");
@@ -1579,7 +1535,7 @@ $("btnNewGroup").onclick = async () => {
 };
 
 /* ==========================================================
-   АДМИН: СОЗДАНИЕ ПРЕДМЕТА ИЗ КАРТИНКИ ИЛИ ПИКСЕЛЕЙ
+   АДМИН: ПРЕДМЕТЫ ИЗ КАРТИНКИ ИЛИ ПИКСЕЛЕЙ
    ========================================================== */
 const PCH = "0123456789abcdef";
 const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
@@ -1675,9 +1631,7 @@ function pxFill(start) {
 function updPreview() {
   if (!$("pxPreview")) return;
   const isNft = $("pxType").value === "nft";
-  const img = pxUploaded
-    ? (pxUploaded.includes("svg") ? pxUploaded : `<img src="${pxUploaded}">`)
-    : pixelSvg(pxGrid.join(""), pxN);
+  const img = pxUploaded ? (pxUploaded.includes("svg") ? pxUploaded : `<img src="${pxUploaded}">`) : pixelSvg(pxGrid.join(""), pxN);
   const bgStyle = isNft ? "" : `background:${$("pxBgColor").value}`;
   $("pxPreview").innerHTML = `<div class="art ${isNft ? "nftcard " + $("pxBgClass").value : ""}" style="width:110px;height:110px;margin:0 auto;${bgStyle}"><div class="media">${img}</div></div>`;
 }
@@ -1693,9 +1647,7 @@ window.pxPublish = async () => {
   await set(ref(db, "items/" + id), {
     name, price, kind: isNft ? "nft" : "gift",
     bg: isNft ? $("pxBgClass").value : $("pxBgColor").value,
-    img,
-    event: $("pxEvent").value || "",
-    by: me.name, at: Date.now()
+    img, event: $("pxEvent").value || "", by: me.name, at: Date.now()
   });
   logAct(`🎨 Создал ${isNft ? "NFT" : "подарок"} «${name}»`);
   pxUploaded = null;
@@ -1727,7 +1679,7 @@ function renderAdminList() {
 /* Массовые действия */
 window.loadDefaultSet = async () => {
   if (!me || me.role !== "ADMIN") return;
-  if (!confirm("Загрузить набор (50 подарков + 30 NFT)? Картинки будут заглушками, их можно заменить.")) return;
+  if (!confirm("Загрузить набор (10 подарков + 5 NFT)? Картинки будут заглушками, их можно заменить.")) return;
   const updates = {};
   DEFAULT_GIFTS.forEach(([name, price], i) => {
     updates["items/s" + (i + 1)] = { name, price, kind: "gift", bg: "#ffe3ea", img: "", by: "system", at: Date.now() };
