@@ -159,6 +159,16 @@ nav button.on{color:var(--accent);font-weight:bold}
 .toast.show{opacity:1;top:30px}
 .toast.ok{background:var(--success)}
 .hidden{display:none!important}
+.followBtn{width:auto;padding:10px 18px;margin:10px auto 0;font-size:14px}
+.cryptoBadge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#7dd3fc,#2563eb);color:#fff;font-size:11px;font-weight:800;margin-left:4px}
+.statRow{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.statRow div{font-size:13px;color:var(--muted)}
+.statRow b{color:var(--text);font-size:16px;display:block}
+.unreadDot{min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.pinTag{font-size:11px;color:var(--gold);font-weight:700}
+.feedFilter{display:flex;gap:8px;margin-bottom:10px}
+.feedFilter button{flex:1;padding:8px;border-radius:10px;border:none;background:var(--line);color:var(--text);font-weight:700;cursor:pointer}
+.feedFilter button.on{background:var(--accent);color:#fff}
 </style>
 </head>
 <body>
@@ -225,7 +235,12 @@ nav button.on{color:var(--accent);font-weight:bold}
 
 <div class="view" id="vFeed">
   <header><h2>Лента</h2><button class="ghost" id="btnNewPost">➕</button></header>
-  <main><div id="feedList" style="max-width:500px;margin:0 auto;width:100%"></div></main>
+  <main>
+    <div style="max-width:500px;margin:0 auto;width:100%">
+      <div class="feedFilter"><button id="fAll" class="on" onclick="setFeedFilter('all')">Все</button><button id="fMine" onclick="setFeedFilter('mine')">Мои посты</button></div>
+      <div id="feedList"></div>
+    </div>
+  </main>
 </div>
 <input type="file" id="postFile" accept="image/*" multiple style="display:none">
 
@@ -259,6 +274,8 @@ nav button.on{color:var(--accent);font-weight:bold}
         <div style="font-size:22px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:5px" id="profNick"></div>
         <div class="sub" id="profClan" style="color:var(--gold);font-weight:bold;margin-bottom:5px"></div>
         <div class="sub" id="profBio"></div>
+        <div class="statRow"><div><b id="profFollowers">0</b>подписчики</div><div><b id="profFollowing">0</b>подписки</div></div>
+        <button class="btn followBtn" id="followBtn" style="display:none" onclick="toggleFollow()">Подписаться</button>
         <div class="badges" id="profBadges"></div>
       </div>
       <div class="stats">
@@ -446,10 +463,12 @@ nav button.on{color:var(--accent);font-weight:bold}
           <button class="btn" style="background:var(--gold);margin:0" onclick="adminAction('premium')">Дать 👑</button>
           <button class="btn" style="background:#555;margin:0" onclick="adminAction('unpremium')">Снять 👑</button>
         </div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
           <button class="btn" style="background:#8e44ad;margin:0" onclick="adminAction('makeadmin')">Выдать Админку</button>
           <button class="btn" style="background:#555;margin:0" onclick="adminAction('removeadmin')">Снять Админку</button>
         </div>
+        <button class="btn" style="background:#2563eb" onclick="adminAction('giveCrypto')">◆ Выдать крипто-значок</button>
+        <button class="btn alt" onclick="adminAction('takeCrypto')">Снять крипто-значок</button>
       </div>
       <div class="card">
         <h3 style="margin-bottom:10px">🚫 Модерация & Сброс</h3>
@@ -600,8 +619,9 @@ function giftSvg(kind, c) {
     cookie: `<circle cx="50" cy="50" r="36" fill="${fill}"/><circle cx="36" cy="40" r="4" fill="#7a3d10"/><circle cx="60" cy="36" r="4" fill="#7a3d10"/><circle cx="54" cy="62" r="4" fill="#7a3d10"/>`,
     medal: `<path d="M34 8 L46 40 L38 40 L28 12Z M66 8 L54 40 L62 40 L72 12Z" fill="#c0392b"/><circle cx="50" cy="62" r="30" fill="${fill}"/><circle cx="50" cy="62" r="18" fill="none" stroke="#b07a00" stroke-width="3"/>`
   };
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${g}${SH}${shapes[kind] || shapes.ball}</svg>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${g}${SHADOW_OR(SH)}${shapes[kind] || shapes.ball}</svg>`;
 }
+function SHADOW_OR(s) { return s; }
 
 const RARITY = {
   common:    { label: "Обычный",     color: "#8b9eb0", style: "", bg: "nft-bg-gray" },
@@ -707,6 +727,7 @@ const badgeIcon = (name, px = 16) => `<span class="bIcon" style="width:${px}px;h
 function nameHtml(name, data = {}) {
   let s = esc(name);
   if (data.verified) s += " " + badgeIcon("check", 16);
+  if (data.crypto) s += ` <span class="cryptoBadge">◆</span>`;
   if (data.premium) s += " " + badgeIcon("star", 16);
   if (name === ADMIN_NICK || data.role === "ADMIN") s += " " + badgeIcon("crown", 16);
   return s;
@@ -1045,6 +1066,7 @@ async function renderProfile(targetName) {
   $("profBalance").textContent = data.balance || 0;
   $("profNex").textContent = data.nex || 0;
   renderInventory(data, targetName);
+  renderFollowInfo(targetName);
 }
 function renderInventory(data, ownerName) {
   const grid = $("invGrid");
@@ -1111,6 +1133,34 @@ window.sellGift = async function (index) {
   logAct(`💰 Продал подарок за ${price} Coin`);
   toast(`Продано за ${price} Coin`, true);
 };
+
+/* ПОДПИСКИ */
+window.toggleFollow = async () => {
+  if (!viewingProfile || !me) return;
+  const target = viewingProfile;
+  const mineSnap = await get(ref(db, `users/${me.name}/following/${target}`));
+  if (mineSnap.exists()) {
+    await remove(ref(db, `users/${me.name}/following/${target}`));
+    await remove(ref(db, `users/${target}/followers/${me.name}`));
+    toast("Вы отписались", true);
+  } else {
+    await set(ref(db, `users/${me.name}/following/${target}`), true);
+    await set(ref(db, `users/${target}/followers/${me.name}`), true);
+    toast("Вы подписались", true);
+  }
+  renderProfile(target);
+};
+async function renderFollowInfo(name) {
+  const data = await getUser(name, true);
+  $("profFollowers").textContent = Object.keys(data.followers || {}).length;
+  $("profFollowing").textContent = Object.keys(data.following || {}).length;
+  const isMe = name === me.name;
+  $("followBtn").style.display = isMe ? "none" : "block";
+  if (!isMe) {
+    const mine = await get(ref(db, `users/${me.name}/following/${name}`));
+    $("followBtn").textContent = mine.exists() ? "Отписаться" : "Подписаться";
+  }
+}
 
 let currentNftId = null, pickItems = [], pickCb = null;
 window.openNftView = function (nftId) {
@@ -1339,9 +1389,21 @@ async function resolveSticker(img) {
   if (stkCache[r]) img.src = stkCache[r]; else img.alt = "стикер удалён";
 }
 
+/* ЗАКРЕПЛЕНИЕ И ПРОЧТЕНИЕ */
+window.togglePin = async (name) => {
+  const pinned = toArr(profile.pinned);
+  const next = pinned.includes(name) ? pinned.filter(n => n !== name) : [...pinned, name].slice(0, 5);
+  await update(userRef(me.name), { pinned: next });
+};
+function lastRead(name) { return Number(localStorage.getItem("read_" + name) || 0); }
+function markRead(name) { localStorage.setItem("read_" + name, String(Date.now())); }
+
+/* ЧАТЫ */
 async function renderChats(filter = "") {
   if (!profile || !profile.chats) { $("chatList").innerHTML = ""; return; }
-  const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0))
+  const pinnedList = toArr(profile.pinned);
+  const chats = toArr(profile.chats)
+    .sort((a, b) => (pinnedList.includes(b.name) - pinnedList.includes(a.name)) || ((b.time || 0) - (a.time || 0)))
     .filter(c => !filter || c.name.includes(filter));
   const datas = await Promise.all(chats.map(c => c.name.startsWith("GROUP_") ? Promise.resolve({ premium: false, verified: true }) : getUser(c.name)));
   $("chatList").innerHTML = chats.map((c, i) => {
@@ -1349,7 +1411,7 @@ async function renderChats(filter = "") {
     const u = datas[i] || {};
     return `<div class="row" onclick="openChat('${esc(c.name)}')">
       <div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : (isGroup ? "👥" : c.name[0].toUpperCase())}</div>
-      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), u)}</div>
+      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), u)}${pinnedList.includes(c.name) ? '<span class="pinTag">📌</span>' : ""}</div>
       <div class="sub">${esc(c.last || "Нажмите чтобы открыть")}</div></div></div>`;
   }).join("");
 }
@@ -1373,6 +1435,7 @@ function applyWallpaper() {
 }
 let unsubChat = null, activeChat = null, chatBase = null, msgEls = {};
 window.openChat = async function (target) {
+  markRead(target);
   activeChat = target;
   const isGroup = target.startsWith("GROUP_");
   $("chatTitle").textContent = target.replace("GROUP_", "");
@@ -1565,6 +1628,14 @@ $("btnNewGroup").onclick = async () => {
   renderChats();
 };
 
+/* ЛЕНТА (ФОТО) */
+let feedMode = "all";
+window.setFeedFilter = m => {
+  feedMode = m;
+  $("fAll").classList.toggle("on", m === "all");
+  $("fMine").classList.toggle("on", m === "mine");
+  renderFeed();
+};
 $("btnNewPost").onclick = () => $("postFile").click();
 $("postFile").onchange = async e => {
   const files = [...e.target.files].slice(0, 5);
@@ -1589,7 +1660,12 @@ $("postFile").onchange = async e => {
 async function renderFeed() {
   if (!me) return;
   const snap = await get(ref(db, "posts"));
-  const list = snap.exists() ? Object.entries(snap.val()).sort((a, b) => b[1].time - a[1].time).slice(0, 30) : [];
+  const list = snap.exists()
+    ? Object.entries(snap.val())
+        .sort((a, b) => b[1].time - a[1].time)
+        .slice(0, 30)
+        .filter(([, p]) => feedMode === "all" || p.author === me.name)
+    : [];
   $("feedList").innerHTML = list.length ? list.map(([id, p]) => {
     const liked = p.likes && p.likes[me.name];
     const count = Object.keys(p.likes || {}).length;
@@ -1614,7 +1690,7 @@ window.deletePost = async id => {
   await remove(ref(db, "posts/" + id));
   renderFeed();
 };
-
+/* АДМИН: ПРЕДМЕТЫ ИЗ КАРТИНКИ ИЛИ ПИКСЕЛЕЙ */
 const PCH = "0123456789abcdef";
 const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
 const PX_CANVAS = 320;
@@ -1756,6 +1832,7 @@ function renderAdminList() {
     <button class="btn danger" style="width:auto;margin:0;padding:8px 12px;font-size:13px" onclick="pxDeleteItem('${i.id}')">✖</button></div>`).join("");
 }
 
+/* Переименование, лимит, статистика */
 window.renameItem = async () => {
   if (!me || me.role !== "ADMIN") return;
   const oldN = normName($("renOld").value), newN = $("renNew").value.trim();
@@ -1785,6 +1862,7 @@ window.showStats = () => {
   $("statBox").textContent = `Подарков: ${g}, NFT: ${n}, всего: ${ITEM_LIST.length}`;
 };
 
+/* Массовые действия */
 window.loadDefaultSet = async () => {
   if (!me || me.role !== "ADMIN") return;
   if (!confirm("Загрузить набор (25 подарков + 5 NFT)?")) return;
@@ -1835,11 +1913,12 @@ window.wipeAllItemsAndInventories = async () => {
   } catch (e) { toast("Ошибка записи в базу: " + e.message); }
 };
 
+/* Админ: валюты, статусы, модерация, крипто */
 window.adminAction = async function (action) {
   if (!me || me.role !== "ADMIN") return;
   let fieldId = "adminUser3";
   if (["balance", "nex"].includes(action)) fieldId = "adminUser1";
-  if (["verify", "unverify", "premium", "unpremium", "makeadmin", "removeadmin"].includes(action)) fieldId = "adminUser2";
+  if (["verify", "unverify", "premium", "unpremium", "makeadmin", "removeadmin", "giveCrypto", "takeCrypto"].includes(action)) fieldId = "adminUser2";
   const user = normName($(fieldId).value);
   if (!user) return toast("Введите ник");
   const snap = await get(userRef(user));
@@ -1859,12 +1938,15 @@ window.adminAction = async function (action) {
   else if (action === "unpremium") u.premium = false;
   else if (action === "makeadmin") u.role = "ADMIN";
   else if (action === "removeadmin") u.role = "USER";
+  else if (action === "giveCrypto") u.crypto = true;
+  else if (action === "takeCrypto") u.crypto = false;
   else if (action === "clearClan") u.clan = "";
   else if (action === "clearNft") { u.nfts = []; u.nftStyles = {}; }
   await update(userRef(user), u);
   toast("Действие выполнено!", true);
 };
 
+/* НАВИГАЦИЯ, ТЕМА */
 document.querySelectorAll("#bottomNav button[data-go]").forEach(b => {
   b.onclick = () => {
     const v = b.dataset.go;
