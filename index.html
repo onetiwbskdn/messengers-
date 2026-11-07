@@ -9,7 +9,6 @@
 :root[data-theme=light]{--bg:#f0f2f5;--panel:#fff;--line:#e4e6eb;--text:#050505;--muted:#65676b;--accent:#1877f2;--own:#1877f2;--other:#e4e6eb}
 *{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#000;height:100vh;display:flex;justify-content:center;overflow:hidden}
-@media(min-width:768px){#app{max-width:100%;width:100%;max-height:100vh;border-radius:0}.grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))!important}main{padding:20px 40px}.modal-content{max-width:500px!important}}
 @media(max-width:767px){#app{width:100%;max-width:450px;height:100vh;max-height:900px}}
 #app{background:var(--bg);color:var(--text);position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.5)}
 .view{display:none;flex:1;flex-direction:column;min-height:0}
@@ -19,15 +18,14 @@ header h2{font-size:18px;flex:1;font-weight:700;cursor:pointer}
 .ghost{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:5px}
 main{flex:1;overflow-y:auto;padding:15px;min-height:0}
 input,textarea,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;margin-bottom:12px;outline:none}
-input:focus{border-color:var(--accent)}
 .btn{width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-bottom:10px;display:flex;justify-content:center;align-items:center;gap:8px}
 .btn:active{transform:scale(.97)}
 .btn.alt{background:var(--line);color:var(--text)}
 .btn.danger{background:var(--danger)}
 .btn.premium{background:var(--grad-premium);color:#000;font-weight:800}
 .row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--panel);margin-bottom:10px;cursor:pointer}
-.av{width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:20px;position:relative;overflow:hidden;border:3px solid transparent}
-.av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av{width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:20px;overflow:hidden;border:3px solid transparent}
+.av img,.profAv img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .av.premium{border-color:#FFD700}
 .av.anim,.profAv.anim{animation:ringColor 3s linear infinite}
 @keyframes ringColor{0%{border-color:#ffd34d}33%{border-color:#ff4757}66%{border-color:#7b2ff7}100%{border-color:#ffd34d}}
@@ -39,7 +37,7 @@ input:focus{border-color:var(--accent)}
 .media svg,.media img{width:100%;height:100%;object-fit:contain;display:block}
 .art{width:76px;height:76px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:22px}
 .msgs{display:flex;flex-direction:column;gap:8px;padding:15px;min-height:100%;max-width:800px;margin:0 auto;width:100%}
-.msg{max-width:80%;background:var(--other);padding:10px 14px;border-radius:16px 16px 16px 4px;align-self:flex-start;word-break:break-word;font-size:15px;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,.1);position:relative;cursor:pointer;user-select:none;-webkit-user-select:none}
+.msg{max-width:80%;background:var(--other);padding:10px 14px;border-radius:16px 16px 16px 4px;align-self:flex-start;word-break:break-word;font-size:15px;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,.1);position:relative;cursor:pointer;user-select:none}
 .msg.out{background:var(--own);align-self:flex-end;border-radius:16px 16px 4px 16px;color:#fff}
 .msg .meta{font-size:11px;color:rgba(255,255,255,.7);margin-top:4px;text-align:right}
 .msg img{max-width:100%;border-radius:10px;margin-bottom:5px}
@@ -55,7 +53,7 @@ input:focus{border-color:var(--accent)}
 .views{font-size:11px;margin-right:8px}
 .tradeCard{background:var(--bg);border-radius:12px;padding:10px;margin-top:4px;min-width:200px;color:var(--text);text-align:left}
 .tradeBtns{display:flex;gap:8px;margin-top:6px}
-.stkMsgImg{width:120px;height:120px;object-fit:contain;margin-bottom:0}
+.stkMsgImg{width:120px;height:120px;object-fit:contain}
 .bub-round{border-radius:30px}
 .bub-square{border-radius:4px}
 .bub-glass{background:rgba(255,255,255,.1)!important;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
@@ -111,7 +109,7 @@ nav button.on{color:var(--accent);font-weight:bold}
 .evPickBtn{padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font-weight:700;cursor:pointer;font-size:14px}
 .evPickBtn.on{border-color:var(--gold);background:rgba(255,165,2,.15)}
 #fxLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5000}
-.fxp{position:absolute;top:-40px;animation:fxfall linear infinite;user-select:none}
+.fxp{position:absolute;top:-40px;animation:fxfall linear infinite}
 @keyframes fxfall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
 .profBg{height:160px;border-radius:20px 20px 0 0;margin-bottom:-45px;position:relative;background-size:cover;background-position:center;overflow:hidden}
 .bg-blue{background:var(--grad-blue)}
@@ -133,7 +131,6 @@ nav button.on{color:var(--accent);font-weight:bold}
 .bg-gold{background:linear-gradient(135deg,#BF953F,#FCF6BA,#B38728)}
 .bg-dark{background:linear-gradient(135deg,#232526,#414345)}
 .profAv{width:90px;height:90px;border-radius:50%;background:var(--accent);color:#fff;font-size:36px;font-weight:bold;display:flex;align-items:center;justify-content:center;margin:0 auto;border:5px solid var(--bg);position:relative;z-index:2;overflow:hidden}
-.profAv img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .profAv.premium{border-color:#FFD700}
 .badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
 .badge{font-size:12px;padding:4px 10px;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px}
@@ -220,6 +217,12 @@ nav button.on{color:var(--accent);font-weight:bold}
   </div>
 </div>
 
+<div class="view" id="vFeed">
+  <header><h2>Лента</h2><button class="ghost" id="btnNewPost">➕</button></header>
+  <main><div id="feedList" style="max-width:500px;margin:0 auto;width:100%"></div></main>
+</div>
+<input type="file" id="postFile" accept="image/*" multiple style="display:none">
+
 <div class="view" id="vShop">
   <header><h2>Магазин</h2></header>
   <main>
@@ -261,6 +264,7 @@ nav button.on{color:var(--accent);font-weight:bold}
           <div style="font-weight:bold;margin-bottom:10px;color:var(--gold)">👑 Premium Подписка</div>
           <button class="btn premium" id="buyPremiumBtn" onclick="buyPremium()">Купить Premium (5000 NEX)</button>
           <button class="btn alt" onclick="openSettings()">⚙️ Настройки профиля</button>
+          <button class="btn danger" onclick="clearMyLog()">🧹 Очистить мой журнал</button>
         </div>
         <div class="card">
           <button class="btn alt" id="themeBtn">🌓 Сменить тему</button>
@@ -390,12 +394,25 @@ nav button.on{color:var(--accent);font-weight:bold}
         <button class="btn" style="background:var(--success)" onclick="pxPublish()">📤 Создать и опубликовать в магазин</button>
       </div>
       <div class="card">
+        <h3 style="margin-bottom:10px">✏️ Переименовать предмет</h3>
+        <input id="renOld" placeholder="Старое название">
+        <input id="renNew" placeholder="Новое название">
+        <button class="btn" style="background:var(--accent)" onclick="renameItem()">✏️ Переименовать</button>
+      </div>
+      <div class="card">
         <h3 style="margin-bottom:10px">🗂 Предметы в магазине</h3>
         <div style="display:flex;gap:8px;align-items:flex-start">
           <input id="pxDelName" placeholder="Название для удаления">
           <button class="btn danger" style="width:auto;margin:0 0 12px;padding:14px 16px" onclick="pxDeleteByName()">Удалить</button>
         </div>
         <div id="pxList"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">♾ Лимитированные и статистика</h3>
+        <input id="limName" placeholder="Название лимитированного подарка">
+        <button class="btn" style="background:#8e44ad" onclick="removeLimit()">♾ Снять лимит</button>
+        <div id="statBox" class="sub" style="margin:8px 0">Нажмите «Статистика»</div>
+        <button class="btn" onclick="showStats()">📊 Статистика</button>
       </div>
       <div class="card" style="border-color:var(--danger)">
         <h3 style="margin-bottom:10px;color:var(--danger)">⚠️ Массовые действия</h3>
@@ -492,12 +509,12 @@ nav button.on{color:var(--accent);font-weight:bold}
 
 <nav id="bottomNav" class="hidden">
   <button data-go="vChats" class="on"><span class="ic">💬</span>Чаты</button>
+  <button data-go="vFeed"><span class="ic">🎬</span>Лента</button>
   <button data-go="vShop"><span class="ic">🛍️</span>Магазин</button>
   <button data-go="vProfile"><span class="ic">👤</span>Профиль</button>
   <button data-go="vAdmin" id="navAdmin" class="hidden"><span class="ic">🛠️</span>Админ</button>
 </nav>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -527,9 +544,7 @@ const userRef = n => ref(db, "users/" + n);
 const evRef = ref(db, "events/active");
 const toArr = v => Array.isArray(v) ? v.filter(x => x != null) : Object.values(v || {});
 
-/* ==========================================================
-   ДАННЫЕ
-   ========================================================== */
+/* ДАННЫЕ */
 const ITEMS = {};
 let ITEM_LIST = [];
 let me = null, profile = null, loginTime = 0, viewingProfile = null;
@@ -544,8 +559,6 @@ const EVENTS = {
   maslenitsa: { name: "Масленица", icon: "🥞", particles: ["🥞", "🌞", "🍯", "🌻"], bg: "linear-gradient(135deg,#ffb347,#ff5e62)", ring: "#ffd34d" }
 };
 
-/* Стартовый набор: 25 подарков в мягком 3D-стиле и 5 NFT.
-   Картинки рисуются прямо в коде (SVG), без внешних ссылок. */
 const DEFAULT_GIFTS = [
   ["Сердце",15,"heart","#ff5f8a"],["Мишка",25,"bear","#c98a4b"],["Роза",50,"rose","#e0306a"],
   ["Алмаз",100,"diamond","#3ab0ff"],["Звезда",30,"star","#ffc83a"],["Торт",75,"cake","#ff8fb8"],
@@ -561,11 +574,11 @@ const DEFAULT_NFTS = [
   ["Кот-Босс",100],["Лягушонок",200],["Единорог",500],["Пингвин",250],["Дракоша",450]
 ];
 
-/* Генератор мягких 3D-подарков (градиент, блик, тень) */
 function giftSvg(kind, c) {
   const SH = `<ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".22"/>`;
-  const g = `<defs><radialGradient id="g${kind}${c.slice(1)}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="${c}" stop-opacity=".55"/></radialGradient></defs>`;
-  const fill = `url(#g${kind}${c.slice(1)})`;
+  const gid = "g" + kind + c.slice(1);
+  const g = `<defs><radialGradient id="${gid}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="${c}" stop-opacity=".55"/></radialGradient></defs>`;
+  const fill = `url(#${gid})`;
   const shapes = {
     heart: `<path d="M50 86C18 64 6 48 6 32 6 17 17 7 31 7c8 0 15 4 19 11 4-7 11-11 19-11 14 0 25 10 25 25 0 16-12 32-44 54z" fill="${fill}"/>`,
     bear: `<circle cx="26" cy="28" r="11" fill="${c}"/><circle cx="74" cy="28" r="11" fill="${c}"/><circle cx="50" cy="52" r="30" fill="${fill}"/><circle cx="40" cy="46" r="4" fill="#2b1608"/><circle cx="60" cy="46" r="4" fill="#2b1608"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="#2b1608"/>`,
@@ -627,9 +640,7 @@ async function getUser(name, fresh = false) {
   return userCache[name];
 }
 
-/* ==========================================================
-   КАРТИНКИ
-   ========================================================== */
+/* КАРТИНКИ */
 const readFileAsDataURL = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
 function loadImage(file) {
   return new Promise((res, rej) => {
@@ -665,7 +676,7 @@ function placeholderSvg(name, color) {
   </svg>`;
 }
 function mediaOf(it) {
-  if (it.img) return it.img.startsWith("data:") || it.img.startsWith("<") ? (it.img.startsWith("<") ? it.img : `<img src="${it.img}" alt="">`) : `<img src="${it.img}" alt="">`;
+  if (it.img) return it.img.startsWith("<") ? it.img : `<img src="${it.img}" alt="">`;
   return placeholderSvg(it.name, it.bg);
 }
 function itemArt(it, cls = "art") {
@@ -682,7 +693,7 @@ function nftCardHtml(nftId, styles, extraCls = "") {
   return `<div class="art nftcard ${extraCls} ${s.bg} ${s.style}"><div class="media">${mediaOf(base)}</div></div>`;
 }
 
-/* Значки */
+/* ЗНАЧКИ */
 const BADGE = {
   check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   star: `<svg viewBox="0 0 24 24"><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d" stroke="#b07a00" stroke-width="1"/></svg>`,
@@ -701,9 +712,7 @@ function nameHtml(name, data = {}) {
 }
 const avClass = (data, base) => `${base} ${data && data.premium ? "premium" : ""} ${data && data.premium && data.animRing !== false ? "anim" : ""}`;
 
-/* ==========================================================
-   ОБЩИЕ UI
-   ========================================================== */
+/* ОБЩИЕ UI */
 function toast(msg, ok = false) {
   const t = $("toast"); t.textContent = msg;
   t.className = "toast show" + (ok ? " ok" : "");
@@ -716,6 +725,7 @@ function show(id) {
   $("bottomNav").classList.toggle("hidden", id === "vAuth" || id === "vOnboarding" || !me);
   if (id === "vChats") renderChats();
   if (id === "vShop") renderShop();
+  if (id === "vFeed") renderFeed();
 }
 const openModal = id => $(id).classList.add("active");
 const closeModal = id => $(id).classList.remove("active");
@@ -753,9 +763,7 @@ window.skipOnboard = () => {
 };
 if (localStorage.getItem("onboarded")) window.addEventListener("load", () => { $("vOnboarding").classList.remove("active"); $("vAuth").classList.add("active"); });
 
-/* ==========================================================
-   ВХОД
-   ========================================================== */
+/* ВХОД */
 function authErr(msg) { const e = $("authError"); e.textContent = msg; e.style.display = "block"; }
 $("authNick").addEventListener("input", () => { $("adminSecretBox").classList.toggle("hidden", normName($("authNick").value) !== ADMIN_NICK); });
 $("btnLogin").addEventListener("click", () => login(false));
@@ -867,9 +875,7 @@ $("logoutBtn").onclick = async () => {
   location.reload();
 };
 
-/* ==========================================================
-   ФОТО ПРОФИЛЯ
-   ========================================================== */
+/* ФОТО ПРОФИЛЯ */
 window.uploadPhoto = function (type) {
   const input = document.createElement("input");
   input.type = "file"; input.accept = "image/*";
@@ -900,9 +906,7 @@ window.uploadPhoto = function (type) {
   input.click();
 };
 
-/* ==========================================================
-   КАТАЛОГ И СОБЫТИЯ
-   ========================================================== */
+/* КАТАЛОГ И СОБЫТИЯ */
 onValue(ref(db, "items"), snap => {
   const v = snap.val() || {};
   for (const k of Object.keys(ITEMS)) delete ITEMS[k];
@@ -954,9 +958,7 @@ window.endEvent = async () => {
 };
 renderEventPick();
 
-/* ==========================================================
-   МАГАЗИН
-   ========================================================== */
+/* МАГАЗИН */
 let shopCat = "gift", shopQuery = "";
 $("catGift").onclick = () => { shopCat = "gift"; $("catGift").classList.add("on"); $("catNft").classList.remove("on"); renderShop(); };
 $("catNft").onclick = () => { shopCat = "nft"; $("catNft").classList.add("on"); $("catGift").classList.remove("on"); renderShop(); };
@@ -1005,9 +1007,7 @@ window.buyItem = async function (id) {
   toast(`Куплено: ${it.name}!`, true);
 };
 
-/* ==========================================================
-   ПРОФИЛЬ И ИНВЕНТАРЬ
-   ========================================================== */
+/* ПРОФИЛЬ И ИНВЕНТАРЬ */
 let activeProfileTab = "gifts";
 window.openProfile = async function (targetName) {
   viewingProfile = targetName === me.name ? null : targetName;
@@ -1043,7 +1043,10 @@ async function renderProfile(targetName) {
   $("profNick").innerHTML = "@" + nameHtml(targetName, data);
   $("profClan").textContent = data.clan ? `🛡️ Клан: ${data.clan}` : "";
   $("profBio").textContent = data.bio || "Нет описания";
-  $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${badgeIcon(b.icon, 16)}${esc(b.text)}</span>`).join("");
+  const giftCount = toArr(data.gifts).length;
+  const nftCount = toArr(data.nfts).length;
+  $("profBadges").innerHTML = computeBadges(data).map(b => `<span class="badge">${badgeIcon(b.icon, 16)}${esc(b.text)}</span>`).join("")
+    + `<span class="badge">🎁 Подарков: ${giftCount}</span><span class="badge">🖼️ NFT: ${nftCount}</span>`;
   $("profBalance").textContent = data.balance || 0;
   $("profNex").textContent = data.nex || 0;
   renderInventory(data, targetName);
@@ -1096,6 +1099,12 @@ async function loadLog(name) {
   grid.innerHTML = `<div class="card" style="margin:0;text-align:left">` + entries.map(e =>
     `<div class="logRow">${esc(e.t)}<div class="logTime">${new Date(e.time).toLocaleString("ru-RU", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div></div>`).join("") + `</div>`;
 }
+window.clearMyLog = async () => {
+  if (!confirm("Очистить журнал действий?")) return;
+  await remove(ref(db, "logs/" + me.name));
+  toast("Журнал очищен", true);
+  renderProfile(me.name);
+};
 window.sellGift = async function (index) {
   const gifts = toArr(profile.gifts);
   const item = gifts[index]; if (!item) return;
@@ -1108,9 +1117,7 @@ window.sellGift = async function (index) {
   toast(`Продано за ${price} Coin`, true);
 };
 
-/* ==========================================================
-   NFT
-   ========================================================== */
+/* NFT */
 let currentNftId = null, pickItems = [], pickCb = null;
 window.openNftView = function (nftId) {
   currentNftId = nftId;
@@ -1250,9 +1257,7 @@ window.startUpgrade = async function (baseId) {
   }, 1500);
 };
 
-/* ==========================================================
-   НАСТРОЙКИ, СТИКЕРЫ, ПРЕМИУМ
-   ========================================================== */
+/* НАСТРОЙКИ, СТИКЕРЫ, ПРЕМИУМ */
 let stkMine = {};
 window.openSettings = () => {
   $("setBio").value = profile.bio || "";
@@ -1341,9 +1346,7 @@ async function resolveSticker(img) {
   if (stkCache[r]) img.src = stkCache[r]; else img.alt = "стикер удалён";
 }
 
-/* ==========================================================
-   ЧАТЫ
-   ========================================================== */
+/* ЧАТЫ */
 async function renderChats(filter = "") {
   if (!profile || !profile.chats) { $("chatList").innerHTML = ""; return; }
   const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0))
@@ -1570,9 +1573,58 @@ $("btnNewGroup").onclick = async () => {
   renderChats();
 };
 
-/* ==========================================================
-   АДМИН: ПРЕДМЕТЫ ИЗ КАРТИНКИ ИЛИ ПИКСЕЛЕЙ
-   ========================================================== */
+/* ЛЕНТА (ФОТО) */
+$("btnNewPost").onclick = () => $("postFile").click();
+$("postFile").onchange = async e => {
+  const files = [...e.target.files].slice(0, 5);
+  e.target.value = "";
+  if (!files.length) return;
+  if (!me) return toast("Сначала войдите");
+  const caption = (prompt("Подпись к публикации (необязательно):") || "").slice(0, 300);
+  toast("Публикуем...", true);
+  try {
+    const images = [];
+    for (const f of files) {
+      const data = await shrinkImage(f, 512, 0.7, "image/jpeg");
+      if (data.length > 150000) return toast("Фото слишком сложное, выберите другое");
+      images.push(data);
+    }
+    const id = "p" + Date.now().toString(36) + Math.floor(Math.random() * 999);
+    await set(ref(db, "posts/" + id), { author: me.name, caption, images, likes: {}, time: Date.now() });
+    toast("Опубликовано!", true);
+    renderFeed();
+  } catch (err) { toast("Ошибка: " + err.message); }
+};
+async function renderFeed() {
+  if (!me) return;
+  const snap = await get(ref(db, "posts"));
+  const list = snap.exists() ? Object.entries(snap.val()).sort((a, b) => b[1].time - a[1].time).slice(0, 30) : [];
+  $("feedList").innerHTML = list.length ? list.map(([id, p]) => {
+    const liked = p.likes && p.likes[me.name];
+    const count = Object.keys(p.likes || {}).length;
+    const imgs = toArr(p.images).map(src => `<img src="${src}" style="width:100%;border-radius:12px;margin-bottom:6px">`).join("");
+    return `<div class="card">
+      <div style="font-weight:800;margin-bottom:6px">@${esc(p.author)}</div>
+      ${imgs}
+      <div style="margin:6px 0">${esc(p.caption || "")}</div>
+      <button class="btn alt" style="margin:0;padding:8px" onclick="likePost('${id}')">${liked ? "❤️" : "🤍"} ${count}</button>
+      ${p.author === me.name ? `<button class="btn danger" style="margin:6px 0 0;padding:8px" onclick="deletePost('${id}')">Удалить</button>` : ""}
+    </div>`;
+  }).join("") : `<div class="sub center">Публикаций пока нет</div>`;
+}
+window.likePost = async id => {
+  const path = `posts/${id}/likes/${me.name}`;
+  const s = await get(ref(db, path));
+  if (s.exists()) await remove(ref(db, path)); else await set(ref(db, path), true);
+  renderFeed();
+};
+window.deletePost = async id => {
+  if (!confirm("Удалить публикацию?")) return;
+  await remove(ref(db, "posts/" + id));
+  renderFeed();
+};
+
+/* АДМИН: ПРЕДМЕТЫ */
 const PCH = "0123456789abcdef";
 const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
 const PX_CANVAS = 320;
@@ -1714,9 +1766,39 @@ function renderAdminList() {
     <button class="btn danger" style="width:auto;margin:0;padding:8px 12px;font-size:13px" onclick="pxDeleteItem('${i.id}')">✖</button></div>`).join("");
 }
 
-/* ==========================================================
-   МАССОВЫЕ ДЕЙСТВИЯ
-   ========================================================== */
+/* Переименование */
+window.renameItem = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  const oldN = normName($("renOld").value), newN = $("renNew").value.trim();
+  if (!oldN || !newN) return toast("Заполните оба поля");
+  const ids = ITEM_LIST.filter(i => normName(i.name) === oldN).map(i => i.id);
+  if (!ids.length) return toast("Предмет не найден");
+  try {
+    for (const id of ids) await update(ref(db, "items/" + id), { name: newN });
+    toast(`Переименовано: ${ids.length} шт.`, true);
+    $("renOld").value = ""; $("renNew").value = "";
+  } catch (e) { toast("Ошибка: " + e.message); }
+};
+
+/* Снятие лимита и статистика */
+window.removeLimit = async () => {
+  if (!me || me.role !== "ADMIN") return;
+  const q = normName($("limName").value);
+  const it = ITEM_LIST.find(i => normName(i.name) === q);
+  if (!it) return toast("Не найдено");
+  try {
+    await update(ref(db, "items/" + it.id), { limit: null });
+    await remove(ref(db, "giftStock/" + it.id));
+    toast("Лимит снят", true);
+  } catch (e) { toast("Ошибка: " + e.message); }
+};
+window.showStats = () => {
+  const g = ITEM_LIST.filter(i => i.kind === "gift").length;
+  const n = ITEM_LIST.filter(i => i.kind === "nft").length;
+  $("statBox").textContent = `Подарков: ${g}, NFT: ${n}, всего: ${ITEM_LIST.length}`;
+};
+
+/* МАССОВЫЕ ДЕЙСТВИЯ */
 window.loadDefaultSet = async () => {
   if (!me || me.role !== "ADMIN") return;
   if (!confirm("Загрузить набор (25 подарков + 5 NFT)?")) return;
@@ -1767,7 +1849,7 @@ window.wipeAllItemsAndInventories = async () => {
   } catch (e) { toast("Ошибка записи в базу: " + e.message); }
 };
 
-/* Админ: валюты, статусы, модерация */
+/* АДМИН: ВАЛЮТЫ, СТАТУСЫ, МОДЕРАЦИЯ */
 window.adminAction = async function (action) {
   if (!me || me.role !== "ADMIN") return;
   let fieldId = "adminUser3";
@@ -1798,14 +1880,13 @@ window.adminAction = async function (action) {
   toast("Действие выполнено!", true);
 };
 
-/* ==========================================================
-   НАВИГАЦИЯ, ТЕМА
-   ========================================================== */
+/* НАВИГАЦИЯ, ТЕМА */
 document.querySelectorAll("#bottomNav button[data-go]").forEach(b => {
   b.onclick = () => {
     const v = b.dataset.go;
     document.querySelectorAll("#bottomNav button").forEach(x => x.classList.toggle("on", x === b));
     if (v === "vChats") show("vChats");
+    if (v === "vFeed") show("vFeed");
     if (v === "vShop") show("vShop");
     if (v === "vProfile") openProfile(me.name);
     if (v === "vAdmin") show("vAdmin");
