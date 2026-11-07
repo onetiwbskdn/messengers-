@@ -9,8 +9,14 @@
 :root[data-theme=light]{--bg:#f0f2f5;--panel:#fff;--line:#e4e6eb;--text:#050505;--muted:#65676b;--accent:#1877f2;--own:#1877f2;--other:#e4e6eb}
 *{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#000;height:100vh;display:flex;justify-content:center;overflow:hidden}
-@media(max-width:767px){#app{width:100%;max-width:450px;height:100vh;max-height:900px}}
-#app{background:var(--bg);color:var(--text);position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.5)}
+#app{width:100%;max-width:450px;height:100vh;max-height:900px;background:var(--bg);color:var(--text);position:relative;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.5)}
+@media (min-width:768px){
+  #app{max-width:100%;width:100%;height:100vh;max-height:100vh;border-radius:0}
+  main{padding:20px 40px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))!important}
+  .msgs,.composer{max-width:800px;margin-left:auto;margin-right:auto}
+  .modal-content{max-width:520px!important}
+}
 .view{display:none;flex:1;flex-direction:column;min-height:0}
 .view.active{display:flex}
 header{display:flex;align-items:center;gap:10px;padding:15px;background:var(--panel);border-bottom:1px solid var(--line);z-index:10}
@@ -544,7 +550,6 @@ const userRef = n => ref(db, "users/" + n);
 const evRef = ref(db, "events/active");
 const toArr = v => Array.isArray(v) ? v.filter(x => x != null) : Object.values(v || {});
 
-/* ДАННЫЕ */
 const ITEMS = {};
 let ITEM_LIST = [];
 let me = null, profile = null, loginTime = 0, viewingProfile = null;
@@ -570,9 +575,7 @@ const DEFAULT_GIFTS = [
   ["Снежок",55,"ball","#e6f7ff"],["Кристалл",110,"diamond","#c084fc"],["Медаль",80,"medal","#ffc83a"],
   ["Фейерверк",75,"star","#ff4757"],["Кекс",45,"cake","#d9934a"]
 ];
-const DEFAULT_NFTS = [
-  ["Кот-Босс",100],["Лягушонок",200],["Единорог",500],["Пингвин",250],["Дракоша",450]
-];
+const DEFAULT_NFTS = [["Кот-Босс",100],["Лягушонок",200],["Единорог",500],["Пингвин",250],["Дракоша",450]];
 
 function giftSvg(kind, c) {
   const SH = `<ellipse cx="50" cy="93" rx="26" ry="4" fill="#000" opacity=".22"/>`;
@@ -640,7 +643,6 @@ async function getUser(name, fresh = false) {
   return userCache[name];
 }
 
-/* КАРТИНКИ */
 const readFileAsDataURL = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
 function loadImage(file) {
   return new Promise((res, rej) => {
@@ -693,7 +695,6 @@ function nftCardHtml(nftId, styles, extraCls = "") {
   return `<div class="art nftcard ${extraCls} ${s.bg} ${s.style}"><div class="media">${mediaOf(base)}</div></div>`;
 }
 
-/* ЗНАЧКИ */
 const BADGE = {
   check: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="10" fill="#1a4fb0"/><circle cx="12" cy="11" r="10" fill="#2d7aff"/><path d="M7 11.5 L10.5 15 L17 8.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   star: `<svg viewBox="0 0 24 24"><path d="M12 3 L14.6 9 L21 9.5 L16 13.6 L17.6 20 L12 16.6 L6.4 20 L8 13.6 L3 9.5 L9.4 9Z" fill="#ffd34d" stroke="#b07a00" stroke-width="1"/></svg>`,
@@ -712,7 +713,6 @@ function nameHtml(name, data = {}) {
 }
 const avClass = (data, base) => `${base} ${data && data.premium ? "premium" : ""} ${data && data.premium && data.animRing !== false ? "anim" : ""}`;
 
-/* ОБЩИЕ UI */
 function toast(msg, ok = false) {
   const t = $("toast"); t.textContent = msg;
   t.className = "toast show" + (ok ? " ok" : "");
@@ -763,7 +763,6 @@ window.skipOnboard = () => {
 };
 if (localStorage.getItem("onboarded")) window.addEventListener("load", () => { $("vOnboarding").classList.remove("active"); $("vAuth").classList.add("active"); });
 
-/* ВХОД */
 function authErr(msg) { const e = $("authError"); e.textContent = msg; e.style.display = "block"; }
 $("authNick").addEventListener("input", () => { $("adminSecretBox").classList.toggle("hidden", normName($("authNick").value) !== ADMIN_NICK); });
 $("btnLogin").addEventListener("click", () => login(false));
@@ -875,7 +874,6 @@ $("logoutBtn").onclick = async () => {
   location.reload();
 };
 
-/* ФОТО ПРОФИЛЯ */
 window.uploadPhoto = function (type) {
   const input = document.createElement("input");
   input.type = "file"; input.accept = "image/*";
@@ -906,7 +904,6 @@ window.uploadPhoto = function (type) {
   input.click();
 };
 
-/* КАТАЛОГ И СОБЫТИЯ */
 onValue(ref(db, "items"), snap => {
   const v = snap.val() || {};
   for (const k of Object.keys(ITEMS)) delete ITEMS[k];
@@ -958,7 +955,6 @@ window.endEvent = async () => {
 };
 renderEventPick();
 
-/* МАГАЗИН */
 let shopCat = "gift", shopQuery = "";
 $("catGift").onclick = () => { shopCat = "gift"; $("catGift").classList.add("on"); $("catNft").classList.remove("on"); renderShop(); };
 $("catNft").onclick = () => { shopCat = "nft"; $("catNft").classList.add("on"); $("catGift").classList.remove("on"); renderShop(); };
@@ -1007,7 +1003,6 @@ window.buyItem = async function (id) {
   toast(`Куплено: ${it.name}!`, true);
 };
 
-/* ПРОФИЛЬ И ИНВЕНТАРЬ */
 let activeProfileTab = "gifts";
 window.openProfile = async function (targetName) {
   viewingProfile = targetName === me.name ? null : targetName;
@@ -1117,7 +1112,6 @@ window.sellGift = async function (index) {
   toast(`Продано за ${price} Coin`, true);
 };
 
-/* NFT */
 let currentNftId = null, pickItems = [], pickCb = null;
 window.openNftView = function (nftId) {
   currentNftId = nftId;
@@ -1257,7 +1251,6 @@ window.startUpgrade = async function (baseId) {
   }, 1500);
 };
 
-/* НАСТРОЙКИ, СТИКЕРЫ, ПРЕМИУМ */
 let stkMine = {};
 window.openSettings = () => {
   $("setBio").value = profile.bio || "";
@@ -1346,7 +1339,6 @@ async function resolveSticker(img) {
   if (stkCache[r]) img.src = stkCache[r]; else img.alt = "стикер удалён";
 }
 
-/* ЧАТЫ */
 async function renderChats(filter = "") {
   if (!profile || !profile.chats) { $("chatList").innerHTML = ""; return; }
   const chats = toArr(profile.chats).sort((a, b) => (b.time || 0) - (a.time || 0))
@@ -1573,7 +1565,6 @@ $("btnNewGroup").onclick = async () => {
   renderChats();
 };
 
-/* ЛЕНТА (ФОТО) */
 $("btnNewPost").onclick = () => $("postFile").click();
 $("postFile").onchange = async e => {
   const files = [...e.target.files].slice(0, 5);
@@ -1624,7 +1615,6 @@ window.deletePost = async id => {
   renderFeed();
 };
 
-/* АДМИН: ПРЕДМЕТЫ */
 const PCH = "0123456789abcdef";
 const PAL = ["", "#ffffff", "#000000", "#ff4757", "#ff8a00", "#ffd34d", "#2ed573", "#2d7aff", "#8e44ad", "#8a5a20", "#ffb3d1", "#7a7a7a", "#c0c8d6", "#2b1608", "#22d3ee", "#ff69b4"];
 const PX_CANVAS = 320;
@@ -1766,7 +1756,6 @@ function renderAdminList() {
     <button class="btn danger" style="width:auto;margin:0;padding:8px 12px;font-size:13px" onclick="pxDeleteItem('${i.id}')">✖</button></div>`).join("");
 }
 
-/* Переименование */
 window.renameItem = async () => {
   if (!me || me.role !== "ADMIN") return;
   const oldN = normName($("renOld").value), newN = $("renNew").value.trim();
@@ -1779,8 +1768,6 @@ window.renameItem = async () => {
     $("renOld").value = ""; $("renNew").value = "";
   } catch (e) { toast("Ошибка: " + e.message); }
 };
-
-/* Снятие лимита и статистика */
 window.removeLimit = async () => {
   if (!me || me.role !== "ADMIN") return;
   const q = normName($("limName").value);
@@ -1798,7 +1785,6 @@ window.showStats = () => {
   $("statBox").textContent = `Подарков: ${g}, NFT: ${n}, всего: ${ITEM_LIST.length}`;
 };
 
-/* МАССОВЫЕ ДЕЙСТВИЯ */
 window.loadDefaultSet = async () => {
   if (!me || me.role !== "ADMIN") return;
   if (!confirm("Загрузить набор (25 подарков + 5 NFT)?")) return;
@@ -1849,7 +1835,6 @@ window.wipeAllItemsAndInventories = async () => {
   } catch (e) { toast("Ошибка записи в базу: " + e.message); }
 };
 
-/* АДМИН: ВАЛЮТЫ, СТАТУСЫ, МОДЕРАЦИЯ */
 window.adminAction = async function (action) {
   if (!me || me.role !== "ADMIN") return;
   let fieldId = "adminUser3";
@@ -1880,7 +1865,6 @@ window.adminAction = async function (action) {
   toast("Действие выполнено!", true);
 };
 
-/* НАВИГАЦИЯ, ТЕМА */
 document.querySelectorAll("#bottomNav button[data-go]").forEach(b => {
   b.onclick = () => {
     const v = b.dataset.go;
