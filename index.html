@@ -187,6 +187,30 @@ body.nopreview #chatList .sub{display:none}
 body.fsSm .msg{font-size:13px}
 body.fsLg .msg{font-size:18px}
 body.blurPhotos #msgs img:not(.revealed){filter:blur(18px);cursor:pointer}
+body.f-big .btn{padding:20px!important;font-size:18px!important}
+body.f-contrast{--muted:#ffffff}
+body.f-contrast .row,body.f-contrast .card{border:1px solid #fff}
+body.f-line .msg{line-height:1.8}
+body.f-bubble .msg{outline:1px solid rgba(127,127,127,.5)}
+body.f-round .card,body.f-round .row{border-radius:24px}
+body.f-nofx #fxLayer{display:none}
+body.f-noown .msg.out{background:var(--own)!important}
+body.f-wide #app{max-width:100%!important}
+body.f-hideimg #feedList img{display:none}
+body.f-hidecap #feedList .cap{display:none}
+body.f-compact #feedList .card{padding:10px}
+body.f-mention .msg.mention{box-shadow:0 0 0 2px var(--gold)}
+body.g-serif{font-family:Georgia,serif!important}
+body.g-bigrows .row{padding:18px 14px}
+body.g-muted #app{filter:saturate(.6)}
+body.g-widebub .msg{max-width:95%}
+body.g-lines .row{border-bottom:1px solid var(--line)}
+body.g-bigav .av{width:60px;height:60px;font-size:24px}
+body.g-notime .msg .meta{display:none}
+body.g-nobadge .bIcon{display:none}
+body.g-gray #app{filter:grayscale(1)}
+body.g-dimwall #chatWallpaper{opacity:0!important}
+#feedList > .card[data-v6hide]{display:none!important}
 </style>
 </head>
 <body>
@@ -305,11 +329,6 @@ body.blurPhotos #msgs img:not(.revealed){filter:blur(18px);cursor:pointer}
         <div class="stat">NEX<b id="profNex">0</b></div>
       </div>
       <div id="profOwn">
-        <div class="card" style="text-align:center">
-          <div style="font-weight:800;margin-bottom:6px">🎁 Ежедневный бонус</div>
-          <div class="sub" style="white-space:normal;margin-bottom:8px">Без Premium: +10 Coin · с Premium: +50 Coin · раз в 24 часа</div>
-          <button class="btn" onclick="claimDaily()">Забрать бонус</button>
-        </div>
         <div class="card" style="border-color:var(--gold)" id="premCard">
           <div style="font-weight:bold;margin-bottom:10px;color:var(--gold)">👑 Premium Подписка</div>
           <button class="btn premium" id="buyPremiumBtn" onclick="buyPremium()">Купить Premium (5000 NEX)</button>
@@ -423,6 +442,7 @@ body.blurPhotos #msgs img:not(.revealed){filter:blur(18px);cursor:pointer}
         <button class="btn alt" onclick="clearLocalData()">🧹 Очистить черновики и заметки</button>
         <div id="uiStatus" class="sub" style="margin-top:6px"></div>
       </div>
+      <div class="card" id="v5Card"></div>
       <button class="btn" onclick="saveSettings()" style="margin-top:20px;padding:20px">СОХРАНИТЬ ВСЁ</button>
     </div>
   </main>
@@ -1738,19 +1758,23 @@ $("btnSendGift").onclick = () => {
   openModal("mChatGifts");
 };
 window.sendGiftToChat = async id => {
-  const it = itemById(id); if (!it) return;
-  if (profile.balance < it.price) return toast("Недостаточно Coin!");
-  await update(userRef(me.name), { balance: profile.balance - it.price });
+  const it = itemById(id); if (!it) return toast("Подарок не найден");
+  if (!activeChat || activeChat.startsWith("GROUP_")) return toast("Подарок можно отправить только в личном чате");
+  if ((profile.balance || 0) < it.price) return toast("Недостаточно Coin!");
+  const target = activeChat;
   await sendMessage(it.id, false, "gift");
-  if (activeChat && !activeChat.startsWith("GROUP_")) {
-    const fd = await getUser(activeChat, true);
+  await update(userRef(me.name), { balance: (profile.balance || 0) - it.price });
+  logAct(`🎁 Отправил подарок «${it.name}» (${target})`);
+  closeModal("mChatGifts");
+  try {
+    const fd = await getUser(target, true);
     const fg = toArr(fd.gifts);
     fg.push({ id: it.id, at: Date.now() });
-    await update(userRef(activeChat), { gifts: fg });
+    await update(userRef(target), { gifts: fg });
+    toast("Подарок отправлен!", true);
+  } catch (e) {
+    toast("Подарок отправлен, но не записан в инвентарь получателя: " + (e.code || e.message));
   }
-  logAct(`🎁 Отправил подарок «${it.name}»`);
-  closeModal("mChatGifts");
-  toast("Подарок отправлен!", true);
 };
 $("btnNewGroup").onclick = async () => {
   const name = prompt("Название канала:"); if (!name) return;
@@ -2113,15 +2137,6 @@ const isMuted = name => localStorage.getItem("mute_" + name) === "1";
 const encArg = s => encodeURIComponent(String(s));
 
 /* --- Для всех --- */
-window.claimDaily = async () => {
-  if (!me || !profile) return;
-  const left = Number(profile.lastDaily || 0) + DAY - Date.now();
-  if (left > 0) return toast(`Следующий бонус через ~${Math.ceil(left / 3600000)} ч.`);
-  const amount = isPrem() ? 50 : 10;
-  await update(userRef(me.name), { balance: (profile.balance || 0) + amount, lastDaily: Date.now() });
-  logAct(`🎁 Ежедневный бонус +${amount} Coin`);
-  toast(`+${amount} Coin! Бонус получен`, true);
-};
 
 window.toggleBlock = async () => {
   if (!activeChat || activeChat.startsWith("GROUP_")) return toast("Блокировка доступна в личном чате");
@@ -2246,15 +2261,26 @@ async function logAdmin(text) {
 
 async function loadAdminStats() {
   if (!me || me.role !== "ADMIN") return;
-  const [users, posts, reps, pres] = await Promise.all([
-    get(ref(db, "users")), get(ref(db, "posts")), get(ref(db, "reports")), get(ref(db, "presence"))
-  ]);
-  const repsV = reps.val() || {};
-  $("stUsers").textContent = Object.keys(users.val() || {}).length;
-  $("stOnline").textContent = Object.keys(pres.val() || {}).length;
-  $("stPosts").textContent = Object.keys(posts.val() || {}).length;
-  $("stReports").textContent = Object.values(repsV).filter(r => r.status === "open").length;
-  renderReports(repsV);
+  const plan = [["stUsers", "users"], ["stPosts", "posts"], ["stReports", "reports"], ["stOnline", "presence"]];
+  const results = await Promise.allSettled(plan.map(([, path]) => get(ref(db, path))));
+  let repsV = {};
+  plan.forEach(([id, path], i) => {
+    const r = results[i];
+    if (r.status === "rejected") {
+      $(id).textContent = "нет доступа";
+      console.warn("Статистика: " + path, r.reason);
+      if (path === "reports") $("repList").textContent = "Нет доступа к жалобам: " + (r.reason?.code || r.reason?.message);
+      return;
+    }
+    const v = r.value.val() || {};
+    if (path === "reports") {
+      repsV = v;
+      $(id).textContent = Object.values(v).filter(x => x.status === "open").length;
+    } else {
+      $(id).textContent = Object.keys(v).length;
+    }
+  });
+  if (results[2].status === "fulfilled") renderReports(repsV);
 }
 
 function renderReports(all) {
@@ -2363,6 +2389,12 @@ window.exportUsersCsv = async () => {
 };
 
 /* ===================== v3: ещё функции ===================== */
+/* Любая ошибка асинхронного действия теперь видна пользователю, а не молча пропадает */
+window.addEventListener("unhandledrejection", e => {
+  const r = e.reason || {};
+  console.error(r);
+  toast("Ошибка: " + (r.code || r.message || "неизвестно"));
+});
 const UI_KEYS = { uiNoAnim: "ui_noAnim", uiCompact: "ui_compact", uiNoPreview: "ui_noPreview", uiBlurPhoto: "ui_blurPhoto", uiNotify: "ui_notify", uiSound: "ui_sound" };
 const uiOn = k => localStorage.getItem(k) === "1";
 
@@ -2633,6 +2665,423 @@ $("authNick").addEventListener("input", () => {
 });
 
 window.loadAdminStats = loadAdminStats;
+window.updPreview = updPreview;
+
+/* ===================== v5: 30 функций ===================== */
+/* 1–13: переключатели (включаются в настройках «Дополнительно») */
+const FLAGS = [
+  ["big", "Крупные кнопки"], ["contrast", "Высокий контраст"], ["line", "Увеличенный межстрочный интервал"],
+  ["bubble", "Обводка сообщений"], ["round", "Скруглённые карточки"], ["nofx", "Без праздничных эффектов"],
+  ["noown", "Не окрашивать мои сообщения"], ["wide", "Широкий режим"], ["sendsound", "Звук при отправке сообщения"],
+  ["mention", "Подсвечивать упоминания моего ника"], ["hideimg", "Скрыть фото в ленте"],
+  ["hidecap", "Скрыть подписи в ленте"], ["compact", "Компактная лента"]
+];
+const flagOn = k => localStorage.getItem("f_" + k) === "1";
+function applyFlags() { FLAGS.forEach(([k]) => document.body.classList.toggle("f-" + k, flagOn(k))); }
+
+/* Чат: кнопка «вниз», счётчик, открытие, звук, упоминания */
+let openedAt = 0;
+const downBtn = document.createElement("button");
+downBtn.textContent = "⬇";
+downBtn.style.cssText = "position:absolute;right:16px;bottom:80px;z-index:20;display:none;width:42px;height:42px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:18px;cursor:pointer";
+$("vChat").appendChild(downBtn);
+$("msgsWrap").addEventListener("scroll", () => {
+  const w = $("msgsWrap");
+  downBtn.style.display = (w.scrollHeight - w.scrollTop - w.clientHeight > 200) ? "block" : "none";
+});
+downBtn.onclick = () => { const w = $("msgsWrap"); w.scrollTop = w.scrollHeight; };
+
+const cntEl = document.createElement("span");
+cntEl.style.cssText = "font-size:11px;color:var(--muted);flex-shrink:0;min-width:44px;text-align:right";
+$("msgInput").insertAdjacentElement("afterend", cntEl);
+function updCnt() { const n = $("msgInput").value.length; cntEl.textContent = n ? `${n}/4000` : ""; }
+$("msgInput").addEventListener("input", updCnt);
+
+const _oc3 = window.openChat;
+window.openChat = async t => { openedAt = Date.now(); await _oc3(t); updCnt(); };
+
+new MutationObserver(muts => {
+  if (!flagOn("sendsound") || Date.now() - openedAt < 1500) return;
+  muts.forEach(m => m.addedNodes.forEach(n => { if (n.classList && n.classList.contains("out")) beep(); }));
+}).observe($("msgs"), { childList: true });
+
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+new MutationObserver(muts => {
+  if (!me) return;
+  const re = new RegExp("(^|\\s)@?" + escRe(me.name) + "(?=\\s|$|[.,!?])", "i");
+  muts.forEach(m => m.addedNodes.forEach(n => { if (n.classList && re.test(n.textContent)) n.classList.add("mention"); }));
+}).observe($("msgs"), { childList: true });
+
+window.copyChat = async () => {
+  const txt = [...$("msgs").children].filter(d => d.style.display !== "none").map(d => d.innerText.trim()).filter(Boolean).join("\n");
+  if (!txt) return toast("Переписка пуста");
+  try { await navigator.clipboard.writeText(txt); toast("Переписка скопирована", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+  closeModal("mChatMenu");
+};
+
+/* Быстрые ответы */
+const qrList = () => JSON.parse(localStorage.getItem("quick_replies") || "[]");
+const saveQr = a => localStorage.setItem("quick_replies", JSON.stringify(a));
+window.showQuick = () => {
+  const list = qrList();
+  $("listTitle").textContent = "Быстрые ответы";
+  $("listBox").innerHTML = (list.length
+    ? list.map((t, i) => `<div class="row" onclick="useQuick(${i})"><div class="grow">${esc(t)}</div></div>`).join("")
+    : "Пока нет. Добавьте ниже.") + `<button class="btn" onclick="addQuick()">➕ Добавить быстрый ответ</button>`;
+  openModal("mList");
+};
+window.useQuick = i => {
+  const t = qrList()[i]; if (t == null) return;
+  $("msgInput").value = t;
+  $("msgInput").dispatchEvent(new Event("input"));
+  closeModal("mList");
+  closeModal("mChatMenu");
+};
+window.addQuick = () => {
+  const t = (prompt("Текст быстрого ответа:") || "").trim().slice(0, 300);
+  if (!t) return;
+  saveQr([...qrList(), t]);
+  showQuick();
+};
+window.clearQuick = () => {
+  if (!confirm("Удалить все быстрые ответы?")) return;
+  localStorage.removeItem("quick_replies");
+  closeModal("mChatMenu");
+  toast("Быстрые ответы удалены", true);
+};
+$("mChatMenu").querySelector(".modal-content").insertAdjacentHTML("beforeend",
+  `<button class="btn alt menuBtn" onclick="showQuick()">⚡ Быстрые ответы</button>` +
+  `<button class="btn alt menuBtn" onclick="copyChat()">📋 Копировать всю переписку</button>` +
+  `<button class="btn alt menuBtn" onclick="clearQuick()">🗑 Удалить быстрые ответы</button>`);
+
+/* Лента: закладки и кнопка «Наверх» */
+const bms = () => JSON.parse(localStorage.getItem("bookmarks") || "{}");
+const saveBms = o => localStorage.setItem("bookmarks", JSON.stringify(o));
+function decorateV5() {
+  document.querySelectorAll("#feedList > .card").forEach(card => {
+    if (card.dataset.v5) return;
+    const lb = card.querySelector('button[onclick^="likePost"]');
+    const m = lb && lb.getAttribute("onclick").match(/likePost\('([^']+)'\)/);
+    if (!m) return;
+    card.dataset.v5 = "1";
+    const id = m[1];
+    const capDiv = [...card.querySelectorAll("div")].find(d => (d.getAttribute("style") || "").includes("margin:6px 0"));
+    if (capDiv) capDiv.classList.add("cap");
+    const btn = document.createElement("button");
+    btn.className = "btn alt";
+    btn.style.cssText = "margin:6px 0 0;padding:8px";
+    const paint = () => { btn.textContent = bms()[id] ? "🔖 Убрать из закладок" : "🔖 В закладки"; };
+    btn.onclick = () => {
+      const b = bms();
+      if (b[id]) delete b[id];
+      else b[id] = { a: card.dataset.author || "", c: capDiv ? capDiv.textContent : "", t: Date.now() };
+      saveBms(b);
+      paint();
+      toast(b[id] ? "Добавлено в закладки" : "Убрано из закладок", true);
+    };
+    paint();
+    card.appendChild(btn);
+  });
+}
+new MutationObserver(decorateV5).observe($("feedList"), { childList: true });
+window.showBookmarks = () => {
+  const rows = Object.entries(bms()).sort((x, y) => y[1].t - x[1].t);
+  $("listTitle").textContent = "Закладки";
+  $("listBox").innerHTML = rows.length
+    ? rows.map(([, v]) => `<div class="repRow"><b>@${esc(v.a)}</b><div>${esc(v.c || "(без подписи)")}</div></div>`).join("")
+    : "Закладок нет";
+  openModal("mList");
+};
+const upBtn = document.createElement("button");
+upBtn.textContent = "⬆ Наверх";
+upBtn.className = "btn alt";
+upBtn.style.cssText = "margin:0 0 10px;padding:8px";
+upBtn.onclick = () => $("vFeed").querySelector("main").scrollTo({ top: 0, behavior: "smooth" });
+$("feedSearch").insertAdjacentElement("beforebegin", upBtn);
+
+/* Профиль и устройство */
+window.copyMyNick = async () => {
+  if (!me) return;
+  try { await navigator.clipboard.writeText(me.name); toast("Ник скопирован", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+};
+window.exportNotes = () => {
+  const o = {};
+  Object.keys(localStorage).forEach(k => { if (/^(note_|draft_|quick_replies|bookmarks)/.test(k)) o[k] = localStorage.getItem(k); });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], { type: "application/json" }));
+  a.download = "nexus-notes.json";
+  a.click();
+};
+window.resetLocal = () => {
+  if (!confirm("Сбросить настройки интерфейса на этом устройстве?")) return;
+  Object.keys(localStorage).forEach(k => { if (/^(f_|ui_)/.test(k)) localStorage.removeItem(k); });
+  applyFlags(); applyUI(); fillUI(); buildV5();
+  toast("Настройки сброшены", true);
+};
+function buildV5() {
+  const box = $("v5Card"); if (!box) return;
+  const first = Number(localStorage.getItem("first_seen") || Date.now());
+  box.innerHTML = `<h3 style="margin-bottom:10px">🧩 Дополнительно</h3>` +
+    FLAGS.map(([k, label]) => `<label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" data-flag="${k}" ${flagOn(k) ? "checked" : ""} style="width:auto;margin:0"> ${label}</label>`).join("") +
+    `<div class="sub" style="margin:8px 0">Открытий на этом устройстве: ${localStorage.getItem("opens") || 1} · впервые: ${new Date(first).toLocaleDateString("ru-RU")}</div>` +
+    `<button class="btn alt" onclick="copyMyNick()">📋 Скопировать мой ник</button>` +
+    `<button class="btn alt" onclick="showBookmarks()">🔖 Мои закладки</button>` +
+    `<button class="btn alt" onclick="exportNotes()">📦 Экспорт заметок и черновиков</button>` +
+    `<button class="btn alt" onclick="resetLocal()">♻️ Сбросить настройки интерфейса</button>`;
+  box.querySelectorAll("[data-flag]").forEach(cb => cb.onchange = () => {
+    localStorage.setItem("f_" + cb.dataset.flag, cb.checked ? "1" : "0");
+    applyFlags();
+  });
+}
+
+/* Вход: показ пароля, подтверждение выхода */
+["authPass", "newPassInput"].forEach(id => {
+  const inp = $(id);
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = "👁 Показать пароль";
+  b.style.cssText = "background:none;border:none;color:var(--accent);margin:-6px 0 10px;cursor:pointer;font-size:13px;display:block";
+  b.onclick = () => {
+    inp.type = inp.type === "password" ? "text" : "password";
+    b.textContent = inp.type === "password" ? "👁 Показать пароль" : "🙈 Скрыть пароль";
+  };
+  inp.insertAdjacentElement("afterend", b);
+});
+const _logout = $("logoutBtn").onclick;
+$("logoutBtn").onclick = async e => {
+  if (!confirm("Выйти из аккаунта?")) return;
+  await _logout(e);
+};
+
+/* Блокировка по бездействию (если установлен PIN) */
+let lastAct = Date.now();
+["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true }));
+setInterval(() => {
+  if (localStorage.getItem("pin") && Date.now() - lastAct > 5 * 60 * 1000) { lastAct = Date.now(); checkPin(); }
+}, 15000);
+
+/* Черновики: отметка времени и автоочистка старше 7 дней */
+$("msgInput").addEventListener("input", () => { if (activeChat) localStorage.setItem("draftAt_" + activeChat, String(Date.now())); });
+Object.keys(localStorage).forEach(k => {
+  if (!k.startsWith("draft_")) return;
+  const chat = k.slice(6);
+  const at = Number(localStorage.getItem("draftAt_" + chat) || 0);
+  if (!at) localStorage.setItem("draftAt_" + chat, String(Date.now()));
+  else if (Date.now() - at > 7 * DAY) { localStorage.removeItem(k); localStorage.removeItem("draftAt_" + chat); }
+});
+
+/* Счётчик открытий и запуск */
+localStorage.setItem("opens", String(Number(localStorage.getItem("opens") || 0) + 1));
+if (!localStorage.getItem("first_seen")) localStorage.setItem("first_seen", String(Date.now()));
+applyFlags();
+buildV5();
+
+/* ===================== v6: 30 функций ===================== */
+/* 1–11: переключатели (блок «Оформление» в настройках) */
+const V6FLAGS = [
+  ["serif", "Шрифт с засечками"], ["bigrows", "Крупные строки чатов"], ["muted", "Приглушённые цвета"],
+  ["widebub", "Широкие сообщения"], ["lines", "Разделители в списке чатов"], ["bigav", "Крупные аватарки"],
+  ["notime", "Скрыть время сообщений"], ["nobadge", "Скрыть значки верификации"], ["gray", "Чёрно-белый интерфейс"],
+  ["dimwall", "Скрыть обои чата"], ["smile", "Заменять :) и другие на эмодзи"]
+];
+const g6On = k => localStorage.getItem("g_" + k) === "1";
+function applyGFlags() { V6FLAGS.forEach(([k]) => document.body.classList.toggle("g-" + k, g6On(k))); }
+const SMILES = [[":)", "🙂"], [":(", "🙁"], [":D", "😀"], ["<3", "❤️"]];
+$("msgInput").addEventListener("input", () => {
+  if (!g6On("smile")) return;
+  let v = $("msgInput").value, changed = false;
+  SMILES.forEach(([a, b]) => { if (v.includes(a)) { v = v.split(a).join(b); changed = true; } });
+  if (changed) $("msgInput").value = v;
+});
+$("msgInput").addEventListener("keydown", e => {
+  if (e.key === "Escape") { $("msgInput").value = ""; updCnt(); }
+});
+
+/* Сообщения: ответ, избранное */
+const stars = () => JSON.parse(localStorage.getItem("starred") || "{}");
+const _or6 = window.openReact;
+window.openReact = key => {
+  _or6(key);
+  const m = msgData[key];
+  if (!m || (m.type && m.type !== "text")) return;
+  const isStar = !!stars()[key];
+  $("msgActs").insertAdjacentHTML("afterbegin",
+    `<button class="btn alt menuBtn" onclick="replyTo('${key}')">↩ Ответить</button>` +
+    `<button class="btn alt menuBtn" onclick="starMsg('${key}')">${isStar ? "⭐ Убрать из избранного" : "⭐ В избранное"}</button>`);
+};
+window.replyTo = key => {
+  const m = msgData[key]; if (!m) return;
+  $("msgInput").value = `↩ ${m.from}: «${String(m.text).slice(0, 80)}» `;
+  $("msgInput").dispatchEvent(new Event("input"));
+  closeModal("mReact");
+  $("msgInput").focus();
+};
+window.starMsg = key => {
+  const m = msgData[key]; if (!m) return;
+  const s = stars();
+  if (s[key]) delete s[key];
+  else s[key] = { from: m.from, text: m.text, time: m.time, chat: activeChat || "" };
+  localStorage.setItem("starred", JSON.stringify(s));
+  closeModal("mReact");
+  toast(s[key] ? "Добавлено в избранное ⭐" : "Убрано из избранного", true);
+};
+window.showStarred = () => {
+  const rows = Object.values(stars()).sort((a, b) => b.time - a.time);
+  $("listTitle").textContent = "Избранное";
+  $("listBox").innerHTML = rows.length
+    ? rows.map(v => `<div class="repRow"><b>${esc(v.from)}</b> · ${esc(new Date(v.time).toLocaleString("ru-RU"))}<div>${esc(String(v.text))}</div></div>`).join("")
+    : "Избранных сообщений нет";
+  openModal("mList");
+};
+window.clearStarred = () => {
+  if (!confirm("Очистить избранное?")) return;
+  localStorage.removeItem("starred");
+  toast("Избранное очищено", true);
+};
+
+/* Меню чата: статистика, напоминание, повтор */
+window.chatStats = () => {
+  const kids = [...$("msgs").children];
+  const mine = kids.filter(d => d.classList.contains("out")).length;
+  const words = kids.map(d => d.innerText.trim().split(/\s+/).filter(Boolean).length).reduce((a, b) => a + b, 0);
+  $("listTitle").textContent = "Статистика чата";
+  $("listBox").innerHTML = `Сообщений в загруженной истории: <b>${kids.length}</b><br>Мои: <b>${mine}</b><br>Слов: <b>${words}</b>`;
+  closeModal("mChatMenu");
+  openModal("mList");
+};
+window.remindChat = () => {
+  const min = Number(prompt("Напомнить через сколько минут?", "10"));
+  if (!min || min <= 0) return;
+  const name = (activeChat || "").replace("GROUP_", "");
+  setTimeout(() => toast(`⏰ Напоминание: ${name}`, true), min * 60000);
+  closeModal("mChatMenu");
+  toast(`Напомню через ${min} мин. (пока вкладка открыта)`, true);
+};
+window.repeatLast = () => {
+  const mine = [...$("msgs").children].filter(d => d.classList.contains("out")).pop();
+  if (!mine) return toast("Своих сообщений нет");
+  $("msgInput").value = mine.innerText.split("\n")[0].trim();
+  $("msgInput").dispatchEvent(new Event("input"));
+  closeModal("mChatMenu");
+};
+$("mChatMenu").querySelector(".modal-content").insertAdjacentHTML("beforeend",
+  `<button class="btn alt menuBtn" onclick="showStarred()">⭐ Избранные сообщения</button>` +
+  `<button class="btn alt menuBtn" onclick="chatStats()">📊 Статистика чата</button>` +
+  `<button class="btn alt menuBtn" onclick="remindChat()">⏰ Напомнить о чате</button>` +
+  `<button class="btn alt menuBtn" onclick="repeatLast()">↻ Повторить моё последнее сообщение</button>` +
+  `<button class="btn alt menuBtn" onclick="clearStarred()">🗑 Очистить избранное</button>`);
+
+/* Лента: фильтры и подсветка своих постов */
+function applyFeedFilters() {
+  const onlyPhoto = localStorage.getItem("v6_onlyPhoto") === "1";
+  const noCap = localStorage.getItem("v6_noCap") === "1";
+  document.querySelectorAll("#feedList > .card").forEach(c => {
+    const hasImg = !!c.querySelector("img");
+    const hasCap = !!(c.querySelector(".cap")?.textContent || "").trim();
+    if ((onlyPhoto && !hasImg) || (noCap && !hasCap)) c.dataset.v6hide = "1";
+    else delete c.dataset.v6hide;
+    const mine = !!me && c.dataset.author === me.name;
+    c.style.outline = mine ? "2px solid var(--gold)" : "";
+  });
+}
+new MutationObserver(applyFeedFilters).observe($("feedList"), { childList: true });
+
+/* Настройки: экспорт, импорт, масштаб, хранилище, совет */
+window.exportSettings = () => {
+  const o = {};
+  Object.keys(localStorage).forEach(k => { if (/^(f_|ui_|g_|v6_)/.test(k)) o[k] = localStorage.getItem(k); });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], { type: "application/json" }));
+  a.download = "nexus-settings.json";
+  a.click();
+};
+window.importSettings = () => {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "application/json,.json";
+  inp.onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const o = JSON.parse(await f.text());
+      let n = 0;
+      Object.entries(o).forEach(([k, v]) => {
+        if (/^(f_|ui_|g_|v6_)/.test(k) && typeof v === "string") { localStorage.setItem(k, v); n++; }
+      });
+      applyFlags(); applyGFlags(); applyUI(); applyScale(); fillUI(); buildV5(); buildV6(); applyFeedFilters();
+      toast(`Импортировано настроек: ${n}`, true);
+    } catch (err) { toast("Не удалось прочитать файл"); }
+  };
+  inp.click();
+};
+function applyScale() {
+  const s = Number(localStorage.getItem("v6_scale") || 100);
+  $("app").style.zoom = String(s / 100);
+}
+window.clearBookmarks = () => {
+  if (!confirm("Удалить все закладки постов?")) return;
+  localStorage.removeItem("bookmarks");
+  toast("Закладки удалены", true);
+};
+window.storageInfo = () => {
+  let bytes = 0;
+  Object.keys(localStorage).forEach(k => { bytes += (k.length + (localStorage.getItem(k) || "").length) * 2; });
+  $("listTitle").textContent = "Хранилище устройства";
+  $("listBox").innerHTML = `Данные приложения в браузере: <b>${(bytes / 1024).toFixed(1)} КБ</b> (лимит браузера обычно около 5 МБ)`;
+  openModal("mList");
+};
+const TIPS = [
+  "Двойной тап по посту ставит лайк.",
+  "Escape в поле ввода очищает его.",
+  "Закладки постов хранятся только на этом устройстве.",
+  "Статистику чата можно открыть из меню «⋯».",
+  "Экспорт настроек позволяет перенести их на другое устройство."
+];
+window.nextTip = () => { $("tipBox").textContent = "💡 " + TIPS[Math.floor(Math.random() * TIPS.length)]; };
+function buildV6() {
+  const box = $("v6Card"); if (!box) return;
+  box.innerHTML = `<h3 style="margin-bottom:10px">🎨 Оформление и данные</h3>` +
+    V6FLAGS.map(([k, label]) => `<label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" data-g="${k}" ${g6On(k) ? "checked" : ""} style="width:auto;margin:0"> ${label}</label>`).join("") +
+    `<label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" data-v6="v6_onlyPhoto" ${localStorage.getItem("v6_onlyPhoto") === "1" ? "checked" : ""} style="width:auto;margin:0"> В ленте только посты с фото</label>` +
+    `<label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" data-v6="v6_noCap" ${localStorage.getItem("v6_noCap") === "1" ? "checked" : ""} style="width:auto;margin:0"> В ленте скрыть посты без подписи</label>` +
+    `<label class="sub" style="display:block;margin-bottom:5px">Масштаб интерфейса:</label>` +
+    `<select data-scale><option value="90">90%</option><option value="100">100%</option><option value="110">110%</option><option value="120">120%</option></select>` +
+    `<button class="btn alt" onclick="exportSettings()">📤 Экспорт настроек в файл</button>` +
+    `<button class="btn alt" onclick="importSettings()">📥 Импорт настроек из файла</button>` +
+    `<button class="btn alt" onclick="clearBookmarks()">🗑 Удалить закладки постов</button>` +
+    `<button class="btn alt" onclick="storageInfo()">💾 Сколько места занимают данные</button>` +
+    `<button class="btn alt" onclick="nextTip()">💡 Совет</button>` +
+    `<div id="tipBox" class="sub" style="white-space:normal;margin-top:6px">${esc(TIPS[0])}</div>`;
+  box.querySelectorAll("[data-g]").forEach(cb => cb.onchange = () => {
+    localStorage.setItem("g_" + cb.dataset.g, cb.checked ? "1" : "0");
+    applyGFlags();
+  });
+  box.querySelectorAll("[data-v6]").forEach(cb => cb.onchange = () => {
+    localStorage.setItem(cb.dataset.v6, cb.checked ? "1" : "0");
+    applyFeedFilters();
+  });
+  const sel = box.querySelector("[data-scale]");
+  sel.value = localStorage.getItem("v6_scale") || "100";
+  sel.onchange = () => { localStorage.setItem("v6_scale", sel.value); applyScale(); };
+}
+$("v5Card").insertAdjacentHTML("beforebegin", '<div class="card" id="v6Card"></div>');
+
+/* Ночная тема по времени (только если тема ещё не выбрана вручную) */
+const hour = new Date().getHours();
+if (!localStorage.getItem("theme") && (hour >= 22 || hour < 7)) document.documentElement.dataset.theme = "dark";
+
+/* Счётчик непрочитанных во вкладке браузера */
+setInterval(() => {
+  if (!profile) return;
+  const n = toArr(profile.chats).filter(c => Number(c.time || 0) > lastRead(c.name)).length;
+  document.title = n ? `(${n}) Nexus Messenger Ultimate` : "Nexus Messenger Ultimate";
+}, 10000);
+
+applyGFlags();
+applyScale();
+buildV6();
+applyFeedFilters();
 
 pxInitUI();
 </script>
