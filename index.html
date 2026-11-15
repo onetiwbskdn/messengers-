@@ -169,6 +169,24 @@ nav button.on{color:var(--accent);font-weight:bold}
 .feedFilter{display:flex;gap:8px;margin-bottom:10px}
 .feedFilter button{flex:1;padding:8px;border-radius:10px;border:none;background:var(--line);color:var(--text);font-weight:700;cursor:pointer}
 .feedFilter button.on{background:var(--accent);color:#fff}
+/* ===== v2 ===== */
+.bg-anim{background-size:300% 300%;animation:bgShift 6s ease infinite}
+@keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.onlineDot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--success);margin-left:6px;vertical-align:middle}
+.ann{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--gold);font-size:14px;text-align:center}
+.menuBtn{width:100%;margin:0 0 8px;justify-content:flex-start;padding:14px}
+.hlMatch{background:rgba(255,165,2,.25)!important}
+.adminStat{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.adminStat div{background:var(--bg);border-radius:12px;padding:10px;font-size:12px;color:var(--muted);text-align:center}
+.adminStat b{display:block;font-size:20px;color:var(--accent)}
+.repRow{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;text-align:left}
+.muteTag{font-size:11px;color:var(--muted);margin-left:4px}
+body.noanim *,body.noanim *::before,body.noanim *::after{animation:none!important;transition:none!important}
+body.compact .row{padding:7px 10px;margin-bottom:6px}
+body.nopreview #chatList .sub{display:none}
+body.fsSm .msg{font-size:13px}
+body.fsLg .msg{font-size:18px}
+body.blurPhotos #msgs img:not(.revealed){filter:blur(18px);cursor:pointer}
 </style>
 </head>
 <body>
@@ -191,6 +209,7 @@ nav button.on{color:var(--accent);font-weight:bold}
     <div class="center" style="font-size:70px;margin-bottom:10px">🛡️</div>
     <h1 class="center" style="font-size:28px;margin-bottom:30px;font-weight:800;background:var(--grad-blue);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Nexus</h1>
     <input id="authNick" placeholder="Ваш ник (3-20 символов)" autocomplete="username">
+    <div id="nickHint" class="sub" style="margin:-8px 0 10px;min-height:16px"></div>
     <input id="authPass" type="password" placeholder="Пароль (минимум 6)" autocomplete="current-password">
     <div id="adminSecretBox" class="hidden" style="background:var(--danger);padding:15px;border-radius:12px;margin-bottom:15px">
       <div style="font-size:13px;color:#fff;margin-bottom:8px;font-weight:bold">🔐 Пароль админа</div>
@@ -207,7 +226,9 @@ nav button.on{color:var(--accent);font-weight:bold}
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
       <div id="evBanner" class="evBanner hidden"></div>
+      <div id="annBanner" class="ann hidden"></div>
       <input id="searchInput" placeholder="Поиск по нику или @каналу... 🔍">
+      <div class="feedFilter"><button id="btnUnreadList">📬 Непрочитанные</button><button id="btnReadAll">✔ Прочитать всё</button></div>
       <div id="chatList"></div>
     </div>
   </main>
@@ -220,6 +241,7 @@ nav button.on{color:var(--accent);font-weight:bold}
     <h2 id="chatTitle" style="cursor:pointer" onclick="openFriendProfile()"></h2>
     <button class="ghost hidden" id="btnPost" style="font-size:20px">📢</button>
     <button class="ghost" id="btnSendGift" style="font-size:20px">🎁</button>
+    <button class="ghost" id="btnChatMenu" style="font-size:22px">⋯</button>
   </header>
   <main id="msgsWrap" style="padding:0;position:relative">
     <div id="chatWallpaper" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:.3;z-index:0;pointer-events:none"></div>
@@ -238,7 +260,7 @@ nav button.on{color:var(--accent);font-weight:bold}
   <main>
     <div style="max-width:500px;margin:0 auto;width:100%">
       <div class="feedFilter"><button id="fAll" class="on" onclick="setFeedFilter('all')">Все</button><button id="fMine" onclick="setFeedFilter('mine')">Мои посты</button></div>
-      <div id="feedList"></div>
+      <input id="feedSearch" placeholder="Поиск по подписям в ленте... 🔍"><div id="feedList"></div>
     </div>
   </main>
 </div>
@@ -283,6 +305,11 @@ nav button.on{color:var(--accent);font-weight:bold}
         <div class="stat">NEX<b id="profNex">0</b></div>
       </div>
       <div id="profOwn">
+        <div class="card" style="text-align:center">
+          <div style="font-weight:800;margin-bottom:6px">🎁 Ежедневный бонус</div>
+          <div class="sub" style="white-space:normal;margin-bottom:8px">Без Premium: +10 Coin · с Premium: +50 Coin · раз в 24 часа</div>
+          <button class="btn" onclick="claimDaily()">Забрать бонус</button>
+        </div>
         <div class="card" style="border-color:var(--gold)" id="premCard">
           <div style="font-weight:bold;margin-bottom:10px;color:var(--gold)">👑 Premium Подписка</div>
           <button class="btn premium" id="buyPremiumBtn" onclick="buyPremium()">Купить Premium (5000 NEX)</button>
@@ -357,6 +384,10 @@ nav button.on{color:var(--accent);font-weight:bold}
         </select>
         <label class="sub" style="display:block;margin-bottom:5px">Обои для чата:</label>
         <button class="btn alt" onclick="uploadPhoto('wallpaper')" style="margin-bottom:10px">🖼️ Загрузить обои</button>
+        <label class="sub" style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" id="setAnimBg" style="width:auto;margin:0"> Анимированный фон профиля</label>
+        <label class="sub" style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" id="setHideOnline" style="width:auto;margin:0"> Режим невидимки (не показывать онлайн)</label>
+        <label class="sub" style="display:block;margin-bottom:5px">Цвет вашего ника:</label>
+        <input type="color" id="setNameColor" value="#ffa502" style="padding:0;height:40px">
         <label class="sub" style="display:block;margin-bottom:5px">Цвет своих сообщений:</label>
         <input type="color" id="setMsgColor" value="#2d7aff" style="padding:0;height:40px">
       </div>
@@ -368,7 +399,29 @@ nav button.on{color:var(--accent);font-weight:bold}
       <div class="card" style="border-color:var(--danger)">
         <h3 style="margin-bottom:10px;color:var(--danger)">🔐 Безопасность</h3>
         <input id="newPassInput" type="password" placeholder="Новый пароль (мин. 5 символов)">
+        <div id="passStrength" class="sub" style="margin:-8px 0 10px;min-height:16px"></div>
         <button class="btn danger" onclick="changePassword()">Сменить пароль</button>
+        <button class="btn alt" onclick="exportMyData()">📦 Скачать мои данные (JSON)</button>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">⚙️ Удобство и приватность</h3>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiNoAnim" style="width:auto;margin:0"> Без анимаций</label>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiCompact" style="width:auto;margin:0"> Компактный список чатов</label>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiNoPreview" style="width:auto;margin:0"> Скрыть превью сообщений в списке</label>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiBlurPhoto" style="width:auto;margin:0"> Размывать фото в чатах</label>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiNotify" style="width:auto;margin:0"> Уведомления браузера (когда вкладка скрыта)</label>
+        <label class="sub" style="display:flex;gap:8px;margin-bottom:8px"><input type="checkbox" id="uiSound" style="width:auto;margin:0"> Звук при новом сообщении</label>
+        <label class="sub" style="display:block;margin-bottom:5px">Размер текста сообщений:</label>
+        <select id="uiFont"><option value="md">Средний</option><option value="sm">Мелкий</option><option value="lg">Крупный</option></select>
+        <button class="btn alt" onclick="uiSave()">Применить</button>
+        <button class="btn alt" onclick="copyMyLink()">🔗 Скопировать ссылку на мой профиль</button>
+        <button class="btn alt" onclick="showFollowList('following')">👥 Мои подписки</button>
+        <button class="btn alt" onclick="showFollowList('followers')">👥 Мои подписчики</button>
+        <button class="btn alt" onclick="showMyStats()">📈 Мои посты и лайки</button>
+        <button class="btn alt" onclick="setPin()">🔒 Установить PIN на устройстве</button>
+        <button class="btn alt" onclick="removePin()">🔓 Снять PIN</button>
+        <button class="btn alt" onclick="clearLocalData()">🧹 Очистить черновики и заметки</button>
+        <div id="uiStatus" class="sub" style="margin-top:6px"></div>
       </div>
       <button class="btn" onclick="saveSettings()" style="margin-top:20px;padding:20px">СОХРАНИТЬ ВСЁ</button>
     </div>
@@ -379,6 +432,39 @@ nav button.on{color:var(--accent);font-weight:bold}
   <header><h2>Админ-панель</h2></header>
   <main>
     <div style="max-width:800px;margin:0 auto;width:100%">
+      <div class="card">
+        <h3 style="margin-bottom:10px">📊 Статистика</h3>
+        <div class="adminStat">
+          <div>Зарегистрировано<b id="stUsers">—</b></div>
+          <div>Онлайн сейчас<b id="stOnline">—</b></div>
+          <div>Постов<b id="stPosts">—</b></div>
+          <div>Открытых жалоб<b id="stReports">—</b></div>
+        </div>
+        <button class="btn alt" onclick="loadAdminStats()">🔄 Обновить</button>
+        <button class="btn alt" onclick="exportUsersCsv()">📤 Экспорт пользователей (CSV, без паролей)</button>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">🚩 Жалобы</h3>
+        <div id="repList" class="sub" style="white-space:normal">Нажмите «Обновить» в статистике</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">📣 Объявление всем</h3>
+        <input id="annText" placeholder="Текст объявления (до 200 символов)" maxlength="200">
+        <button class="btn" onclick="postAnnouncement()">Опубликовать</button>
+        <button class="btn danger" onclick="clearAnnouncement()">Убрать объявление</button>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">👤 Карточка пользователя и сброс пароля</h3>
+        <input id="cardUser" placeholder="Ник">
+        <button class="btn alt" onclick="showUserCard()">Показать карточку</button>
+        <button class="btn" style="background:#8e44ad" onclick="resetUserPassword()">🔑 Сбросить пароль (временный)</button>
+        <div id="userCard" class="sub" style="white-space:normal;margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:10px">📜 Журнал действий админа</h3>
+        <div id="adminLogBox" class="sub" style="white-space:normal;margin-bottom:8px">Журнал не загружен</div>
+        <button class="btn alt" onclick="loadAdminLog()">Показать журнал</button>
+      </div>
       <div class="card">
         <h3 style="margin-bottom:10px">🎉 Ивенты</h3>
         <div id="evPick" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"></div>
@@ -509,7 +595,7 @@ nav button.on{color:var(--accent);font-weight:bold}
   </div>
 </div></div>
 
-<div class="modal" id="mReact"><div class="modal-content"><button class="modal-close-btn" onclick="closeModal('mReact')">✖</button><h3 style="margin-bottom:15px">Реакция</h3><div class="reactRow" id="reactBtns"></div></div></div>
+<div class="modal" id="mReact"><div class="modal-content"><button class="modal-close-btn" onclick="closeModal('mReact')">✖</button><h3 style="margin-bottom:15px">Реакция</h3><div class="reactRow" id="reactBtns"></div><div id="msgActs" style="margin-top:12px"></div></div></div>
 
 <div class="modal" id="mPick"><div class="modal-content"><button class="modal-close-btn" onclick="closeModal('mPick')">✖</button><h3 id="pickTitle" style="margin-bottom:15px">Выберите</h3><div class="grid" id="pickGrid" style="grid-template-columns:repeat(2,1fr)"></div></div></div>
 
@@ -532,6 +618,26 @@ nav button.on{color:var(--accent);font-weight:bold}
   <div id="anvilResult" style="font-size:20px;font-weight:bold;color:var(--gold);opacity:0;transition:1s">✨ УЛУЧШЕНО! ✨</div>
 </div></div>
 
+<div class="modal" id="mChatMenu"><div class="modal-content" style="padding:15px">
+  <button class="modal-close-btn" onclick="closeModal('mChatMenu')">✖</button>
+  <h3 style="margin-bottom:15px">Действия с чатом</h3>
+  <button class="btn alt menuBtn" onclick="chatSearch()">🔍 Поиск по сообщениям</button>
+  <button class="btn alt menuBtn" onclick="toggleMute()">🔕 Заглушить / включить</button>
+  <button class="btn alt menuBtn" onclick="clearChatLocal()">🧹 Очистить историю у меня</button>
+  <button class="btn alt menuBtn" onclick="toggleBlock()">⛔ Заблокировать / разблокировать</button>
+  <button class="btn alt menuBtn" onclick="reportUser()">🚩 Пожаловаться на пользователя</button>
+  <button class="btn alt menuBtn" onclick="editNote()">📝 Личная заметка о собеседнике</button>
+  <button class="btn alt menuBtn" onclick="setChatBg()">🎨 Фон этого чата</button>
+  <button class="btn alt menuBtn" onclick="copyNick()">📋 Скопировать ник</button>
+  <button class="btn premium menuBtn" onclick="exportChat()">👑 Экспорт переписки (.txt, Premium)</button>
+</div></div>
+
+<div class="modal" id="mList"><div class="modal-content" style="text-align:left">
+  <button class="modal-close-btn" onclick="closeModal('mList')">✖</button>
+  <h3 id="listTitle" style="margin-bottom:12px">Список</h3>
+  <div id="listBox"></div>
+</div></div>
+
 <nav id="bottomNav" class="hidden">
   <button data-go="vChats" class="on"><span class="ic">💬</span>Чаты</button>
   <button data-go="vFeed"><span class="ic">🎬</span>Лента</button>
@@ -542,7 +648,7 @@ nav button.on{color:var(--accent);font-weight:bold}
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, onChildRemoved, remove, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBkNR9ZrRFwB39CYlhk2CNz4jWD-WGWuD8", authDomain: "chat-d7385.firebaseapp.com", databaseURL: "https://chat-d7385-default-rtdb.europe-west1.firebasedatabase.app", projectId: "chat-d7385", storageBucket: "chat-d7385.firebasestorage.app", messagingSenderId: "421202112650", appId: "1:421202112650:web:7b53494f3d32fd02a87d73" };
@@ -558,7 +664,7 @@ const authReady = new Promise(resolve => {
 
 const DAY = 24 * 60 * 60 * 1000;
 const SELL_WINDOW = 21 * DAY;
-const MAX_STICKERS = 20;
+const MAX_STICKERS = 50;
 const MAX_IMG_CHARS = 380000;
 
 const $ = id => document.getElementById(id);
@@ -747,6 +853,7 @@ function show(id) {
   if (id === "vChats") renderChats();
   if (id === "vShop") renderShop();
   if (id === "vFeed") renderFeed();
+  if (id === "vAdmin") loadAdminStats();
 }
 const openModal = id => $(id).classList.add("active");
 const closeModal = id => $(id).classList.remove("active");
@@ -858,6 +965,7 @@ async function login(isAuto = false) {
       if (activeChat) applyWallpaper();
     });
     onValue(ref(db, "stickers/" + me.name), s => { stkMine = s.val() || {}; renderStkList(); renderPickStk(); });
+    setPresence();
     show("vChats");
     toast("Успешный вход!", true);
     localStorage.setItem("savedUser", JSON.stringify({ name: me.name }));
@@ -1051,12 +1159,13 @@ async function renderProfile(targetName) {
   const evE = activeEventKey ? EVENTS[activeEventKey] : null;
   const bgEl = $("profBg");
   if (data.banner) { bgEl.style.background = ""; bgEl.style.backgroundImage = `url(${data.banner})`; bgEl.className = "profBg"; }
-  else { bgEl.style.backgroundImage = "none"; bgEl.style.background = evE ? evE.bg : ""; bgEl.className = "profBg " + (data.profileBg || "bg-blue"); }
+  else { bgEl.style.backgroundImage = "none"; bgEl.style.background = evE ? evE.bg : ""; bgEl.className = "profBg " + (data.profileBg || "bg-blue") + (data.premium && data.animBg ? " bg-anim" : ""); }
   const av = $("profAv");
   av.className = avClass(data, "profAv");
   if (data.avatar) av.innerHTML = `<img src="${data.avatar}">`;
   else av.textContent = targetName[0].toUpperCase();
-  $("profNick").innerHTML = "@" + nameHtml(targetName, data);
+  const nickClr = data.premium && data.nameColor ? data.nameColor : "inherit";
+  $("profNick").innerHTML = `<span style="color:${nickClr}">@${nameHtml(targetName, data)}</span>`;
   $("profClan").textContent = data.clan ? `🛡️ Клан: ${data.clan}` : "";
   $("profBio").textContent = data.bio || "Нет описания";
   const giftCount = toArr(data.gifts).length;
@@ -1308,13 +1417,21 @@ window.openSettings = () => {
   $("setBubbleStyle").value = profile.bubbleStyle || "bub-default";
   $("setMsgColor").value = profile.msgColor || "#2d7aff";
   $("setAnim").checked = profile.animRing !== false;
+  $("setAnimBg").checked = !!profile.animBg;
+  $("setHideOnline").checked = !!profile.hideOnline;
+  $("setNameColor").value = profile.nameColor || "#ffa502";
   renderDevices(profile.devices || {});
   renderStkList();
   show("vSettings");
 };
 window.saveSettings = async () => {
   const u = { bio: $("setBio").value, profileBg: $("setBg").value, bubbleStyle: $("setBubbleStyle").value, msgColor: $("setMsgColor").value };
-  if (profile.premium) u.animRing = $("setAnim").checked;
+  if (profile.premium) {
+    u.animRing = $("setAnim").checked;
+    u.animBg = $("setAnimBg").checked;
+    u.hideOnline = $("setHideOnline").checked;
+    u.nameColor = $("setNameColor").value;
+  }
   await update(userRef(me.name), u);
   toast("Настройки сохранены!", true);
   show("vProfile");
@@ -1392,7 +1509,7 @@ async function resolveSticker(img) {
 /* ЗАКРЕПЛЕНИЕ И ПРОЧТЕНИЕ */
 window.togglePin = async (name) => {
   const pinned = toArr(profile.pinned);
-  const next = pinned.includes(name) ? pinned.filter(n => n !== name) : [...pinned, name].slice(0, 5);
+  const next = pinned.includes(name) ? pinned.filter(n => n !== name) : [...pinned, name].slice(0, isPrem() ? 10 : 3);
   await update(userRef(me.name), { pinned: next });
 };
 function lastRead(name) { return Number(localStorage.getItem("read_" + name) || 0); }
@@ -1404,6 +1521,7 @@ async function renderChats(filter = "") {
   const pinnedList = toArr(profile.pinned);
   const chats = toArr(profile.chats)
     .sort((a, b) => (pinnedList.includes(b.name) - pinnedList.includes(a.name)) || ((b.time || 0) - (a.time || 0)))
+    .filter(c => !(profile.blocked && profile.blocked[c.name]))
     .filter(c => !filter || c.name.includes(filter));
   const datas = await Promise.all(chats.map(c => c.name.startsWith("GROUP_") ? Promise.resolve({ premium: false, verified: true }) : getUser(c.name)));
   $("chatList").innerHTML = chats.map((c, i) => {
@@ -1411,7 +1529,7 @@ async function renderChats(filter = "") {
     const u = datas[i] || {};
     return `<div class="row" onclick="openChat('${esc(c.name)}')">
       <div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : (isGroup ? "👥" : c.name[0].toUpperCase())}</div>
-      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), u)}${pinnedList.includes(c.name) ? '<span class="pinTag">📌</span>' : ""}</div>
+      <div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(c.name.replace("GROUP_", ""), u)}${pinnedList.includes(c.name) ? '<span class="pinTag">📌</span>' : ""}${isMuted(c.name) ? '<span class="muteTag">🔕</span>' : ""}</div>
       <div class="sub">${esc(c.last || "Нажмите чтобы открыть")}</div></div></div>`;
   }).join("");
 }
@@ -1423,7 +1541,9 @@ async function doSearch() {
   const snap = await get(ref(db, "users"));
   if (!snap.exists()) return;
   const users = snap.val();
-  const names = Object.keys(users).filter(n => n.includes(q) && n !== me.name);
+  const names = Object.keys(users)
+    .filter(n => n.includes(q) && n !== me.name && !(profile.blocked && profile.blocked[n]))
+    .sort((a, b) => (!!users[b]?.premium - !!users[a]?.premium) || a.localeCompare(b));
   $("chatList").innerHTML = names.map(n => {
     const u = users[n] || {};
     return `<div class="row" onclick="openChat('${esc(n)}')"><div class="${avClass(u, "av")}">${u.avatar ? `<img src="${u.avatar}">` : n[0].toUpperCase()}</div><div class="grow"><div style="font-weight:bold;display:flex;align-items:center;gap:5px">${nameHtml(n, u)}</div><div class="sub">Пользователь</div></div></div>`;
@@ -1439,6 +1559,9 @@ window.openChat = async function (target) {
   activeChat = target;
   const isGroup = target.startsWith("GROUP_");
   $("chatTitle").textContent = target.replace("GROUP_", "");
+  if (!isGroup) get(ref(db, "presence/" + target)).then(s => {
+    if (s.exists() && activeChat === target) $("chatTitle").insertAdjacentHTML("beforeend", '<span class="onlineDot"></span>');
+  }).catch(() => {});
   if (isGroup) $("chatAvatar").innerHTML = "👥";
   else {
     const u = await getUser(target);
@@ -1458,6 +1581,7 @@ window.openChat = async function (target) {
   const path = ref(db, chatBase);
   const u1 = onChildAdded(path, snap => {
     const m = snap.val(); if (!m) return;
+    if ((m.time || 0) <= Number(localStorage.getItem("cleared_" + chatBase) || 0)) return;
     const div = document.createElement("div");
     msgEls[snap.key] = div;
     attachPress(div, snap.key);
@@ -1466,7 +1590,8 @@ window.openChat = async function (target) {
     $("msgsWrap").scrollTop = $("msgsWrap").scrollHeight;
   });
   const u2 = onChildChanged(path, snap => { const d = msgEls[snap.key]; if (d) paintMsg(d, snap.key, snap.val(), isGroup); });
-  unsubChat = () => { u1(); u2(); };
+  const u3 = onChildRemoved(path, snap => { const d = msgEls[snap.key]; if (d) d.remove(); delete msgEls[snap.key]; });
+  unsubChat = () => { u1(); u2(); u3(); };
 };
 $("chatBack").onclick = () => { if (unsubChat) { unsubChat(); unsubChat = null; } activeChat = null; chatBase = null; show("vChats"); };
 
@@ -1480,6 +1605,7 @@ function reactsHtml(key, m) {
   return chips ? `<div class="reacts">${chips}</div>` : "";
 }
 function paintMsg(div, key, m, isGroup) {
+  msgData[key] = m;
   const isOut = m.from === me.name;
   const noBubble = m.type === "gift" || m.type === "sticker" || m.type === "nftgift";
   div.className = "msg " + (profile.bubbleStyle || "") + (isOut ? " out" : "") + (noBubble ? " giftmsg" : "") + (m.type === "post" ? " postmsg" : "");
@@ -1502,7 +1628,7 @@ function paintMsg(div, key, m, isGroup) {
   } else if (m.burn) {
     content = `<div style="cursor:pointer;color:var(--gold);font-weight:bold" onclick="viewBurnMessage('${key}','${esc(m.from)}',this,'${m.type || "text"}')">🔥 Нажмите чтобы открыть</div>`;
   } else if (m.type === "photo") {
-    content = `<img src="${m.text}" onclick="window.open('${m.text}','_blank')">`;
+    content = /^data:image\//.test(m.text) ? `<img src="${m.text}" onclick="window.open(this.src,'_blank')">` : `<i>Недопустимое изображение</i>`;
   } else {
     content = `<div>${esc(m.text)}</div>`;
   }
@@ -1521,6 +1647,13 @@ function attachPress(div, key) {
 }
 window.openReact = key => {
   $("reactBtns").innerHTML = REACT_LIST.map((e, i) => `<button class="rbtn" onclick="reactTo('${key}',${i});closeModal('mReact')">${e}</button>`).join("");
+  const mm = msgData[key] || {};
+  const own = mm.from === me.name;
+  const acts = [];
+  if (!mm.type || mm.type === "text") acts.push(`<button class="btn alt menuBtn" onclick="copyMsg('${key}')">📋 Копировать текст</button>`);
+  if (own) acts.push(`<button class="btn danger menuBtn" onclick="deleteMsg('${key}')">🗑 Удалить у всех</button>`);
+  else acts.push(`<button class="btn alt menuBtn" onclick="reportMsg('${key}')">🚩 Пожаловаться на сообщение</button>`);
+  $("msgActs").innerHTML = acts.join("");
   openModal("mReact");
 };
 window.reactTo = async (key, idx) => {
@@ -1540,6 +1673,12 @@ window.viewBurnMessage = async function (msgKey, from, element, type) {
 };
 async function sendTo(target, text, isSticker = false, type = "text") {
   if (!text || !target) return;
+  if (!target.startsWith("GROUP_")) {
+    window._lastSend = Date.now();
+    if (isBlockedByMe(target)) return toast("Пользователь в вашем чёрном списке");
+    const tu = await getUser(target, true);
+    if (tu.blocked && tu.blocked[me.name]) return toast("Пользователь ограничил сообщения");
+  }
   const isGroup = target.startsWith("GROUP_");
   const base = isGroup ? "groupMessages/" + target : "chats/" + chatKey(me.name, target);
   await push(ref(db, base), { from: me.name, text, isSticker, type, time: Date.now() });
@@ -1638,7 +1777,7 @@ window.setFeedFilter = m => {
 };
 $("btnNewPost").onclick = () => $("postFile").click();
 $("postFile").onchange = async e => {
-  const files = [...e.target.files].slice(0, 5);
+  const files = [...e.target.files].slice(0, isPrem() ? 10 : 3);
   e.target.value = "";
   if (!files.length) return;
   if (!me) return toast("Сначала войдите");
@@ -1666,12 +1805,13 @@ async function renderFeed() {
         .slice(0, 30)
         .filter(([, p]) => feedMode === "all" || p.author === me.name)
     : [];
+  await Promise.all(list.map(([, p]) => getUser(p.author)));
   $("feedList").innerHTML = list.length ? list.map(([id, p]) => {
     const liked = p.likes && p.likes[me.name];
     const count = Object.keys(p.likes || {}).length;
     const imgs = toArr(p.images).map(src => `<img src="${src}" style="width:100%;border-radius:12px;margin-bottom:6px">`).join("");
     return `<div class="card">
-      <div style="font-weight:800;margin-bottom:6px">@${esc(p.author)}</div>
+      <div style="font-weight:800;margin-bottom:6px;color:${userCache[p.author]?.premium && userCache[p.author]?.nameColor ? userCache[p.author].nameColor : "inherit"}">@${esc(p.author)} ${userCache[p.author]?.premium ? badgeIcon("star", 16) : ""}</div>
       ${imgs}
       <div style="margin:6px 0">${esc(p.caption || "")}</div>
       <button class="btn alt" style="margin:0;padding:8px" onclick="likePost('${id}')">${liked ? "❤️" : "🤍"} ${count}</button>
@@ -1943,6 +2083,7 @@ window.adminAction = async function (action) {
   else if (action === "clearClan") u.clan = "";
   else if (action === "clearNft") { u.nfts = []; u.nftStyles = {}; }
   await update(userRef(user), u);
+  logAdmin(`${action} → ${user}`);
   toast("Действие выполнено!", true);
 };
 
@@ -1964,6 +2105,534 @@ $("themeBtn").onclick = () => {
   localStorage.setItem("theme", light ? "dark" : "light");
 };
 if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light";
+
+/* ===================== v2: НОВЫЕ ФУНКЦИИ ===================== */
+const msgData = {};
+const isPrem = () => !!(profile && profile.premium);
+const isMuted = name => localStorage.getItem("mute_" + name) === "1";
+const encArg = s => encodeURIComponent(String(s));
+
+/* --- Для всех --- */
+window.claimDaily = async () => {
+  if (!me || !profile) return;
+  const left = Number(profile.lastDaily || 0) + DAY - Date.now();
+  if (left > 0) return toast(`Следующий бонус через ~${Math.ceil(left / 3600000)} ч.`);
+  const amount = isPrem() ? 50 : 10;
+  await update(userRef(me.name), { balance: (profile.balance || 0) + amount, lastDaily: Date.now() });
+  logAct(`🎁 Ежедневный бонус +${amount} Coin`);
+  toast(`+${amount} Coin! Бонус получен`, true);
+};
+
+window.toggleBlock = async () => {
+  if (!activeChat || activeChat.startsWith("GROUP_")) return toast("Блокировка доступна в личном чате");
+  const target = activeChat;
+  const blocked = { ...(profile.blocked || {}) };
+  if (blocked[target]) { delete blocked[target]; toast(`${target} разблокирован`, true); }
+  else { blocked[target] = true; toast(`${target} заблокирован`, true); }
+  await update(userRef(me.name), { blocked });
+  closeModal("mChatMenu");
+};
+
+window.reportUser = async () => {
+  if (!activeChat || activeChat.startsWith("GROUP_")) return toast("Жалоба доступна в личном чате");
+  const reason = (prompt("Причина жалобы (кратко):") || "").trim();
+  if (!reason) return;
+  await push(ref(db, "reports"), { from: me.name, target: activeChat, reason: reason.slice(0, 300), time: Date.now(), status: "open" });
+  closeModal("mChatMenu");
+  toast("Жалоба отправлена модераторам", true);
+};
+
+window.reportMsg = async key => {
+  const m = msgData[key]; if (!m) return;
+  const reason = (prompt("Причина жалобы на сообщение:") || "").trim();
+  if (!reason) return;
+  const quote = (!m.type || m.type === "text") ? String(m.text).slice(0, 300) : `[${m.type}]`;
+  await push(ref(db, "reports"), { from: me.name, target: m.from, reason: reason.slice(0, 300), quote, time: Date.now(), status: "open" });
+  closeModal("mReact");
+  toast("Жалоба отправлена", true);
+};
+
+window.deleteMsg = async key => {
+  if (!chatBase || !confirm("Удалить сообщение у всех участников?")) return;
+  await remove(ref(db, chatBase + "/" + key));
+  closeModal("mReact");
+  toast("Сообщение удалено", true);
+};
+
+window.copyMsg = async key => {
+  const m = msgData[key]; if (!m) return;
+  try { await navigator.clipboard.writeText(String(m.text)); toast("Скопировано", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+  closeModal("mReact");
+};
+
+window.chatSearch = () => {
+  const q = normName(prompt("Поиск в этом чате:") || "");
+  closeModal("mChatMenu");
+  [...$("msgs").children].forEach(div => {
+    const hit = !q || normName(div.textContent).includes(q);
+    div.style.display = hit ? "" : "none";
+    div.classList.toggle("hlMatch", !!q && hit);
+  });
+  if (q) toast(`Показаны сообщения с «${q}». Откройте чат заново, чтобы сбросить`, true);
+};
+
+window.toggleMute = () => {
+  if (!activeChat) return;
+  const k = "mute_" + activeChat;
+  if (isMuted(activeChat)) { localStorage.removeItem(k); toast("Чат снова активен", true); }
+  else { localStorage.setItem(k, "1"); toast("Чат заглушен 🔕", true); }
+  closeModal("mChatMenu");
+  renderChats();
+};
+
+window.clearChatLocal = () => {
+  if (!chatBase || !confirm("Скрыть историю этого чата только у вас?")) return;
+  localStorage.setItem("cleared_" + chatBase, String(Date.now()));
+  $("msgs").innerHTML = "";
+  msgEls = {};
+  closeModal("mChatMenu");
+  toast("История скрыта у вас", true);
+};
+
+window.exportMyData = () => {
+  if (!profile) return;
+  const { password, devices, ...rest } = profile;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(rest, null, 2)], { type: "application/json" }));
+  a.download = `nexus-${me.name}.json`;
+  a.click();
+};
+
+$("btnChatMenu").onclick = () => { if (activeChat) openModal("mChatMenu"); };
+
+/* --- Premium --- */
+window.exportChat = async () => {
+  if (!isPrem()) return toast("Экспорт доступен в Premium");
+  if (!chatBase) return;
+  const s = await get(ref(db, chatBase));
+  const lines = [];
+  s.forEach(c => {
+    const m = c.val();
+    if (!m || m.burn) return;
+    const txt = m.type && m.type !== "text" ? `[${m.type}]` : m.text;
+    lines.push(`[${new Date(m.time).toLocaleString("ru-RU")}] ${m.from}: ${txt}`);
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" }));
+  a.download = `chat-${activeChat}.txt`;
+  a.click();
+  closeModal("mChatMenu");
+};
+
+/* --- Онлайн / присутствие --- */
+function setPresence() {
+  startNotifyWatch();
+  setTimeout(openFromHash, 600);
+  const pRef = ref(db, "presence/" + me.name);
+  onValue(ref(db, ".info/connected"), async s => {
+    if (s.val() !== true) return;
+    onDisconnect(pRef).remove();
+    const d = (await get(userRef(me.name))).val() || {};
+    if (d.premium && d.hideOnline) return;
+    set(pRef, { t: Date.now() }).catch(() => {});
+  });
+}
+
+/* --- Админ: статистика, жалобы, журнал --- */
+async function logAdmin(text) {
+  try { await push(ref(db, "adminLog"), { by: me.name, t: text, time: Date.now() }); } catch (e) {}
+}
+
+async function loadAdminStats() {
+  if (!me || me.role !== "ADMIN") return;
+  const [users, posts, reps, pres] = await Promise.all([
+    get(ref(db, "users")), get(ref(db, "posts")), get(ref(db, "reports")), get(ref(db, "presence"))
+  ]);
+  const repsV = reps.val() || {};
+  $("stUsers").textContent = Object.keys(users.val() || {}).length;
+  $("stOnline").textContent = Object.keys(pres.val() || {}).length;
+  $("stPosts").textContent = Object.keys(posts.val() || {}).length;
+  $("stReports").textContent = Object.values(repsV).filter(r => r.status === "open").length;
+  renderReports(repsV);
+}
+
+function renderReports(all) {
+  const list = Object.entries(all || {})
+    .filter(([, r]) => r.status === "open")
+    .sort((a, b) => b[1].time - a[1].time)
+    .slice(0, 30);
+  $("repList").innerHTML = list.length ? list.map(([id, r]) => `
+    <div class="repRow">
+      <b>${esc(r.from)}</b> → <b>${esc(r.target)}</b>
+      <div style="margin-top:4px">${esc(r.reason)}</div>
+      ${r.quote ? `<div class="sub" style="white-space:normal">«${esc(r.quote)}»</div>` : ""}
+      <div class="logTime">${new Date(r.time).toLocaleString("ru-RU")}</div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn alt" style="margin:0;padding:6px;font-size:12px" onclick="closeReport('${id}')">Закрыть</button>
+        <button class="btn danger" style="margin:0;padding:6px;font-size:12px" onclick="banFromReport('${encArg(r.target)}','${id}')">Бан цели</button>
+      </div>
+    </div>`).join("") : "Открытых жалоб нет";
+}
+
+window.closeReport = async id => {
+  await update(ref(db, "reports/" + id), { status: "closed" });
+  logAdmin("закрыта жалоба " + id);
+  loadAdminStats();
+};
+
+window.banFromReport = async (encT, id) => {
+  const t = decodeURIComponent(encT);
+  if (!confirm(`Забанить ${t} и закрыть жалобу?`)) return;
+  await update(userRef(t), { banned: true });
+  await update(ref(db, "reports/" + id), { status: "closed", action: "ban" });
+  logAdmin(`бан по жалобе → ${t}`);
+  loadAdminStats();
+};
+
+window.loadAdminLog = async () => {
+  const s = await get(ref(db, "adminLog"));
+  const entries = Object.values(s.val() || {}).sort((a, b) => b.time - a.time).slice(0, 50);
+  $("adminLogBox").innerHTML = entries.length
+    ? entries.map(e => `<div class="logRow">${esc(e.by)}: ${esc(e.t)}<div class="logTime">${new Date(e.time).toLocaleString("ru-RU")}</div></div>`).join("")
+    : "Журнал пуст";
+};
+
+window.postAnnouncement = async () => {
+  const t = $("annText").value.trim().slice(0, 200);
+  if (!t) return toast("Введите текст");
+  await set(ref(db, "announcements/current"), { text: t, time: Date.now(), by: me.name });
+  logAdmin("объявление: " + t.slice(0, 60));
+  $("annText").value = "";
+  toast("Объявление опубликовано", true);
+};
+
+window.clearAnnouncement = async () => {
+  await remove(ref(db, "announcements/current"));
+  logAdmin("объявление снято");
+  toast("Объявление снято", true);
+};
+
+onValue(ref(db, "announcements/current"), s => {
+  const a = s.val();
+  const box = $("annBanner");
+  if (!box) return;
+  box.classList.toggle("hidden", !a);
+  if (a) box.textContent = "📣 " + a.text;
+});
+
+window.showUserCard = async () => {
+  const n = normName($("cardUser").value);
+  if (!n) return toast("Введите ник");
+  const s = await get(userRef(n));
+  if (!s.exists()) return toast("Пользователь не найден");
+  const d = s.val();
+  $("userCard").innerHTML =
+    `<b>${esc(n)}</b><br>Coin: ${d.balance || 0} · NEX: ${d.nex || 0}<br>` +
+    `Premium: ${d.premium ? "да" : "нет"} · Галочка: ${d.verified ? "да" : "нет"}<br>` +
+    `Роль: ${esc(d.role || "USER")} · Бан: ${d.banned ? "да" : "нет"} · Заморозка: ${d.frozen ? "да" : "нет"}<br>` +
+    `Подарков: ${toArr(d.gifts).length} · NFT: ${toArr(d.nfts).length} · Подписчиков: ${Object.keys(d.followers || {}).length}<br>` +
+    `Создан: ${d.createdAt ? new Date(d.createdAt).toLocaleDateString("ru-RU") : "—"}`;
+};
+
+window.resetUserPassword = async () => {
+  const n = normName($("cardUser").value);
+  if (!n) return toast("Введите ник");
+  const s = await get(userRef(n));
+  if (!s.exists()) return toast("Пользователь не найден");
+  if (!confirm(`Сбросить пароль пользователю ${n}?`)) return;
+  const temp = Math.random().toString(36).slice(2, 10);
+  await update(userRef(n), { password: temp });
+  logAdmin("сброс пароля → " + n);
+  alert(`Временный пароль для ${n}: ${temp}\nПередайте его пользователю.`);
+};
+
+window.exportUsersCsv = async () => {
+  const s = await get(ref(db, "users"));
+  const rows = [["nick", "balance", "nex", "premium", "verified", "banned", "frozen", "role", "createdAt"]];
+  Object.entries(s.val() || {}).forEach(([n, d]) => rows.push([
+    n, d.balance || 0, d.nex || 0, !!d.premium, !!d.verified, !!d.banned, !!d.frozen,
+    d.role || "USER", d.createdAt ? new Date(d.createdAt).toISOString() : ""
+  ]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+  a.download = "users.csv";
+  a.click();
+  logAdmin("экспорт пользователей CSV");
+};
+
+/* ===================== v3: ещё функции ===================== */
+const UI_KEYS = { uiNoAnim: "ui_noAnim", uiCompact: "ui_compact", uiNoPreview: "ui_noPreview", uiBlurPhoto: "ui_blurPhoto", uiNotify: "ui_notify", uiSound: "ui_sound" };
+const uiOn = k => localStorage.getItem(k) === "1";
+
+function applyUI() {
+  const b = document.body;
+  b.classList.toggle("noanim", uiOn("ui_noAnim"));
+  b.classList.toggle("compact", uiOn("ui_compact"));
+  b.classList.toggle("nopreview", uiOn("ui_noPreview"));
+  b.classList.toggle("blurPhotos", uiOn("ui_blurPhoto"));
+  const font = localStorage.getItem("ui_font") || "md";
+  b.classList.toggle("fsSm", font === "sm");
+  b.classList.toggle("fsLg", font === "lg");
+}
+function fillUI() {
+  for (const [id, k] of Object.entries(UI_KEYS)) $(id).checked = uiOn(k);
+  $("uiFont").value = localStorage.getItem("ui_font") || "md";
+}
+window.uiSave = async () => {
+  for (const [id, k] of Object.entries(UI_KEYS)) localStorage.setItem(k, $(id).checked ? "1" : "0");
+  localStorage.setItem("ui_font", $("uiFont").value);
+  if ($("uiNotify").checked && "Notification" in window && Notification.permission === "default") await Notification.requestPermission();
+  applyUI();
+  toast("Настройки сохранены", true);
+};
+const _openSettings = window.openSettings;
+window.openSettings = () => { _openSettings(); fillUI(); };
+applyUI();
+if (!localStorage.getItem("theme") && window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches) {
+  document.documentElement.dataset.theme = "light";
+}
+
+/* PIN на устройстве (локальная блокировка, не криптозащита) */
+window.setPin = () => {
+  const p = prompt("Придумайте PIN (4–6 цифр):");
+  if (!p) return;
+  if (!/^\d{4,6}$/.test(p)) return toast("PIN: 4–6 цифр");
+  localStorage.setItem("pin", btoa(p));
+  $("uiStatus").textContent = "PIN установлен на этом устройстве";
+};
+window.removePin = () => {
+  const p = prompt("Текущий PIN:");
+  if (p === null) return;
+  if (localStorage.getItem("pin") !== btoa(p)) return toast("Неверный PIN");
+  localStorage.removeItem("pin");
+  $("uiStatus").textContent = "PIN снят";
+};
+function checkPin() {
+  const saved = localStorage.getItem("pin");
+  if (!saved) return;
+  for (let i = 0; i < 3; i++) {
+    const p = prompt("Введите PIN-код:");
+    if (p !== null && btoa(p) === saved) return;
+  }
+  document.body.innerHTML = `<p style="color:#fff;padding:30px">Доступ закрыт. Обновите страницу.</p>`;
+}
+checkPin();
+
+/* Уведомления и звук */
+let lastChatsSig = null;
+function startNotifyWatch() {
+  onValue(ref(db, "users/" + me.name + "/chats"), s => {
+    const list = toArr(s.val());
+    const sig = {};
+    list.forEach(c => { sig[c.name] = (c.last || "") + "|" + (c.time || 0); });
+    if (lastChatsSig) {
+      list.forEach(c => {
+        if (!c.last || lastChatsSig[c.name] === sig[c.name]) return;
+        if (c.name === activeChat || isMuted(c.name)) return;
+        if (Date.now() - (window._lastSend || 0) < 3000) return;
+        notifyNew(c.name, c.last);
+      });
+    }
+    lastChatsSig = sig;
+  });
+}
+function notifyNew(name, text) {
+  if (uiOn("ui_sound")) beep();
+  if (uiOn("ui_notify") && "Notification" in window && Notification.permission === "granted" && document.hidden) {
+    new Notification(`Nexus: ${name.replace("GROUP_", "")}`, { body: text || "Новое сообщение" });
+  }
+}
+function beep() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ac = new AC();
+    const o = ac.createOscillator();
+    o.frequency.value = 880;
+    o.connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime + 0.15);
+  } catch (e) {}
+}
+
+/* Черновики, длина, открытие чата */
+$("msgInput").maxLength = 4000;
+$("msgInput").addEventListener("input", () => { if (activeChat) localStorage.setItem("draft_" + activeChat, $("msgInput").value); });
+$("sendBtn").addEventListener("click", () => { if (activeChat) localStorage.removeItem("draft_" + activeChat); });
+const _openChat = window.openChat;
+window.openChat = async target => {
+  await _openChat(target);
+  $("msgInput").value = localStorage.getItem("draft_" + target) || "";
+  $("msgs").style.background = localStorage.getItem("chatbg_" + target) || "";
+  const note = localStorage.getItem("note_" + target);
+  if (note) toast("📝 " + note, true);
+};
+window.openChatEnc = e => window.openChat(decodeURIComponent(e));
+
+window.editNote = () => {
+  if (!activeChat) return;
+  const k = "note_" + activeChat;
+  const v = prompt("Личная заметка (видна только вам):", localStorage.getItem(k) || "");
+  if (v === null) return;
+  if (v.trim()) localStorage.setItem(k, v.trim().slice(0, 300)); else localStorage.removeItem(k);
+  closeModal("mChatMenu");
+  toast("Заметка сохранена", true);
+};
+window.setChatBg = () => {
+  if (!activeChat) return;
+  const v = (prompt("Цвет фона чата, например #1e2c3a. Пусто — сбросить:") || "").trim();
+  if (v && !/^#[0-9a-f]{6}$/i.test(v)) return toast("Нужен формат #rrggbb");
+  if (v) localStorage.setItem("chatbg_" + activeChat, v); else localStorage.removeItem("chatbg_" + activeChat);
+  $("msgs").style.background = v || "";
+  closeModal("mChatMenu");
+};
+window.copyNick = async () => {
+  if (!activeChat) return;
+  try { await navigator.clipboard.writeText(activeChat); toast("Ник скопирован", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+  closeModal("mChatMenu");
+};
+function clearLocalData() {
+  if (!confirm("Удалить черновики, заметки и цвета фонов чатов на этом устройстве?")) return;
+  Object.keys(localStorage).forEach(k => { if (/^(draft_|note_|chatbg_)/.test(k)) localStorage.removeItem(k); });
+  toast("Очищено", true);
+}
+window.clearLocalData = clearLocalData;
+
+/* Пересылка сообщения */
+const _openReact = window.openReact;
+window.openReact = key => {
+  _openReact(key);
+  const m = msgData[key];
+  if (m && (!m.type || m.type === "text")) {
+    $("msgActs").insertAdjacentHTML("afterbegin", `<button class="btn alt menuBtn" onclick="forwardMsg('${key}')">↪️ Переслать в другой чат</button>`);
+  }
+};
+window.forwardMsg = async key => {
+  const m = msgData[key]; if (!m) return;
+  const to = normName(prompt("Ник получателя:") || "");
+  if (!to) return;
+  if (!exists(await getUser(to, true))) return toast("Пользователь не найден");
+  await sendTo(to, `↪ ${m.from}: ${m.text}`);
+  closeModal("mReact");
+  toast("Переслано", true);
+};
+
+/* Список непрочитанных и отметка */
+function showUnread() {
+  const list = toArr(profile.chats).filter(c => Number(c.time || 0) > lastRead(c.name));
+  $("listTitle").textContent = "Непрочитанные";
+  $("listBox").innerHTML = list.length
+    ? list.map(c => `<div class="row" onclick="closeModal('mList');openChatEnc('${encArg(c.name)}')"><div class="grow"><b>${esc(c.name.replace("GROUP_", ""))}</b><div class="sub">${esc(c.last || "")}</div></div></div>`).join("")
+    : "Непрочитанных нет";
+  openModal("mList");
+}
+function readAll() {
+  toArr(profile.chats).forEach(c => markRead(c.name));
+  toast("Все чаты отмечены прочитанными", true);
+}
+$("btnUnreadList").onclick = showUnread;
+$("btnReadAll").onclick = readAll;
+
+/* Профиль: ссылка, подписки, статистика */
+window.copyMyLink = async () => {
+  if (!me) return;
+  const url = `${location.origin}${location.pathname}#u=${encodeURIComponent(me.name)}`;
+  try { await navigator.clipboard.writeText(url); toast("Ссылка скопирована", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+};
+function openFromHash() {
+  const m = location.hash.match(/#u=(.+)$/);
+  if (m && me) openProfile(decodeURIComponent(m[1]));
+}
+window.showFollowList = async type => {
+  const data = await getUser(me.name, true);
+  const names = Object.keys(data[type] || {});
+  $("listTitle").textContent = type === "following" ? "Мои подписки" : "Мои подписчики";
+  $("listBox").innerHTML = names.length
+    ? names.map(n => `<div class="row" onclick="closeModal('mList');openProfile(decodeURIComponent('${encArg(n)}'))"><div class="grow"><b>@${esc(n)}</b></div></div>`).join("")
+    : "Пусто";
+  openModal("mList");
+};
+window.showMyStats = async () => {
+  const s = await get(ref(db, "posts"));
+  let posts = 0, likes = 0;
+  Object.values(s.val() || {}).forEach(p => {
+    if (p.author === me.name) { posts++; likes += Object.keys(p.likes || {}).length; }
+  });
+  $("listTitle").textContent = "Мои посты";
+  $("listBox").innerHTML = `Публикаций: <b>${posts}</b><br>Лайков всего: <b>${likes}</b>`;
+  openModal("mList");
+};
+
+/* Лента: поиск, двойной тап, поделиться, скрыть автора */
+function filterFeed() {
+  const q = normName($("feedSearch").value);
+  document.querySelectorAll("#feedList > .card").forEach(c => {
+    const hidden = localStorage.getItem("hidden_author_" + c.dataset.author) === "1";
+    const miss = q && !normName(c.textContent).includes(q);
+    c.style.display = (hidden || miss) ? "none" : "";
+  });
+}
+function decorateFeed() {
+  document.querySelectorAll("#feedList > .card").forEach(card => {
+    if (card.dataset.dec) return;
+    const lb = card.querySelector('button[onclick^="likePost"]');
+    const m = lb && lb.getAttribute("onclick").match(/likePost\('([^']+)'\)/);
+    if (!m) return;
+    card.dataset.dec = "1";
+    card.dataset.author = (card.querySelector("div")?.textContent || "").trim().split(/\s/)[0].replace(/^@/, "");
+    card.insertAdjacentHTML("beforeend", `<div style="display:flex;gap:6px;margin-top:6px"><button class="btn alt" style="margin:0;padding:8px" onclick="sharePost('${m[1]}')">🔗 Поделиться</button><button class="btn alt" style="margin:0;padding:8px" onclick="hideAuthor(decodeURIComponent('${encArg(card.dataset.author)}'))">🙈 Скрыть автора</button></div>`);
+  });
+  filterFeed();
+}
+new MutationObserver(decorateFeed).observe($("feedList"), { childList: true });
+$("feedSearch").addEventListener("input", filterFeed);
+let lastTapEl = null, lastTapT = 0;
+$("feedList").addEventListener("click", e => {
+  const card = e.target.closest("#feedList > .card");
+  if (!card || e.target.closest("button")) return;
+  const now = Date.now();
+  if (lastTapEl === card && now - lastTapT < 350) {
+    card.querySelector("button.btn.alt")?.click();
+    lastTapEl = null;
+  } else { lastTapEl = card; lastTapT = now; }
+});
+window.sharePost = async id => {
+  const url = `${location.origin}${location.pathname}`;
+  if (navigator.share) { try { await navigator.share({ url, title: "Nexus" }); return; } catch (e) {} }
+  try { await navigator.clipboard.writeText(url); toast("Ссылка скопирована", true); }
+  catch (e) { toast("Не удалось поделиться"); }
+};
+window.hideAuthor = n => {
+  localStorage.setItem("hidden_author_" + n, "1");
+  filterFeed();
+  toast(`Посты @${n} скрыты у вас`, true);
+};
+
+/* Пароль и ник при регистрации */
+$("newPassInput").addEventListener("input", () => {
+  const p = $("newPassInput").value;
+  let s = 0;
+  if (p.length >= 8) s++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+  if (/\d/.test(p)) s++;
+  if (/[^A-Za-z0-9]/.test(p)) s++;
+  $("passStrength").textContent = p ? ["Очень слабый", "Слабый", "Средний", "Сильный", "Очень сильный"][s] : "";
+});
+let nickTimer;
+$("authNick").addEventListener("input", () => {
+  clearTimeout(nickTimer);
+  const n = normName($("authNick").value);
+  if (n.length < 3) { $("nickHint").textContent = ""; return; }
+  nickTimer = setTimeout(async () => {
+    const s = await get(userRef(n));
+    $("nickHint").textContent = s.exists() ? "Ник занят" : "Ник свободен ✔";
+  }, 400);
+});
+
+window.loadAdminStats = loadAdminStats;
 
 pxInitUI();
 </script>
