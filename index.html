@@ -212,6 +212,21 @@ body.g-gray #app{filter:grayscale(1)}
 body.g-dimwall #chatWallpaper{opacity:0!important}
 #feedList > .card[data-v6hide]{display:none!important}
 body.v7-gold{--accent:#ffb703;--own:#b8860b}
+body.z-boldmsg .msg{font-weight:600}
+body.z-gradcards .card{background:linear-gradient(135deg,var(--panel),#1e2c3a)}
+body.z-darkcards .card{background:#0c1219}
+body.z-thinbtn .btn{border:1px solid rgba(255,255,255,.2)}
+body.z-noshadow .msg{box-shadow:none!important}
+body.z-square .btn{border-radius:4px}
+body.z-centermsg .msgs{align-items:center}
+body.z-bignav nav .ic{font-size:28px}
+body.z-spacious main{padding:22px!important}
+body.z-bigemoji .msg{font-size:17px}
+body.z-hidegifts .msg.giftmsg{display:none}
+body.z-compactbub .msg{padding:6px 10px}
+body.z-hidereacts .reacts{display:none}
+.z-date{text-align:center;font-size:12px;color:var(--muted);margin:8px 0}
+#feedList > .card[data-zhide]{display:none!important}
 body.v7-frame .msg.out{outline:2px solid var(--gold)}
 body.f-mention .msg.mention{box-shadow:0 0 0 2px var(--mention,var(--gold))}
 </style>
@@ -3342,6 +3357,727 @@ setInterval(() => {
   document.body.classList.remove("v7-gold", "v7-frame");
   document.documentElement.style.removeProperty("--mention");
 }, 10000);
+
+/* ===================== v8: языки (150) ===================== */
+const LANGS = [
+  ["ru","Русский"],["en","English"],["uk","Українська"],["be","Беларуская"],["kk","Қазақша"],["de","Deutsch"],["fr","Français"],["es","Español"],["tr","Türkçe"],["zh","中文"],
+  ["ar","العربية"],["hi","हिन्दी"],["bn","বাংলা"],["pt","Português"],["it","Italiano"],["nl","Nederlands"],["pl","Polski"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],
+  ["ro","Română"],["bg","Български"],["sr","Српски"],["hr","Hrvatski"],["sl","Slovenščina"],["el","Ελληνικά"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["no","Norsk"],
+  ["et","Eesti"],["lv","Latviešu"],["lt","Lietuvių"],["ka","ქართული"],["hy","Հայերեն"],["az","Azərbaycan"],["uz","O‘zbekcha"],["tg","Тоҷикӣ"],["ky","Кыргызча"],["tk","Türkmençe"],
+  ["mn","Монгол"],["ja","日本語"],["ko","한국어"],["vi","Tiếng Việt"],["th","ไทย"],["id","Bahasa Indonesia"],["ms","Bahasa Melayu"],["tl","Filipino"],["fa","فارسی"],["ur","اردو"],
+  ["he","עברית"],["ps","پښتو"],["ku","Kurdî"],["sw","Kiswahili"],["am","አማርኛ"],["ha","Hausa"],["yo","Yorùbá"],["ig","Igbo"],["zu","isiZulu"],["xh","isiXhosa"],
+  ["af","Afrikaans"],["so","Soomaali"],["mg","Malagasy"],["rw","Ikinyarwanda"],["ny","Chichewa"],["sn","chiShona"],["ln","Lingála"],["wo","Wolof"],["ti","ትግርኛ"],["om","Afaan Oromoo"],
+  ["ne","नेपाली"],["si","සිංහල"],["my","မြန်မာ"],["km","ខ្មែរ"],["lo","ລາວ"],["jv","Basa Jawa"],["su","Basa Sunda"],["ceb","Cebuano"],["mi","Te Reo Māori"],["haw","ʻŌlelo Hawaiʻi"],
+  ["sm","Gagana Samoa"],["to","Lea Faka-Tonga"],["fj","Vosa Vakaviti"],["ht","Kreyòl ayisyen"],["qu","Runasimi"],["gn","Avañeʼẽ"],["ay","Aymar aru"],["lb","Lëtzebuergesch"],["ga","Gaeilge"],["cy","Cymraeg"],
+  ["gd","Gàidhlig"],["is","Íslenska"],["mt","Malti"],["eu","Euskara"],["ca","Català"],["gl","Galego"],["oc","Occitan"],["co","Corsu"],["fy","Frysk"],["eo","Esperanto"],
+  ["la","Latina"],["yi","ייִדיש"],["sq","Shqip"],["mk","Македонски"],["bs","Bosanski"],["tt","Татарча"],["ba","Башҡортса"],["cv","Чӑвашла"],["sah","Саха тыла"],["ug","ئۇيغۇرچە"],
+  ["bo","བོད་ཡིག"],["dz","རྫོང་ཁ"],["as","অসমীয়া"],["or","ଓଡ଼ିଆ"],["pa","ਪੰਜਾਬੀ"],["gu","ગુજરાતી"],["mr","मराठी"],["kn","ಕನ್ನಡ"],["ml","മലയാളം"],["ta","தமிழ்"],
+  ["te","తెలుగు"],["sd","سنڌي"],["ks","کٲشُر"],["mai","मैथिली"],["sa","संस्कृतम्"],["kok","कोंकणी"],["doi","डोगरी"],["brx","बड़ो"],["sat","ᱥᱟᱱᱛᱟᱲᱤ"],["ilo","Ilokano"],
+  ["war","Winaray"],["bcl","Bikol"],["hil","Hiligaynon"],["pam","Kapampangan"],["fo","Føroyskt"],["kl","Kalaallisut"],["se","Davvisámegiella"],["ff","Fulfulde"],["ee","Eʋegbe"],["tw","Twi"],
+  ["ak","Akan"],["bm","Bamanankan"],["rn","Ikirundi"],["lg","Luganda"],["nso","Sepedi"],["tn","Setswana"],["st","Sesotho"],["ve","Tshivenḓa"],["ts","Xitsonga"],["ss","siSwati"]
+];
+const I18N = {
+  en: {"Войти в аккаунт":"Log in","Создать аккаунт":"Create account","Далее":"Next","Пропустить":"Skip","Чаты":"Chats","Лента":"Feed","Магазин":"Shop","Профиль":"Profile","Админ":"Admin","Настройки":"Settings","Сменить тему":"Change theme","Выйти из аккаунта":"Log out","СОХРАНИТЬ ВСЁ":"SAVE ALL","Мой профиль":"My profile","Подписчики":"Followers","Подписки":"Following","Сменить пароль":"Change password","Настройки профиля":"Profile settings","Очистить мой журнал":"Clear my log","Ваш ник (3-20 символов)":"Your nickname (3-20 chars)","Пароль (минимум 6)":"Password (min. 6)","Сообщение...":"Message...","Поиск по нику или @каналу... 🔍":"Search by nickname or @channel... 🔍","Язык":"Language"},
+  uk: {"Войти в аккаунт":"Увійти в акаунт","Создать аккаунт":"Створити акаунт","Далее":"Далі","Пропустить":"Пропустити","Чаты":"Чати","Лента":"Стрічка","Магазин":"Магазин","Профиль":"Профіль","Админ":"Адмін","Настройки":"Налаштування","Сменить тему":"Змінити тему","Выйти из аккаунта":"Вийти з акаунта","СОХРАНИТЬ ВСЁ":"ЗБЕРЕГТИ ВСЕ","Мой профиль":"Мій профіль","Подписчики":"Підписники","Подписки":"Підписки","Сменить пароль":"Змінити пароль","Настройки профиля":"Налаштування профілю","Очистить мой журнал":"Очистити мій журнал","Ваш ник (3-20 символов)":"Ваш нік (3-20 символів)","Пароль (минимум 6)":"Пароль (мінімум 6)","Сообщение...":"Повідомлення...","Поиск по нику или @каналу... 🔍":"Пошук за ніком або @каналом... 🔍","Язык":"Мова"},
+  be: {"Войти в аккаунт":"Увайсці ў акаўнт","Создать аккаунт":"Стварыць акаўнт","Далее":"Далей","Пропустить":"Прапусціць","Чаты":"Чаты","Лента":"Стужка","Магазин":"Крама","Профиль":"Профіль","Админ":"Адмін","Настройки":"Налады","Сменить тему":"Змяніць тэму","Выйти из аккаунта":"Выйсці з акаўнта","СОХРАНИТЬ ВСЁ":"ЗАХАВАЦЬ УСЁ","Мой профиль":"Мой профіль","Подписчики":"Падпісчыкі","Подписки":"Падпіскі","Сменить пароль":"Змяніць пароль","Настройки профиля":"Налады профілю","Очистить мой журнал":"Ачысціць мой журнал","Ваш ник (3-20 символов)":"Ваш нік (3-20 знакаў)","Пароль (минимум 6)":"Пароль (мінімум 6)","Сообщение...":"Паведамленне...","Поиск по нику или @каналу... 🔍":"Пошук па нікнэйме або @канале... 🔍","Язык":"Мова"},
+  kk: {"Войти в аккаунт":"Аккаунтқа кіру","Создать аккаунт":"Аккаунт құру","Далее":"Келесі","Пропустить":"Өткізіп жіберу","Чаты":"Чаттар","Лента":"Лента","Магазин":"Дүкен","Профиль":"Профиль","Админ":"Әкімші","Настройки":"Баптаулар","Сменить тему":"Тақырыпты өзгерту","Выйти из аккаунта":"Аккаунттан шығу","СОХРАНИТЬ ВСЁ":"БАРЛЫҒЫН САҚТАУ","Мой профиль":"Менің профилім","Подписчики":"Жазылушылар","Подписки":"Жазылымдар","Сменить пароль":"Құпиясөзді өзгерту","Настройки профиля":"Профиль баптаулары","Очистить мой журнал":"Журналымды тазалау","Ваш ник (3-20 символов)":"Бүркеншік (3-20 таңба)","Пароль (минимум 6)":"Құпиясөз (кемінде 6)","Сообщение...":"Хабарлама...","Поиск по нику или @каналу... 🔍":"Бүркеншік немесе @арна бойынша іздеу... 🔍","Язык":"Тіл"},
+  de: {"Войти в аккаунт":"Anmelden","Создать аккаунт":"Konto erstellen","Далее":"Weiter","Пропустить":"Überspringen","Чаты":"Chats","Лента":"Feed","Магазин":"Shop","Профиль":"Profil","Админ":"Admin","Настройки":"Einstellungen","Сменить тему":"Design wechseln","Выйти из аккаунта":"Abmelden","СОХРАНИТЬ ВСЁ":"ALLES SPEICHERN","Мой профиль":"Mein Profil","Подписчики":"Follower","Подписки":"Gefolgt","Сменить пароль":"Passwort ändern","Настройки профиля":"Profileinstellungen","Очистить мой журнал":"Mein Protokoll leeren","Ваш ник (3-20 символов)":"Dein Nickname (3-20 Zeichen)","Пароль (минимум 6)":"Passwort (mind. 6)","Сообщение...":"Nachricht...","Поиск по нику или @каналу... 🔍":"Nach Nickname oder @Kanal suchen... 🔍","Язык":"Sprache"},
+  fr: {"Войти в аккаунт":"Se connecter","Создать аккаунт":"Créer un compte","Далее":"Suivant","Пропустить":"Passer","Чаты":"Discussions","Лента":"Fil","Магазин":"Boutique","Профиль":"Profil","Админ":"Admin","Настройки":"Paramètres","Сменить тему":"Changer de thème","Выйти из аккаунта":"Se déconnecter","СОХРАНИТЬ ВСЁ":"TOUT ENREGISTRER","Мой профиль":"Mon profil","Подписчики":"Abonnés","Подписки":"Abonnements","Сменить пароль":"Changer le mot de passe","Настройки профиля":"Paramètres du profil","Очистить мой журнал":"Vider mon journal","Ваш ник (3-20 символов)":"Pseudo (3-20 caractères)","Пароль (минимум 6)":"Mot de passe (min. 6)","Сообщение...":"Message...","Поиск по нику или @каналу... 🔍":"Rechercher par pseudo ou @canal... 🔍","Язык":"Langue"},
+  es: {"Войти в аккаунт":"Iniciar sesión","Создать аккаунт":"Crear cuenta","Далее":"Siguiente","Пропустить":"Omitir","Чаты":"Chats","Лента":"Feed","Магазин":"Tienda","Профиль":"Perfil","Админ":"Admin","Настройки":"Ajustes","Сменить тему":"Cambiar tema","Выйти из аккаунта":"Cerrar sesión","СОХРАНИТЬ ВСЁ":"GUARDAR TODO","Мой профиль":"Mi perfil","Подписчики":"Seguidores","Подписки":"Siguiendo","Сменить пароль":"Cambiar contraseña","Настройки профиля":"Ajustes de perfil","Очистить мой журнал":"Borrar mi registro","Ваш ник (3-20 символов)":"Tu apodo (3-20 caracteres)","Пароль (минимум 6)":"Contraseña (mín. 6)","Сообщение...":"Mensaje...","Поиск по нику или @каналу... 🔍":"Buscar por apodo o @canal... 🔍","Язык":"Idioma"},
+  tr: {"Войти в аккаунт":"Giriş yap","Создать аккаунт":"Hesap oluştur","Далее":"İleri","Пропустить":"Atla","Чаты":"Sohbetler","Лента":"Akış","Магазин":"Mağaza","Профиль":"Profil","Админ":"Yönetici","Настройки":"Ayarlar","Сменить тему":"Temayı değiştir","Выйти из аккаунта":"Çıkış yap","СОХРАНИТЬ ВСЁ":"HEPSİNİ KAYDET","Мой профиль":"Profilim","Подписчики":"Takipçiler","Подписки":"Takip edilen","Сменить пароль":"Şifreyi değiştir","Настройки профиля":"Profil ayarları","Очистить мой журнал":"Günlüğümü temizle","Ваш ник (3-20 символов)":"Takma adın (3-20 karakter)","Пароль (минимум 6)":"Şifre (en az 6)","Сообщение...":"Mesaj...","Поиск по нику или @каналу... 🔍":"Takma ad veya @kanal ara... 🔍","Язык":"Dil"},
+  zh: {"Войти в аккаунт":"登录账号","Создать аккаунт":"创建账号","Далее":"下一步","Пропустить":"跳过","Чаты":"聊天","Лента":"动态","Магазин":"商店","Профиль":"个人资料","Админ":"管理","Настройки":"设置","Сменить тему":"切换主题","Выйти из аккаунта":"退出账号","СОХРАНИТЬ ВСЁ":"全部保存","Мой профиль":"我的资料","Подписчики":"粉丝","Подписки":"关注","Сменить пароль":"修改密码","Настройки профиля":"资料设置","Очистить мой журнал":"清除我的日志","Ваш ник (3-20 символов)":"昵称（3-20个字符）","Пароль (минимум 6)":"密码（至少6位）","Сообщение...":"消息...","Поиск по нику или @каналу... 🔍":"按昵称或@频道搜索... 🔍","Язык":"语言"}
+};
+const LANG_LOCAL = () => localStorage.getItem("lang") || "ru";
+function trText(s) {
+  const code = LANG_LOCAL();
+  if (code === "ru") return s;
+  const d = I18N[code] || I18N.en;
+  const t = s.trim();
+  if (!t) return s;
+  const lead = s.match(/^\s*/)[0], trail = s.match(/\s*$/)[0];
+  if (d[t] !== undefined) return lead + d[t] + trail;
+  const m = t.match(/^([^\p{L}\p{N}]*)([\s\S]*?)([^\p{L}\p{N}]*)$/u);
+  if (m && m[2] && d[m[2]] !== undefined) return lead + m[1] + d[m[2]] + m[3] + trail;
+  return s;
+}
+const DYN = "#msgs,#chatList,#feedList,#shopGrid,#invGrid,#pxList,#listBox,#repList,#userCard,#adminLogBox,#statBox,#deviceList,#stkList,#pickStk,#chatGiftsGrid,#pickGrid,#nftViewBox,#tipBox";
+function applyLang() {
+  const root = document.getElementById("app");
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => {
+    if (!n.parentElement || n.parentElement.closest(DYN)) return;
+    if (n.__ru === undefined) n.__ru = n.nodeValue;
+    const v = trText(n.__ru);
+    if (n.nodeValue !== v) n.nodeValue = v;
+  });
+  root.querySelectorAll("[placeholder]").forEach(el => {
+    if (el.closest(DYN)) return;
+    if (el.__ruP === undefined) el.__ruP = el.placeholder;
+    el.placeholder = trText(el.__ruP);
+  });
+}
+function setLang(code) {
+  localStorage.setItem("lang", code);
+  localStorage.setItem("lang_explicit", "1");
+  document.documentElement.lang = code;
+  applyLang();
+  ["langAuth", "langSet"].forEach(id => { const el = $(id); if (el) el.value = code; });
+  if (me && profile) update(userRef(me.name), { lang: code }).catch(() => {});
+}
+window.setLang = setLang;
+
+/* Выбор языка на экране входа и в настройках */
+const langOptions = () => LANGS.map(([c, n]) => `<option value="${c}">${n}</option>`).join("");
+$("btnLogin").insertAdjacentHTML("beforebegin",
+  `<div class="sub" style="margin-bottom:6px">🌐 Язык</div><select id="langAuth" style="margin-bottom:14px">${langOptions()}</select>`);
+$("vSettings").querySelector("main > div").insertAdjacentHTML("afterbegin",
+  `<div class="card"><h3 style="margin-bottom:10px">🌐 Язык</h3><select id="langSet">${langOptions()}</select></div>`);
+["langAuth", "langSet"].forEach(id => $(id).addEventListener("change", e => setLang(e.target.value)));
+
+/* Язык аккаунта: если на устройстве язык не выбирали вручную, берём язык из профиля */
+let langChecked = false;
+setInterval(() => {
+  if (!profile || langChecked) return;
+  langChecked = true;
+  if (localStorage.getItem("lang_explicit") !== "1" && profile.lang && profile.lang !== LANG_LOCAL()) setLang(profile.lang);
+  else if (localStorage.getItem("lang_explicit") === "1" && profile.lang !== LANG_LOCAL()) update(userRef(me.name), { lang: LANG_LOCAL() }).catch(() => {});
+}, 1000);
+
+/* Перевод появляющихся экранов */
+document.addEventListener("click", () => setTimeout(applyLang, 80), true);
+document.documentElement.lang = LANG_LOCAL();
+["langAuth", "langSet"].forEach(id => { const el = $(id); if (el) el.value = LANG_LOCAL(); });
+applyLang();
+
+/* ===================== v9: 40 функций для всех ===================== */
+/* 1–23: переключатели */
+const Z_TOGGLES = [
+  ["boldmsg", "Жирный текст сообщений"], ["gradcards", "Градиентные карточки"], ["darkcards", "Тёмные карточки"],
+  ["thinbtn", "Тонкая рамка кнопок"], ["noshadow", "Без теней у сообщений"], ["square", "Квадратные кнопки"],
+  ["centermsg", "Сообщения по центру"], ["bignav", "Крупная навигация"], ["spacious", "Просторные отступы"],
+  ["bigemoji", "Крупные эмодзи в сообщениях"], ["datesep", "Разделители дат в чате"], ["blursend", "Скрывать клавиатуру после отправки"],
+  ["sortchats", "Сортировать чаты по имени"], ["hidegifts", "Скрывать подарки и стикеры в чате"], ["compactbub", "Компактные пузыри"],
+  ["hidereacts", "Скрывать реакции"], ["clicksound", "Звук при нажатии"], ["privblur", "Размывать экран при сворачивании"],
+  ["autoref", "Автообновление ленты (раз в 30 сек)"], ["clearlogout", "Очищать черновики и заметки при выходе"],
+  ["warnunload", "Предупреждать о несохранённом тексте"], ["hidelinks", "Скрывать посты со ссылками"], ["hidelong", "Скрывать длинные посты (от 300 символов)"]
+];
+const zOn = k => localStorage.getItem("z_" + k) === "1";
+function applyZ() { Z_TOGGLES.forEach(([k]) => document.body.classList.toggle("z-" + k, zOn(k))); }
+
+/* Лента: скрытие ссылок и длинных постов, счётчик, сортировка по автору */
+function applyZFeed() {
+  const cards = [...document.querySelectorAll("#feedList > .card")];
+  let visible = 0;
+  cards.forEach(c => {
+    const txt = c.textContent;
+    const hide = (zOn("hidelinks") && /https?:\/\//i.test(txt)) || (zOn("hidelong") && txt.length > 300);
+    if (hide) c.dataset.zhide = "1"; else delete c.dataset.zhide;
+    if (!hide) visible++;
+  });
+  if (localStorage.getItem("z_sortAuthor") === "1") {
+    const sorted = [...cards].sort((a, b) => (a.dataset.author || "").localeCompare(b.dataset.author || ""));
+    if (!sorted.every((c, i) => c === cards[i])) sorted.forEach(c => $("feedList").appendChild(c));
+  }
+  $("feedSearch").placeholder = `Видно постов: ${visible} · Поиск по подписям... 🔍`;
+}
+new MutationObserver(applyZFeed).observe($("feedList"), { childList: true });
+window.zToggleSortAuthor = () => {
+  localStorage.setItem("z_sortAuthor", localStorage.getItem("z_sortAuthor") === "1" ? "0" : "1");
+  applyZFeed();
+  toast("Сортировка ленты изменена", true);
+};
+window.renderFeed = renderFeed;
+$("feedSearch").insertAdjacentHTML("beforebegin",
+  `<button class="btn alt" style="margin:0 0 10px;padding:8px" onclick="renderFeed()">🔄 Обновить ленту</button>` +
+  `<button class="btn alt" style="margin:0 0 10px;padding:8px" onclick="zToggleSortAuthor()">🔤 Сортировать по автору</button>`);
+
+/* Чат: разделители дат, сортировка чатов, кнопки «наверх» и очистки поля */
+function applyDateSep(obs) {
+  if (obs) obs.disconnect();
+  document.querySelectorAll("#msgs .z-date").forEach(n => n.remove());
+  if (zOn("datesep")) {
+    let last = "";
+    [...$("msgs").children].forEach(node => {
+      const key = Object.keys(msgEls).find(k => msgEls[k] === node);
+      const m = key && msgData[key];
+      if (!m) return;
+      const d = new Date(m.time).toLocaleDateString("ru-RU");
+      if (d !== last) { const sep = document.createElement("div"); sep.className = "z-date"; sep.textContent = d; node.before(sep); last = d; }
+    });
+  }
+  if (obs) obs.observe($("msgs"), { childList: true });
+}
+const sepObs = new MutationObserver(() => applyDateSep(sepObs));
+sepObs.observe($("msgs"), { childList: true });
+
+const chatObs = new MutationObserver(() => {
+  if (!zOn("sortchats")) return;
+  chatObs.disconnect();
+  const list = $("chatList");
+  const rows = [...list.querySelectorAll(":scope > .row")];
+  const nm = r => (r.querySelector("div")?.textContent || "").trim().toLowerCase();
+  const sorted = [...rows].sort((a, b) => nm(a).localeCompare(nm(b)));
+  if (!sorted.every((r, i) => r === rows[i])) sorted.forEach(r => list.appendChild(r));
+  chatObs.observe(list, { childList: true });
+});
+chatObs.observe($("chatList"), { childList: true });
+
+const zTop = document.createElement("button");
+zTop.textContent = "⬆";
+zTop.style.cssText = "position:absolute;right:16px;bottom:130px;z-index:20;display:none;width:42px;height:42px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:18px;cursor:pointer";
+$("vChat").appendChild(zTop);
+$("msgsWrap").addEventListener("scroll", () => { zTop.style.display = $("msgsWrap").scrollTop > 300 ? "block" : "none"; });
+zTop.onclick = () => { $("msgsWrap").scrollTop = 0; };
+
+const clrBtn = document.createElement("button");
+clrBtn.textContent = "✕";
+clrBtn.style.cssText = "background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;width:auto;height:auto;border-radius:0";
+cntEl.insertAdjacentElement("afterend", clrBtn);
+clrBtn.onclick = () => { $("msgInput").value = ""; updCnt(); };
+
+$("sendBtn").addEventListener("click", () => { if (zOn("blursend")) setTimeout(() => $("msgInput").blur(), 0); });
+
+window.copyLastIn = async () => {
+  const last = [...$("msgs").children].filter(d => !d.classList.contains("out") && !d.classList.contains("z-date") && d.style.display !== "none").pop();
+  if (!last) return toast("Нет входящих сообщений");
+  try { await navigator.clipboard.writeText(last.innerText.split("\n")[0].trim()); toast("Скопировано", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+  closeModal("mChatMenu");
+};
+$("mChatMenu").querySelector(".modal-content").insertAdjacentHTML("beforeend",
+  `<button class="btn alt menuBtn" onclick="copyLastIn()">📥 Копировать последнее входящее</button>`);
+
+/* Устройство и сессия */
+const SESSION0 = Date.now();
+window.zTimer = () => toast(`В приложении ${Math.floor((Date.now() - SESSION0) / 60000)} мин.`, true);
+window.zCopyLink = async () => {
+  try { await navigator.clipboard.writeText(location.href); toast("Ссылка скопирована", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+};
+window.zShare = async () => {
+  if (navigator.share) { try { await navigator.share({ url: location.href, title: "Nexus" }); return; } catch (e) {} }
+  zCopyLink();
+};
+window.zExportChats = () => {
+  const names = toArr(profile && profile.chats).map(c => c.name.replace("GROUP_", ""));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([names.join("\n")], { type: "text/plain;charset=utf-8" }));
+  a.download = "nexus-chats.txt";
+  a.click();
+};
+window.zAbout = () => {
+  $("listTitle").textContent = "О приложении";
+  $("listBox").innerHTML = `Nexus Messenger Ultimate<br>Сборка: v9<br>Язык: ${esc(LANG_LOCAL())}<br><span class="sub">${esc(navigator.userAgent.slice(0, 90))}</span>`;
+  openModal("mList");
+};
+
+/* Игры */
+window.zGuess = () => {
+  const secret = Math.floor(Math.random() * 100) + 1;
+  let tries = 0;
+  const ask = () => {
+    const v = prompt(`Угадайте число от 1 до 100 (попытка ${tries + 1} из 7). Отмена — выход:`);
+    if (v === null) return;
+    tries++;
+    const n = Number(v);
+    if (n === secret) return toast(`Угадали за ${tries} попыток! 🎉`, true);
+    if (tries >= 7) return toast(`Не угадали. Было загадано ${secret}`);
+    toast(n > secret ? "Меньше" : "Больше", true);
+    setTimeout(ask, 300);
+  };
+  ask();
+};
+let ttt = Array(9).fill("");
+const TTT_WIN = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+const tttWinner = b => {
+  for (const [a, c, d] of TTT_WIN) if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+  return b.every(Boolean) ? "draw" : null;
+};
+function tttRender(msg) {
+  $("listTitle").textContent = "Крестики-нолики";
+  $("listBox").innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">` +
+    ttt.map((c, i) => `<button class="btn alt" style="margin:0;height:64px;font-size:28px" onclick="tttMove(${i})">${c || " "}</button>`).join("") +
+    `</div><div class="sub" style="margin:8px 0">${esc(msg)}</div><button class="btn" onclick="zTTT()">Новая игра</button>`;
+}
+window.zTTT = () => { ttt = Array(9).fill(""); tttRender("Ваш ход (❌)"); openModal("mList"); };
+window.tttMove = i => {
+  if (ttt[i] || tttWinner(ttt)) return;
+  ttt[i] = "❌";
+  let w = tttWinner(ttt);
+  if (!w) {
+    const free = ttt.map((c, j) => (c ? -1 : j)).filter(j => j >= 0);
+    ttt[free[Math.floor(Math.random() * free.length)]] = "⭕";
+    w = tttWinner(ttt);
+  }
+  tttRender(w ? (w === "draw" ? "Ничья" : w === "❌" ? "Вы выиграли!" : "Компьютер выиграл") : "Ваш ход (❌)");
+};
+const zClickerView = () => {
+  $("listTitle").textContent = "Кликер";
+  $("listBox").innerHTML = `<div style="font-size:28px;font-weight:800;text-align:center">${Number(localStorage.getItem("z_clicks") || 0)}</div>` +
+    `<button class="btn" style="height:90px;font-size:22px" onclick="zClick()">👆 Нажми</button>` +
+    `<button class="btn danger" onclick="zResetClicks()">Сбросить</button>`;
+};
+window.zClicker = () => { zClickerView(); openModal("mList"); };
+window.zClick = () => { localStorage.setItem("z_clicks", String(Number(localStorage.getItem("z_clicks") || 0) + 1)); zClickerView(); };
+window.zResetClicks = () => { localStorage.removeItem("z_clicks"); zClickerView(); };
+
+/* Случайные штуки */
+const ADJ = ["Swift", "Quiet", "Bold", "Bright", "Happy", "Kind", "Starry", "Smart"];
+const NOUN = ["Fox", "Cat", "Wolf", "Falcon", "Bear", "Dolphin", "Tiger", "Panda"];
+window.zNick = async () => {
+  const n = ADJ[Math.floor(Math.random() * ADJ.length)] + NOUN[Math.floor(Math.random() * NOUN.length)] + (1 + Math.floor(Math.random() * 999));
+  toast(`Идея для ника: ${n}`, true);
+  try { await navigator.clipboard.writeText(n); } catch (e) {}
+};
+window.zDice = () => toast(`🎲 Выпало: ${1 + Math.floor(Math.random() * 6)}`, true);
+
+/* Настройки: переключатели, автовыход, кнопки */
+function buildZ() {
+  const box = $("z9Card"); if (!box) return;
+  box.innerHTML = `<h3 style="margin-bottom:10px">🧪 Функции для всех</h3>` +
+    Z_TOGGLES.map(([k, l]) => `<label class="sub" style="display:flex;gap:8px;margin-bottom:7px"><input type="checkbox" data-z="${k}" ${zOn(k) ? "checked" : ""} style="width:auto;margin:0"> ${l}</label>`).join("") +
+    `<div class="sub" style="margin:8px 0">Автовыход при бездействии:</div>` +
+    `<select data-zauto><option value="0">Выкл</option><option value="15">15 мин</option><option value="30">30 мин</option><option value="60">60 мин</option></select>` +
+    `<button class="btn alt" onclick="zTimer()">⏱ Таймер сессии</button>` +
+    `<button class="btn alt" onclick="zShare()">📤 Поделиться приложением</button>` +
+    `<button class="btn alt" onclick="zCopyLink()">🔗 Копировать ссылку на приложение</button>` +
+    `<button class="btn alt" onclick="zExportChats()">📃 Экспорт списка чатов</button>` +
+    `<button class="btn alt" onclick="zAbout()">ℹ️ О приложении</button>` +
+    `<button class="btn alt" onclick="zGuess()">🎲 Угадай число</button>` +
+    `<button class="btn alt" onclick="zTTT()">❌ Крестики-нолики</button>` +
+    `<button class="btn alt" onclick="zClicker()">👆 Кликер</button>` +
+    `<button class="btn alt" onclick="zNick()">🎭 Сгенерировать ник</button>` +
+    `<button class="btn alt" onclick="zDice()">🎲 Бросить кубик</button>`;
+  box.querySelectorAll("[data-z]").forEach(cb => cb.onchange = () => {
+    localStorage.setItem("z_" + cb.dataset.z, cb.checked ? "1" : "0");
+    applyZ(); applyDateSep(); applyZFeed();
+  });
+  const sel = box.querySelector("[data-zauto]");
+  sel.value = localStorage.getItem("z_autoMin") || "0";
+  sel.onchange = () => localStorage.setItem("z_autoMin", sel.value);
+}
+$("v7Card").insertAdjacentHTML("beforebegin", '<div class="card" id="z9Card"></div>');
+
+/* Фоновые переключатели */
+document.addEventListener("click", () => { if (zOn("clicksound")) beep(); }, true);
+document.addEventListener("visibilitychange", () => {
+  $("app").style.filter = (zOn("privblur") && document.hidden) ? "blur(20px)" : "";
+});
+setInterval(() => {
+  if (zOn("autoref") && me && $("vFeed").classList.contains("active")) renderFeed();
+}, 30000);
+setInterval(() => {
+  const min = Number(localStorage.getItem("z_autoMin") || 0);
+  if (!min || !me) return;
+  if (Date.now() - lastAct > min * 60000) { lastAct = Date.now(); $("logoutBtn").click(); }
+}, 15000);
+let pendingClear = false;
+$("logoutBtn").addEventListener("click", () => { pendingClear = true; }, true);
+window.addEventListener("beforeunload", e => {
+  if (pendingClear && zOn("clearlogout")) Object.keys(localStorage).forEach(k => { if (/^(draft_|draftAt_|note_)/.test(k)) localStorage.removeItem(k); });
+  if (zOn("warnunload") && $("msgInput").value.trim()) { e.preventDefault(); e.returnValue = ""; }
+});
+
+applyZ();
+buildZ();
+applyZFeed();
+applyDateSep();
+
+/* ===================== v10: NEX-язык, боты и мини-игры ===================== */
+const NEX_STORE = { progs: "nex_progs", bots: "nex_bots", docs: "nex_docs", draft: "nex_draft" };
+const NEX_MAX_STEPS = 20000;
+const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const nexGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } };
+const nexPut = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+const NEX_TEMPLATES = {
+  "Привет, мир": "Nexus hello world",
+  "Угадай число": "NEX secret = rand 100\nask g \"Угадай число от 1 до 100\"\nif $g == $secret Nexus Угадал!\nif $g < $secret Nexus Больше\nif $g > $secret Nexus Меньше",
+  "Камень-ножницы-бумага": "NEX bot = rand 3\nask me \"1 камень, 2 бумага, 3 ножницы\"\nNEX d = $me - $bot\nNexus Бот выбрал $bot\nif $d == 0 Nexus Ничья\nif $d == 1 Nexus Вы победили\nif $d == -2 Nexus Вы победили\nif $d == -1 Nexus Бот победил\nif $d == 2 Nexus Бот победил",
+  "Калькулятор": "ask a \"Первое число\"\nask b \"Второе число\"\nNexus $a + $b",
+  "Обратный отсчёт": "NEX n = 3\nNexus $n\nNEX n = $n - 1\nNexus $n\nNEX n = $n - 1\nNexus $n\nNexus Пуск!",
+  "Случайное число": "NEX x = rand 6\nNexus Выпало: $x",
+  "Заметка": "Documents save заметка \"Привет из NEX\"\nDocuments read заметка"
+};
+const NEX_KEYS = Object.keys(NEX_TEMPLATES);
+
+/* Безопасный интерпретатор NEX: без eval, с лимитом шагов */
+function nexRun(src, opts = {}) {
+  const out = [];
+  const vars = Object.assign({}, opts.vars || {});
+  const docs = nexGet(NEX_STORE.docs, {});
+  let steps = 0;
+  const interp = s => s.replace(/\$(\w+)/g, (m, n) => (hasOwn(vars, n) ? String(vars[n]) : m));
+  const val = raw => {
+    const t = raw.trim();
+    if (/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
+    if (/^".*"$/.test(t)) return interp(t.slice(1, -1));
+    const r = t.match(/^rand\s+(\d+)$/);
+    if (r) return 1 + Math.floor(Math.random() * Number(r[1]));
+    if (t[0] === "$") {
+      const n = t.slice(1);
+      if (!hasOwn(vars, n)) throw new Error("нет переменной $" + n);
+      return vars[n];
+    }
+    throw new Error("не понимаю: " + t);
+  };
+  const expr = raw => {
+    const m = raw.trim().match(/^(.+?)\s*([+\-*\/])\s*(.+)$/);
+    if (!m) return val(raw);
+    const a = Number(val(m[1])), b = Number(val(m[3]));
+    if (m[2] === "+") return a + b;
+    if (m[2] === "-") return a - b;
+    if (m[2] === "*") return a * b;
+    if (b === 0) throw new Error("деление на ноль");
+    return a / b;
+  };
+  const exec = s => {
+    if (++steps > NEX_MAX_STEPS) throw new Error("слишком много шагов (защита от зависания)");
+    let m;
+    if ((m = s.match(/^(?:Nexus|print)(?:\s+(.*))?$/i))) {
+      if (out.length >= 1000) throw new Error("слишком большой вывод (больше 1000 строк)");
+      const r = (m[1] || "").trim();
+      if (!r) { out.push(""); return; }
+      if (r[0] === '"') { out.push(val(r)); return; }
+      try { out.push(String(expr(r))); } catch (e) { out.push(interp(r)); }
+      return;
+    }
+    if ((m = s.match(/^NEX\s+(\w+)\s*=\s*(.+)$/))) { vars[m[1]] = expr(m[2]); return; }
+    if ((m = s.match(/^ask\s+(\w+)\s+"(.*)"$/i))) {
+      if (!opts.ask) throw new Error("ввод здесь недоступен");
+      const a = opts.ask(interp(m[2]));
+      if (a === null || a === undefined) throw new Error("ввод отменён");
+      const t = String(a).trim();
+      vars[m[1]] = t !== "" && !isNaN(t) ? Number(t) : t;
+      return;
+    }
+    if ((m = s.match(/^Documents\s+(save|read|list|del)(?:\s+(\S+))?(?:\s+(.*))?$/i))) {
+      const cmd = m[1].toLowerCase(), name = m[2] || "";
+      if (cmd === "list") { out.push(Object.keys(docs).join(", ") || "(документов нет)"); return; }
+      if (!name) throw new Error("укажите имя документа");
+      if (cmd === "save") { docs[name] = interp((m[3] || "").replace(/^"|"$/g, "")); nexPut(NEX_STORE.docs, docs); return; }
+      if (cmd === "read") { out.push(hasOwn(docs, name) ? docs[name] : "(нет документа " + name + ")"); return; }
+      if (hasOwn(docs, name)) { delete docs[name]; nexPut(NEX_STORE.docs, docs); }
+      return;
+    }
+    if ((m = s.match(/^repeat\s+(\d+)\s+(.+)$/i))) {
+      const n = Number(m[1]);
+      if (n > 1000) throw new Error("repeat — не больше 1000");
+      for (let i = 0; i < n; i++) exec(m[2]);
+      return;
+    }
+    if ((m = s.match(/^if\s+(\S+)\s*(==|!=|<=|>=|<|>)\s*(\S+)\s+(.+)$/i))) {
+      const a = val(m[1]), b = val(m[3]);
+      const ok = { "==": a == b, "!=": a != b, "<": a < b, ">": a > b, "<=": a <= b, ">=": a >= b }[m[2]];
+      if (ok) exec(m[4]);
+      return;
+    }
+    throw new Error("неизвестная команда: " + s);
+  };
+  const parts = src.split(/\r?\n|;/);
+  let err = null;
+  for (let i = 0; i < parts.length; i++) {
+    let s = parts[i].trim();
+    if (!s || s.startsWith("#")) continue;
+    if (/^(Nexus|print)$/i.test(s) && i + 1 < parts.length) s += " " + parts[++i].trim();
+    try { exec(s); } catch (e) { err = { line: i + 1, msg: e.message }; break; }
+  }
+  return { out, vars, err, steps };
+}
+
+/* Боты: правила on «слово»: ответ, default, и необязательный NEX-код с $msg */
+function nexBotReply(bot, text) {
+  const low = text.toLowerCase();
+  let rep = null;
+  for (const r of (bot.rules || "").split("\n")) {
+    const m = r.match(/^\s*on\s+(.+?)\s*:\s*(.+)$/i);
+    if (m && low.includes(m[1].trim().toLowerCase())) { rep = m[2]; break; }
+  }
+  if (rep === null) {
+    const d = (bot.rules || "").split("\n").map(r => r.match(/^\s*default\s*:\s*(.+)$/i)).find(Boolean);
+    if (d) rep = d[1];
+  }
+  let answer = null;
+  if (rep !== null) {
+    const opts = rep.split("|").map(s => s.trim()).filter(Boolean);
+    answer = opts[Math.floor(Math.random() * opts.length)] || null;
+  }
+  if (bot.code && bot.code.trim()) {
+    const r = nexRun(bot.code, { vars: { msg: text } });
+    if (r.out.length) answer = r.out.join("\n");
+    if (r.err) answer = (answer ? answer + "\n" : "") + `[ошибка NEX, фрагмент ${r.err.line}: ${r.err.msg}]`;
+  }
+  return answer;
+}
+
+/* Интерфейс лаборатории */
+const NEX_BOT_RE = /^[\wа-яё-]{2,24}$/i;
+const nexBots = () => nexGet(NEX_STORE.bots, {});
+const nexCap = () => (profile && profile.premium ? 30 : 5);
+let nexTabName = "code", nexLastOut = "(нет вывода)";
+const nexLabEl = () => document.getElementById("nexLab");
+
+document.head.insertAdjacentHTML("beforeend", `<style>
+#nexLab{position:fixed;inset:0;z-index:9998;background:#0b1118;color:#e8eef5;overflow:auto;padding:14px;display:none}
+#nexLab textarea,#nexLab input,#nexLab select{width:100%;background:#131d28;color:#e8eef5;border:1px solid #2a3a4c;border-radius:10px;padding:8px;font-family:monospace;font-size:14px;margin:4px 0;box-sizing:border-box}
+#nexLab .nb{width:auto;margin:4px 4px 4px 0;padding:8px 12px;font-size:14px}
+#nexLab pre{background:#06090d;border-radius:10px;padding:10px;white-space:pre-wrap;min-height:60px;font-size:14px;color:#cfe3ff}
+#nexLab .sec{background:#131d28;border-radius:14px;padding:12px;margin-bottom:12px}
+</style>`);
+document.body.insertAdjacentHTML("beforeend", `<div id="nexLab">
+ <div class="sec"><b style="font-size:18px">🧪 NEX-лаборатория</b>
+  <button class="btn nb" style="float:right" onclick="nexClose()">✕ Закрыть</button>
+  <div style="clear:both;margin-top:8px"><button class="btn alt nb" onclick="nexTab('code')">💻 Код</button><button class="btn alt nb" onclick="nexTab('bots')">🤖 Боты</button><button class="btn alt nb" onclick="nexTab('help')">📖 Справка</button></div>
+ </div>
+ <div id="nexBody"></div></div>`);
+
+function nexProgOptions() {
+  return Object.keys(nexGet(NEX_STORE.progs, {})).map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+}
+function nexCodeHTML() {
+  return `<div class="sec">
+   <div>${NEX_KEYS.map((k, i) => `<button class="btn alt nb" onclick="nexTpl(${i})">${esc(k)}</button>`).join("")}</div>
+   <textarea id="nexSrc" rows="9" oninput="nexDraft();nexStatUpd()"></textarea>
+   <div id="nexStat" style="font-size:12px;opacity:.7;margin:6px 0"></div>
+   <button class="btn nb" onclick="nexRunCode()">▶ Запустить (Ctrl+Enter)</button>
+   <button class="btn alt nb" onclick="nexClearOut()">🧹 Очистить вывод</button>
+   <button class="btn alt nb" onclick="nexCopyOut()">📋 Копировать вывод</button>
+  </div>
+  <pre id="nexOut">(нет вывода)</pre>
+  <div class="sec">
+   <input id="nexName" placeholder="Имя программы">
+   <div><button class="btn nb" onclick="nexSaveProg()">💾 Сохранить</button><button class="btn alt nb" onclick="nexLoadProg()">📂 Загрузить</button><button class="btn danger nb" onclick="nexDelProg()">🗑 Удалить</button></div>
+   <select id="nexList">${nexProgOptions()}</select>
+   <div><button class="btn alt nb" onclick="nexExportProg()">📤 Экспорт .nex</button><label class="btn alt nb" style="display:inline-block">📥 Импорт .nex<input type="file" accept=".nex,.txt" onchange="nexImportFile(this)" style="display:none"></label></div>
+  </div>`;
+}
+function nexBotsHTML() {
+  const bots = nexBots(), names = Object.keys(bots);
+  const premium = !!(profile && profile.premium);
+  return `<div class="sec">Ботов: ${names.length} из ${nexCap()} (${premium ? "премиум" : "обычный аккаунт"})
+   <select id="nexBotList" onchange="nexBotLoad()"><option value="">— новый бот —</option>${names.map(n => `<option value="${esc(n)}">${esc(n)}${bots[n].on === false ? " (выкл.)" : ""}</option>`).join("")}</select>
+   <input id="nexBotName" placeholder="Имя, например nexus_bot">
+   <textarea id="nexBotRules" rows="5" placeholder="on привет: Привет! | Здравствуй!&#10;on пока: До встречи&#10;default: Не понял"></textarea>
+   <textarea id="nexBotCode" rows="3" placeholder="NEX-код бота (необязательно). Переменная $msg — текст сообщения, вывод станет ответом."></textarea>
+   <input id="nexBotGreet" placeholder="Приветствие (необязательно)">
+   <div><button class="btn nb" onclick="nexBotSave()">💾 Сохранить</button><button class="btn danger nb" onclick="nexBotDel()">🗑 Удалить</button><button class="btn alt nb" onclick="nexBotToggle()">⏯ Вкл/выкл</button></div>
+   <div><button class="btn alt nb" onclick="nexBotExport()">📤 Экспорт JSON</button><label class="btn alt nb" style="display:inline-block">📥 Импорт JSON<input type="file" accept=".json" onchange="nexBotImport(this)" style="display:none"></label></div>
+  </div>
+  <div class="sec"><pre id="nexChat">Выберите бота и напишите ему.</pre>
+   <input id="nexBotMsg" placeholder="Сообщение боту">
+   <button class="btn nb" onclick="nexBotSend()">Отправить</button>
+   <div id="nexBotStat" style="font-size:12px;opacity:.7"></div></div>`;
+}
+function nexHelpHTML() {
+  return `<div class="sec"><b>Язык NEX — шпаргалка</b><pre>Nexus текст              вывести текст (можно $переменные)
+Nexus;текст                то же самое, через ;
+NEX x = 5                  создать переменную
+NEX y = $x * 2             арифметика: + - * / (одна операция)
+rand 6                     случайное число 1–6
+ask имя "вопрос"           спросить у игрока
+if $x &gt; 3 Nexus Да         условие: == != &lt; &gt; &lt;= &gt;=
+repeat 3 Nexus Привет      повторить команду (до 1000 раз)
+Documents save имя "текст" сохранить заметку
+Documents read имя         прочитать заметку
+Documents list             список заметок
+Documents del имя          удалить заметку
+# комментарий             строки с # пропускаются</pre>
+   Лимит: 20 000 шагов на запуск. Код не выполняется как JavaScript: это собственный безопасный интерпретатор.</div>
+  <div class="sec"><b>Боты</b><pre>on привет: Привет! | Здравствуй!   ответ на слово «привет» (случайный из вариантов)
+on пока: До встречи                  ответ на «пока»
+default: Не понял                    если ничего не подошло
+NEX-код                              выполняется на каждое сообщение, $msg — текст</pre>
+   Боты работают в этой лаборатории (песочница). Добавить их как аккаунты в обычные чаты можно только с серверной частью.</div>`;
+}
+
+function nexRender() {
+  const b = document.getElementById("nexBody");
+  if (nexTabName === "code") {
+    b.innerHTML = nexCodeHTML();
+    document.getElementById("nexSrc").value = localStorage.getItem(NEX_STORE.draft) || "Nexus hello world";
+    document.getElementById("nexOut").textContent = nexLastOut;
+    nexStatUpd();
+  } else if (nexTabName === "bots") b.innerHTML = nexBotsHTML();
+  else b.innerHTML = nexHelpHTML();
+}
+function nexOpen() { nexLabEl().style.display = "block"; nexRender(); }
+function nexClose() { nexLabEl().style.display = "none"; }
+function nexTab(t) { nexTabName = t; nexRender(); }
+function nexDraft() { localStorage.setItem(NEX_STORE.draft, document.getElementById("nexSrc").value); }
+function nexStatUpd() {
+  const v = document.getElementById("nexSrc").value;
+  document.getElementById("nexStat").textContent = `Строк: ${v.split("\n").length} · Символов: ${v.length}`;
+}
+function nexTpl(i) {
+  document.getElementById("nexSrc").value = NEX_TEMPLATES[NEX_KEYS[i]];
+  nexDraft(); nexStatUpd();
+}
+function nexRunCode() {
+  const t0 = performance.now();
+  const r = nexRun(document.getElementById("nexSrc").value, { ask: q => prompt(q) });
+  const lines = [...r.out];
+  if (r.err) lines.push(`⚠ Ошибка во фрагменте ${r.err.line}: ${r.err.msg}`);
+  nexLastOut = lines.join("\n") || "(нет вывода)";
+  document.getElementById("nexOut").textContent = nexLastOut;
+  document.getElementById("nexStat").textContent = `Шагов: ${r.steps} · ${Math.round(performance.now() - t0)} мс · Переменных: ${Object.keys(r.vars).length}`;
+}
+function nexClearOut() { nexLastOut = "(нет вывода)"; document.getElementById("nexOut").textContent = nexLastOut; }
+async function nexCopyOut() {
+  try { await navigator.clipboard.writeText(nexLastOut); toast("Скопировано", true); }
+  catch (e) { toast("Не удалось скопировать"); }
+}
+function nexSaveProg() {
+  const name = document.getElementById("nexName").value.trim();
+  if (!name) return toast("Введите имя программы");
+  const p = nexGet(NEX_STORE.progs, {});
+  p[name] = document.getElementById("nexSrc").value;
+  nexPut(NEX_STORE.progs, p);
+  toast("Программа сохранена", true);
+  nexRender();
+}
+function nexLoadProg() {
+  const n = document.getElementById("nexList").value;
+  const p = nexGet(NEX_STORE.progs, {});
+  if (!hasOwn(p, n)) return toast("Нет такой программы");
+  document.getElementById("nexSrc").value = p[n];
+  nexDraft(); nexStatUpd();
+}
+function nexDelProg() {
+  const n = document.getElementById("nexList").value;
+  const p = nexGet(NEX_STORE.progs, {});
+  if (!hasOwn(p, n)) return toast("Нет такой программы");
+  delete p[n]; nexPut(NEX_STORE.progs, p);
+  toast("Программа удалена", true); nexRender();
+}
+function nexExportProg() {
+  const name = document.getElementById("nexName").value.trim() || "program";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([document.getElementById("nexSrc").value], { type: "text/plain;charset=utf-8" }));
+  a.download = name + ".nex";
+  a.click();
+}
+function nexImportFile(input) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    document.getElementById("nexSrc").value = String(rd.result);
+    document.getElementById("nexName").value = f.name.replace(/\.[^.]+$/, "");
+    nexDraft(); nexStatUpd();
+    toast("Файл загружен", true);
+  };
+  rd.readAsText(f);
+}
+
+function nexBotLoad() {
+  const n = document.getElementById("nexBotList").value;
+  const bots = nexBots();
+  const b = hasOwn(bots, n) ? bots[n] : { rules: "", code: "", greet: "", on: true, hits: 0 };
+  document.getElementById("nexBotName").value = n;
+  document.getElementById("nexBotRules").value = b.rules || "";
+  document.getElementById("nexBotCode").value = b.code || "";
+  document.getElementById("nexBotGreet").value = b.greet || "";
+  document.getElementById("nexChat").textContent = b.greet ? "Бот: " + b.greet : "Напишите боту.";
+  document.getElementById("nexBotStat").textContent = `Срабатываний: ${b.hits || 0} · ${b.on === false ? "выключен" : "включён"}`;
+}
+function nexBotSave() {
+  const name = document.getElementById("nexBotName").value.trim();
+  if (!NEX_BOT_RE.test(name)) return toast("Имя бота: 2–24 символа (буквы, цифры, _ и -)");
+  const bots = nexBots();
+  if (!hasOwn(bots, name) && Object.keys(bots).length >= nexCap()) return toast(`Лимит ботов: ${nexCap()}`);
+  const old = hasOwn(bots, name) ? bots[name] : {};
+  bots[name] = {
+    rules: document.getElementById("nexBotRules").value,
+    code: document.getElementById("nexBotCode").value,
+    greet: document.getElementById("nexBotGreet").value,
+    on: old.on !== false,
+    hits: old.hits || 0
+  };
+  nexPut(NEX_STORE.bots, bots);
+  toast("Бот сохранён", true);
+  nexTabName = "bots"; nexRender();
+  document.getElementById("nexBotList").value = name;
+  nexBotLoad();
+}
+function nexBotDel() {
+  const n = document.getElementById("nexBotList").value;
+  if (!n) return toast("Выберите бота");
+  const bots = nexBots(); delete bots[n]; nexPut(NEX_STORE.bots, bots);
+  toast("Бот удалён", true); nexRender();
+}
+function nexBotToggle() {
+  const n = document.getElementById("nexBotList").value;
+  const bots = nexBots();
+  if (!hasOwn(bots, n)) return toast("Сначала сохраните бота");
+  bots[n].on = bots[n].on === false; nexPut(NEX_STORE.bots, bots);
+  toast(bots[n].on ? "Бот включён" : "Бот выключен", true);
+  nexRender();
+  document.getElementById("nexBotList").value = n; nexBotLoad();
+}
+function nexBotExport() {
+  const n = document.getElementById("nexBotList").value;
+  const bots = nexBots();
+  if (!hasOwn(bots, n)) return toast("Выберите бота");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ name: n, ...bots[n] }, null, 2)], { type: "application/json" }));
+  a.download = n + ".nexbot.json";
+  a.click();
+}
+function nexBotImport(input) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(String(rd.result));
+      if (!d.name || !NEX_BOT_RE.test(d.name)) throw new Error("bad name");
+      const bots = nexBots();
+      bots[d.name] = { rules: String(d.rules || ""), code: String(d.code || ""), greet: String(d.greet || ""), on: d.on !== false, hits: 0 };
+      nexPut(NEX_STORE.bots, bots);
+      toast("Бот импортирован", true);
+      nexTabName = "bots"; nexRender();
+      document.getElementById("nexBotList").value = d.name;
+      nexBotLoad();
+    } catch (e) { toast("Не удалось импортировать бота"); }
+  };
+  rd.readAsText(f);
+}
+function nexBotSend() {
+  const n = document.getElementById("nexBotList").value;
+  const bots = nexBots();
+  if (!hasOwn(bots, n)) return toast("Выберите сохранённого бота");
+  const text = document.getElementById("nexBotMsg").value.trim();
+  if (!text) return;
+  const b = bots[n];
+  let line = "Вы: " + text;
+  if (b.on === false) line += "\n[бот выключен]";
+  else {
+    const reply = nexBotReply(b, text);
+    if (reply) { b.hits = (b.hits || 0) + 1; line += "\nБот: " + reply; }
+    else line += "\n(бот не ответил)";
+    nexPut(NEX_STORE.bots, bots);
+  }
+  const chat = document.getElementById("nexChat");
+  chat.textContent += "\n" + line;
+  chat.scrollTop = chat.scrollHeight;
+  document.getElementById("nexBotMsg").value = "";
+  document.getElementById("nexBotStat").textContent = `Срабатываний: ${b.hits || 0} · ${b.on === false ? "выключен" : "включён"}`;
+}
+
+Object.assign(window, {
+  nexOpen, nexClose, nexTab, nexDraft, nexStatUpd, nexTpl, nexRunCode, nexClearOut, nexCopyOut,
+  nexSaveProg, nexLoadProg, nexDelProg, nexExportProg, nexImportFile,
+  nexBotLoad, nexBotSave, nexBotDel, nexBotToggle, nexBotExport, nexBotImport, nexBotSend
+});
+
+/* Вход в лабораторию из Настроек и быстрый запуск Ctrl+Enter */
+$("z9Card").insertAdjacentHTML("beforeend", `<button class="btn" onclick="nexOpen()">🧪 NEX-лаборатория и боты</button>`);
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key === "Enter" && nexLabEl().style.display === "block" && nexTabName === "code") {
+    e.preventDefault(); nexRunCode();
+  }
+});
 
 pxInitUI();
 </script>
