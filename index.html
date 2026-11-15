@@ -211,6 +211,9 @@ body.g-nobadge .bIcon{display:none}
 body.g-gray #app{filter:grayscale(1)}
 body.g-dimwall #chatWallpaper{opacity:0!important}
 #feedList > .card[data-v6hide]{display:none!important}
+body.v7-gold{--accent:#ffb703;--own:#b8860b}
+body.v7-frame .msg.out{outline:2px solid var(--gold)}
+body.f-mention .msg.mention{box-shadow:0 0 0 2px var(--mention,var(--gold))}
 </style>
 </head>
 <body>
@@ -993,6 +996,9 @@ async function login(isAuto = false) {
 }
 
 async function register() {
+  try {
+    if ((await get(ref(db, "settings/registrationOpen"))).val() === false) return toast("Регистрация временно закрыта");
+  } catch (e) { /* если правила не дают прочитать настройку, регистрация остаётся открытой */ }
   const name = normName($("authNick").value), pass = $("authPass").value.trim();
   if (name.length < 3) return toast("Ник слишком короткий");
   if (pass.length < 5) return toast("Пароль минимум 5 символов");
@@ -2134,6 +2140,7 @@ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.
 const msgData = {};
 const isPrem = () => !!(profile && profile.premium);
 const isMuted = name => localStorage.getItem("mute_" + name) === "1";
+const isBlockedByMe = name => !!(profile && profile.blocked && profile.blocked[name]);
 const encArg = s => encodeURIComponent(String(s));
 
 /* --- Для всех --- */
@@ -3082,6 +3089,259 @@ applyGFlags();
 applyScale();
 buildV6();
 applyFeedFilters();
+
+/* ===================== v7: 10 Premium + 10 админ ===================== */
+const FREE_STARS = 50, FREE_QUICK = 5, FREE_REMIND_MIN = 60;
+const needPrem = () => { if (!isPrem()) { toast("Доступно в Premium 👑"); return false; } return true; };
+const csvDownload = (name, rows) => {
+  const csv = rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+  a.download = name; a.click();
+};
+
+/* ---- Premium (1–10) ---- */
+const MSG_PALETTES = [["Синий", "#2d7aff"], ["Фиолетовый", "#8e44ad"], ["Зелёный", "#2ed573"], ["Розовый", "#ff5fa2"], ["Оранжевый", "#ff7a1a"], ["Тёмный", "#2b3a4a"]];
+const BG_PRESETS = [["Закат", "linear-gradient(135deg,#ff512f,#dd2476)"], ["Океан", "linear-gradient(135deg,#2193b0,#6dd5ed)"], ["Ночь", "linear-gradient(135deg,#141E30,#243B55)"]];
+
+window.setMsgPalette = async hex => {                                  // 1
+  if (!needPrem()) return;
+  await update(userRef(me.name), { msgColor: hex });
+  toast("Цвет сообщений обновлён", true);
+};
+window.toggleGold = () => {                                            // 2
+  if (!needPrem()) return;
+  const on = !document.body.classList.contains("v7-gold");
+  document.body.classList.toggle("v7-gold", on);
+  localStorage.setItem("v7_gold", on ? "1" : "0");
+  buildV7();
+};
+const _starV6 = window.starMsg;
+window.starMsg = key => {                                              // 3 (лимит без Premium)
+  const s = stars();
+  if (!s[key] && !isPrem() && Object.keys(s).length >= FREE_STARS) return toast(`Лимит избранного без Premium: ${FREE_STARS}`);
+  _starV6(key);
+};
+window.remindChat = () => {                                            // 4 (до 24 ч в Premium)
+  const max = isPrem() ? 24 * 60 : FREE_REMIND_MIN;
+  const min = Number(prompt(`Напомнить через сколько минут? (максимум ${max})`, "10"));
+  if (!min || min <= 0) return;
+  if (min > max) return toast(`Максимум ${max} мин.` + (isPrem() ? "" : " Больше — в Premium"));
+  const name = (activeChat || "").replace("GROUP_", "");
+  setTimeout(() => toast(`⏰ Напоминание: ${name}`, true), min * 60000);
+  closeModal("mChatMenu");
+  toast(`Напомню через ${min} мин. (пока вкладка открыта)`, true);
+};
+window.addQuick = () => {                                              // 5 (30 в Premium)
+  const max = isPrem() ? 30 : FREE_QUICK;
+  if (qrList().length >= max) return toast(`Лимит ${max} быстрых ответов` + (isPrem() ? "" : ". В Premium — 30"));
+  const t = (prompt("Текст быстрого ответа:") || "").trim().slice(0, 300);
+  if (!t) return;
+  saveQr([...qrList(), t]);
+  showQuick();
+};
+window.exportChatJson = async () => {                                  // 6
+  if (!needPrem() || !chatBase) return;
+  const s = await get(ref(db, chatBase));
+  const arr = [];
+  s.forEach(c => {
+    const m = c.val();
+    if (m && !m.burn) arr.push({ from: m.from, type: m.type || "text", text: m.type === "photo" ? "[фото]" : m.text, time: m.time });
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(arr, null, 2)], { type: "application/json" }));
+  a.download = `chat-${activeChat}.json`;
+  a.click();
+  closeModal("mChatMenu");
+};
+const _chatStatsV6 = window.chatStats;
+window.chatStats = async () => {                                       // 7 (по дням в Premium)
+  if (!isPrem() || !chatBase) return _chatStatsV6();
+  closeModal("mChatMenu");
+  const s = await get(ref(db, chatBase));
+  const days = {};
+  let total = 0, mine = 0;
+  s.forEach(c => {
+    const m = c.val(); if (!m) return;
+    total++;
+    if (m.from === me.name) mine++;
+    const d = new Date(m.time).toLocaleDateString("ru-RU");
+    days[d] = (days[d] || 0) + 1;
+  });
+  $("listTitle").textContent = "Статистика чата (Premium)";
+  $("listBox").innerHTML = `Всего: <b>${total}</b>, мои: <b>${mine}</b><br>` +
+    Object.entries(days).slice(-14).map(([d, n]) => `<div class="logRow">${d}: ${n}</div>`).join("");
+  openModal("mList");
+};
+window.setMentionColor = () => {                                       // 8
+  if (!needPrem()) return;
+  const c = (prompt("Цвет подсветки упоминаний (#rrggbb):", localStorage.getItem("v7_mention") || "#ffa502") || "").trim();
+  if (!/^#[0-9a-f]{6}$/i.test(c)) return toast("Нужен формат #rrggbb");
+  localStorage.setItem("v7_mention", c);
+  applyV7();
+};
+window.showBgPresets = () => {                                         // 9
+  if (!needPrem() || !activeChat) return;
+  $("listTitle").textContent = "Фон чата (Premium)";
+  $("listBox").innerHTML = BG_PRESETS.map(([n, g], i) =>
+    `<div class="row" onclick="setChatGradient(${i})"><div class="grow"><div style="height:28px;border-radius:8px;background:${g};margin-bottom:4px"></div><b>${n}</b></div></div>`).join("");
+  openModal("mList");
+};
+window.setChatGradient = i => {
+  const g = BG_PRESETS[i][1];
+  localStorage.setItem("v7bg_" + activeChat, g);
+  $("msgs").style.background = g;
+  closeModal("mList");
+  toast("Фон применён", true);
+};
+window.toggleFrame = () => {                                           // 10
+  if (!needPrem()) return;
+  const on = !document.body.classList.contains("v7-frame");
+  document.body.classList.toggle("v7-frame", on);
+  localStorage.setItem("v7_frame", on ? "1" : "0");
+  buildV7();
+};
+const _oc7 = window.openChat;
+window.openChat = async t => {
+  await _oc7(t);
+  const g = localStorage.getItem("v7bg_" + t);
+  if (g) $("msgs").style.background = g;
+};
+function applyV7() {
+  const c = localStorage.getItem("v7_mention");
+  if (c) document.documentElement.style.setProperty("--mention", c);
+  else document.documentElement.style.removeProperty("--mention");
+  document.body.classList.toggle("v7-gold", localStorage.getItem("v7_gold") === "1");
+  document.body.classList.toggle("v7-frame", localStorage.getItem("v7_frame") === "1");
+}
+function buildV7() {
+  const box = $("v7Card"); if (!box) return;
+  box.innerHTML = `<h3 style="margin-bottom:6px">👑 Premium-функции</h3>` +
+    (isPrem() ? "" : `<div class="sub" style="margin-bottom:8px">Доступно с Premium. Ниже показано, что откроется.</div>`) +
+    `<div class="sub" style="margin-bottom:6px">Цвет моих сообщений:</div>` +
+    `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">` +
+    MSG_PALETTES.map(([n, hex], i) => `<button class="btn alt" style="width:auto;margin:0;padding:6px 10px;background:${hex};color:#fff" onclick="setMsgPalette('${hex}')">${n}</button>`).join("") + `</div>` +
+    `<button class="btn alt" onclick="toggleGold()">✨ Золотой интерфейс: ${document.body.classList.contains("v7-gold") ? "вкл" : "выкл"}</button>` +
+    `<button class="btn alt" onclick="toggleFrame()">🖼 Рамка моих сообщений: ${document.body.classList.contains("v7-frame") ? "вкл" : "выкл"}</button>` +
+    `<button class="btn alt" onclick="setMentionColor()">🎯 Цвет подсветки упоминаний</button>`;
+}
+$("v6Card").insertAdjacentHTML("beforebegin", '<div class="card" id="v7Card"></div>');
+$("mChatMenu").querySelector(".modal-content").insertAdjacentHTML("beforeend",
+  `<button class="btn premium menuBtn" onclick="exportChatJson()">🧾 Экспорт в JSON (Premium)</button>` +
+  `<button class="btn premium menuBtn" onclick="showBgPresets()">🎨 Градиентный фон чата (Premium)</button>`);
+
+/* ---- Админ (1–10) ---- */
+const admNicks = () => [...new Set(($("admNicks")?.value || "").split(/[\s,;]+/).map(s => normName(s).replace(/^@/, "")).filter(Boolean))];
+window.bulkPremium = async on => {                                     // 3, 4
+  if (!me || me.role !== "ADMIN") return;
+  const list = admNicks();
+  if (!list.length) return toast("Введите ники");
+  if (!confirm(`${on ? "Выдать" : "Снять"} Premium у ${list.length} пользователей?`)) return;
+  const res = await Promise.allSettled(list.map(async n => {
+    const s = await get(userRef(n));
+    if (!s.exists()) throw new Error("не найден: " + n);
+    await update(userRef(n), { premium: on });
+  }));
+  const ok = res.filter(r => r.status === "fulfilled").length;
+  logAdmin(`массово Premium ${on ? "выдан" : "снят"}: ${ok} из ${list.length}`);
+  toast(`Готово: ${ok} из ${list.length}`, true);
+};
+window.exportAdminLogCsv = async () => {                               // 1
+  const s = await get(ref(db, "adminLog"));
+  const rows = [["время", "кто", "действие"]].concat(
+    Object.values(s.val() || {}).sort((a, b) => a.time - b.time).map(e => [new Date(e.time).toISOString(), e.by, e.t]));
+  csvDownload("admin-log.csv", rows);
+};
+window.searchAdminLog = async () => {                                  // 2
+  const q = normName(prompt("Поиск в журнале (ник или слово):") || "");
+  if (!q) return;
+  const s = await get(ref(db, "adminLog"));
+  const entries = Object.values(s.val() || {}).filter(e => normName(e.by + " " + e.t).includes(q)).sort((a, b) => b.time - a.time).slice(0, 50);
+  $("adminLogBox").innerHTML = entries.length
+    ? entries.map(e => `<div class="logRow">${esc(e.by)}: ${esc(e.t)}<div class="logTime">${new Date(e.time).toLocaleString("ru-RU")}</div></div>`).join("")
+    : "Ничего не найдено";
+};
+window.listUsersBy = async kind => {                                   // 5, 6
+  const s = await get(ref(db, "users"));
+  const all = s.val() || {};
+  const names = Object.entries(all).filter(([, d]) => kind === "banned" ? d.banned : d.premium).map(([n]) => n);
+  $("listTitle").textContent = kind === "banned" ? "Забаненные" : "Premium-пользователи";
+  $("listBox").innerHTML = names.length
+    ? names.map(n => `<div class="row"><div class="grow"><b>@${esc(n)}</b></div>` +
+        (kind === "banned" ? `<button class="btn alt" style="width:auto;margin:0;padding:6px 10px" onclick="unbanUser('${encArg(n)}')">Разбан</button>` : "") + `</div>`).join("")
+    : "Список пуст";
+  openModal("mList");
+};
+window.unbanUser = async enc => {
+  const n = decodeURIComponent(enc);
+  await update(userRef(n), { banned: false });
+  logAdmin("разбан → " + n);
+  toast("Разбанен: " + n, true);
+  listUsersBy("banned");
+};
+window.regStats = async () => {                                        // 7
+  const s = await get(ref(db, "users"));
+  const counts = {};
+  Object.values(s.val() || {}).forEach(d => {
+    if (!d.createdAt || Date.now() - d.createdAt > 7 * DAY) return;
+    const k = new Date(d.createdAt).toLocaleDateString("ru-RU");
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  $("listTitle").textContent = "Регистрации за 7 дней";
+  $("listBox").innerHTML = `Всего: <b>${total}</b><br>` + Object.entries(counts).map(([d, n]) => `<div class="logRow">${d}: ${n}</div>`).join("");
+  openModal("mList");
+};
+window.clearClosedReports = async () => {                              // 8
+  if (!confirm("Удалить все закрытые жалобы?")) return;
+  const s = await get(ref(db, "reports"));
+  const ids = Object.entries(s.val() || {}).filter(([, r]) => r.status !== "open").map(([id]) => id);
+  await Promise.all(ids.map(id => remove(ref(db, "reports/" + id))));
+  logAdmin(`очищено закрытых жалоб: ${ids.length}`);
+  toast(`Удалено: ${ids.length}`, true);
+  loadAdminStats();
+};
+window.reportsByTarget = async () => {                                 // 9
+  const s = await get(ref(db, "reports"));
+  const cnt = {};
+  Object.values(s.val() || {}).forEach(r => { cnt[r.target] = (cnt[r.target] || 0) + 1; });
+  const rows = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 30);
+  $("listTitle").textContent = "Жалобы по пользователям";
+  $("listBox").innerHTML = rows.length ? rows.map(([n, c]) => `<div class="logRow">@${esc(n)} — жалоб: ${c}</div>`).join("") : "Жалоб нет";
+  openModal("mList");
+};
+window.toggleRegistration = async () => {                              // 10
+  const s = await get(ref(db, "settings/registrationOpen"));
+  const open = s.val() !== false;
+  await set(ref(db, "settings/registrationOpen"), !open);
+  logAdmin(`регистрация ${!open ? "открыта" : "закрыта"}`);
+  toast(`Регистрация ${!open ? "открыта" : "закрыта"}`, true);
+};
+
+const admHost = $("vAdmin").querySelector("main > div");
+admHost.insertAdjacentHTML("afterbegin", `<div class="card" id="admV7">
+  <h3 style="margin-bottom:10px">🛠 Инструменты v7</h3>
+  <button class="btn alt" onclick="exportAdminLogCsv()">📤 Журнал админа в CSV</button>
+  <button class="btn alt" onclick="searchAdminLog()">🔎 Поиск в журнале</button>
+  <textarea id="admNicks" rows="2" placeholder="Ники через пробел или запятую"></textarea>
+  <button class="btn" onclick="bulkPremium(true)">👑 Выдать Premium списком</button>
+  <button class="btn danger" onclick="bulkPremium(false)">Снять Premium списком</button>
+  <button class="btn alt" onclick="listUsersBy('banned')">🚫 Забаненные</button>
+  <button class="btn alt" onclick="listUsersBy('premium')">👑 Premium-пользователи</button>
+  <button class="btn alt" onclick="regStats()">📅 Регистрации за 7 дней</button>
+  <button class="btn alt" onclick="clearClosedReports()">🗑 Очистить закрытые жалобы</button>
+  <button class="btn alt" onclick="reportsByTarget()">📊 Жалобы по пользователям</button>
+  <button class="btn alt" onclick="toggleRegistration()">🔐 Открыть / закрыть регистрацию</button>
+</div>`);
+
+/* Инициализация */
+applyV7();
+buildV7();
+setInterval(() => {
+  if (!profile || isPrem()) return;
+  document.body.classList.remove("v7-gold", "v7-frame");
+  document.documentElement.style.removeProperty("--mention");
+}, 10000);
 
 pxInitUI();
 </script>
