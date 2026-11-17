@@ -686,7 +686,7 @@ body.f-mention .msg.mention{box-shadow:0 0 0 2px var(--mention,var(--gold))}
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, onChildRemoved, remove, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, get, update, onValue, onChildAdded, onChildChanged, onChildRemoved, remove, runTransaction, onDisconnect, query, orderByKey, limitToLast, limitToFirst, startAt, endAt, endBefore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBkNR9ZrRFwB39CYlhk2CNz4jWD-WGWuD8", authDomain: "chat-d7385.firebaseapp.com", databaseURL: "https://chat-d7385-default-rtdb.europe-west1.firebasedatabase.app", projectId: "chat-d7385", storageBucket: "chat-d7385.firebasestorage.app", messagingSenderId: "421202112650", appId: "1:421202112650:web:7b53494f3d32fd02a87d73" };
@@ -1576,14 +1576,18 @@ async function renderChats(filter = "") {
 }
 let searchTimer;
 $("searchInput").oninput = () => { clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 300); };
+let searchSeq = 0;
 async function doSearch() {
   const q = normName($("searchInput").value);
   if (!q) return renderChats();
-  const snap = await get(ref(db, "users"));
-  if (!snap.exists()) return;
+  const seq = ++searchSeq;
+  /* Поиск по префиксу ника: читаем только 30 совпадений, а не всю ветку users */
+  const snap = await get(query(ref(db, "users"), orderByKey(), startAt(q), endAt(q + ""), limitToFirst(30)));
+  if (seq !== searchSeq) return;
+  if (!snap.exists()) { $("chatList").innerHTML = `<div class="sub center">Никого не найдено</div>`; return; }
   const users = snap.val();
   const names = Object.keys(users)
-    .filter(n => n.includes(q) && n !== me.name && !(profile.blocked && profile.blocked[n]))
+    .filter(n => n !== me.name && !(profile.blocked && profile.blocked[n]))
     .sort((a, b) => (!!users[b]?.premium - !!users[a]?.premium) || a.localeCompare(b));
   $("chatList").innerHTML = names.map(n => {
     const u = users[n] || {};
@@ -1595,6 +1599,36 @@ function applyWallpaper() {
   $("chatWallpaper").style.opacity = profile.wallpaper ? ".4" : "0";
 }
 let unsubChat = null, activeChat = null, chatBase = null, msgEls = {};
+const CHAT_PAGE = 50, CHAT_DOM_MAX = 300;
+/* Подгрузка более старых сообщений порциями по 50 */
+window.loadOlder = async () => {
+  if (!chatBase) return;
+  const keys = Object.keys(msgEls).sort();
+  const btn = $("olderBtn");
+  if (!keys.length || !btn) return;
+  btn.querySelector("button").textContent = "Загрузка...";
+  const snap = await get(query(ref(db, chatBase), orderByKey(), endBefore(keys[0]), limitToLast(CHAT_PAGE)));
+  const items = [];
+  snap.forEach(c => { items.push([c.key, c.val()]); });
+  const cleared = Number(localStorage.getItem("cleared_" + chatBase) || 0);
+  const isGroup = chatBase.startsWith("groupMessages/");
+  const wrap = $("msgsWrap");
+  const before = wrap.scrollHeight;
+  const frag = document.createDocumentFragment();
+  items.forEach(([k, m]) => {
+    if (!m || (m.time || 0) <= cleared) return;
+    const div = document.createElement("div");
+    div.dataset.key = k;
+    msgEls[k] = div;
+    attachPress(div, k);
+    paintMsg(div, k, m, isGroup);
+    frag.appendChild(div);
+  });
+  btn.after(frag);
+  wrap.scrollTop += wrap.scrollHeight - before;
+  if (items.length < CHAT_PAGE) btn.style.display = "none";
+  else btn.querySelector("button").textContent = "⬆ Загрузить раньше";
+};
 window.openChat = async function (target) {
   markRead(target);
   activeChat = target;
@@ -1606,9 +1640,12 @@ window.openChat = async function (target) {
   if (isGroup) $("chatAvatar").innerHTML = "👥";
   else {
     const u = await getUser(target);
+    const tt = $("chatTitle");
+    if (tt.firstChild && tt.firstChild.nodeType === 3 && u.displayName) tt.firstChild.textContent = u.displayName;
     $("chatAvatar").innerHTML = u.avatar ? `<img src="${u.avatar}">` : target[0].toUpperCase();
   }
-  $("msgs").innerHTML = ""; msgEls = {};
+  $("msgs").innerHTML = `<div id="olderBtn" class="sub center" style="display:none"><button class="btn alt" style="margin:6px 0;padding:8px" onclick="loadOlder()">⬆ Загрузить раньше</button></div>`;
+  msgEls = {};
   show("vChat");
   applyWallpaper();
   const entry = toArr(profile.chats).find(c => c.name === target);
@@ -1620,15 +1657,21 @@ window.openChat = async function (target) {
   if (unsubChat) unsubChat();
   chatBase = isGroup ? "groupMessages/" + target : "chats/" + chatKey(me.name, target);
   const path = ref(db, chatBase);
-  const u1 = onChildAdded(path, snap => {
+  /* Грузим только последние CHAT_PAGE сообщений, а не всю историю чата */
+  const u1 = onChildAdded(query(path, limitToLast(CHAT_PAGE)), snap => {
     const m = snap.val(); if (!m) return;
     if ((m.time || 0) <= Number(localStorage.getItem("cleared_" + chatBase) || 0)) return;
     const div = document.createElement("div");
+    div.dataset.key = snap.key;
     msgEls[snap.key] = div;
     attachPress(div, snap.key);
     paintMsg(div, snap.key, m, isGroup);
     $("msgs").appendChild(div);
+    /* Держим в DOM не больше CHAT_DOM_MAX сообщений: старые убираем, чтобы не тормозило */
+    const rows = $("msgs").querySelectorAll(":scope > [data-key]");
+    if (rows.length > CHAT_DOM_MAX) { const old = rows[0]; delete msgEls[old.dataset.key]; old.remove(); }
     $("msgsWrap").scrollTop = $("msgsWrap").scrollHeight;
+    if (snap.key && $("olderBtn")) $("olderBtn").style.display = "block";
   });
   const u2 = onChildChanged(path, snap => { const d = msgEls[snap.key]; if (d) paintMsg(d, snap.key, snap.val(), isGroup); });
   const u3 = onChildRemoved(path, snap => { const d = msgEls[snap.key]; if (d) d.remove(); delete msgEls[snap.key]; });
@@ -1717,16 +1760,16 @@ async function sendTo(target, text, isSticker = false, type = "text") {
   if (!target.startsWith("GROUP_")) {
     window._lastSend = Date.now();
     if (isBlockedByMe(target)) return toast("Пользователь в вашем чёрном списке");
-    const tu = await getUser(target, true);
-    if (tu.blocked && tu.blocked[me.name]) return toast("Пользователь ограничил сообщения");
+    /* Читаем только поле blocked собеседника, а не весь его профиль (там есть пароль и устройства) */
+    const tb = (await get(ref(db, `users/${target}/blocked`))).val() || {};
+    if (tb[me.name]) return toast("Пользователь ограничил сообщения");
   }
   const isGroup = target.startsWith("GROUP_");
   const base = isGroup ? "groupMessages/" + target : "chats/" + chatKey(me.name, target);
   await push(ref(db, base), { from: me.name, text, isSticker, type, time: Date.now() });
   if (!isGroup) {
     const preview = { gift: "🎁 Подарок", photo: "Фото", trade: "🔄 Обмен", post: "📢 Пост", sticker: "🧩 Стикер", nftgift: "🖼️ NFT" }[type] || text;
-    const other = await getUser(target, true);
-    const oc = toArr(other.chats);
+    const oc = toArr((await get(ref(db, `users/${target}/chats`))).val());
     const f = oc.find(c => c.name === me.name);
     if (f) { f.last = preview; f.time = Date.now(); } else oc.push({ name: me.name, time: Date.now(), last: preview });
     await update(userRef(target), { chats: oc });
@@ -1843,18 +1886,19 @@ $("postFile").onchange = async e => {
 };
 async function renderFeed() {
   if (!me) return;
-  const snap = await get(ref(db, "posts"));
+  /* Берём только последние посты (ключи постов начинаются с времени), а не всю ленту */
+  const snap = await get(query(ref(db, "posts"), limitToLast(feedMode === "all" ? 30 : 300)));
   const list = snap.exists()
     ? Object.entries(snap.val())
         .sort((a, b) => b[1].time - a[1].time)
-        .slice(0, 30)
         .filter(([, p]) => feedMode === "all" || p.author === me.name)
+        .slice(0, 30)
     : [];
   await Promise.all(list.map(([, p]) => getUser(p.author)));
   $("feedList").innerHTML = list.length ? list.map(([id, p]) => {
     const liked = p.likes && p.likes[me.name];
     const count = Object.keys(p.likes || {}).length;
-    const imgs = toArr(p.images).map(src => `<img src="${src}" style="width:100%;border-radius:12px;margin-bottom:6px">`).join("");
+    const imgs = toArr(p.images).map(src => `<img loading="lazy" decoding="async" src="${src}" style="width:100%;border-radius:12px;margin-bottom:6px">`).join("");
     return `<div class="card">
       <div style="font-weight:800;margin-bottom:6px;color:${userCache[p.author]?.premium && userCache[p.author]?.nameColor ? userCache[p.author].nameColor : "inherit"}">@${esc(p.author)} ${userCache[p.author]?.premium ? badgeIcon("star", 16) : ""}</div>
       ${imgs}
@@ -2492,7 +2536,25 @@ function startNotifyWatch() {
     lastChatsSig = sig;
   });
 }
+/* Отображаемое имя (ник-логин не меняется) */
+const dn = n => (userCache[n] && userCache[n].displayName) || n;
+document.head.insertAdjacentHTML("beforeend", `<style>
+#nxBanner{position:fixed;top:-120px;left:50%;transform:translateX(-50%);width:min(92vw,420px);z-index:10000;background:var(--panel,#1c2733);color:var(--text,#fff);border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:top .3s ease;cursor:pointer}
+#nxBanner.show{top:12px}
+#nxBanner b{display:block;margin-bottom:2px}
+#nxBanner div{opacity:.85;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style><div id="nxBanner"></div>`);
+function showBanner(name, text) {
+  const b = document.getElementById("nxBanner");
+  const who = name.replace("GROUP_", "");
+  b.innerHTML = `<b>${esc(dn(who))}</b><div>${esc(text || "Новое сообщение")}</div>`;
+  b.onclick = () => { b.classList.remove("show"); openChat(name); };
+  b.classList.add("show");
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.remove("show"), 4000);
+}
 function notifyNew(name, text) {
+  showBanner(name, text);
   if (uiOn("ui_sound")) beep();
   if (uiOn("ui_notify") && "Notification" in window && Notification.permission === "granted" && document.hidden) {
     new Notification(`Nexus: ${name.replace("GROUP_", "")}`, { body: text || "Новое сообщение" });
@@ -3539,7 +3601,7 @@ clrBtn.onclick = () => { $("msgInput").value = ""; updCnt(); };
 $("sendBtn").addEventListener("click", () => { if (zOn("blursend")) setTimeout(() => $("msgInput").blur(), 0); });
 
 window.copyLastIn = async () => {
-  const last = [...$("msgs").children].filter(d => !d.classList.contains("out") && !d.classList.contains("z-date") && d.style.display !== "none").pop();
+  const last = [...$("msgs").children].filter(d => d.dataset.key && !d.classList.contains("out") && !d.classList.contains("z-date") && d.style.display !== "none").pop();
   if (!last) return toast("Нет входящих сообщений");
   try { await navigator.clipboard.writeText(last.innerText.split("\n")[0].trim()); toast("Скопировано", true); }
   catch (e) { toast("Не удалось скопировать"); }
@@ -4073,6 +4135,18 @@ Object.assign(window, {
 
 /* Вход в лабораторию из Настроек и быстрый запуск Ctrl+Enter */
 $("z9Card").insertAdjacentHTML("beforeend", `<button class="btn" onclick="nexOpen()">🧪 NEX-лаборатория и боты</button>`);
+$("z9Card").insertAdjacentHTML("beforebegin", `<div class="card"><h3 style="margin-bottom:6px">✏️ Смена имени</h3>
+  <div class="sub" style="margin-bottom:8px">Отображаемое имя видят собеседники в чатах. Ник для входа остаётся прежним: от него зависят история переписки и ваши посты.</div>
+  <input id="dnInput" maxlength="24" placeholder="Новое имя (до 24 символов)">
+  <button class="btn" onclick="saveDisplayName()">Сохранить имя</button></div>`);
+window.saveDisplayName = async () => {
+  const v = document.getElementById("dnInput").value.trim().slice(0, 24);
+  if (!v) return toast("Введите имя");
+  await update(userRef(me.name), { displayName: v });
+  profile.displayName = v;
+  userCache[me.name] = { ...(userCache[me.name] || {}), displayName: v };
+  toast("Имя изменено", true);
+};
 document.addEventListener("keydown", e => {
   if (e.ctrlKey && e.key === "Enter" && nexLabEl().style.display === "block" && nexTabName === "code") {
     e.preventDefault(); nexRunCode();
